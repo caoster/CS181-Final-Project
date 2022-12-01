@@ -3,45 +3,64 @@ from utils import Piece
 
 
 class Texture:
-    def __init__(self):
+    def __init__(self, scale: bool):
         self.textures = {
-            "NoneType": PhotoImage(file="imgs/piece_0.png").zoom(2, 2),
-            "BGeneral": PhotoImage(file="imgs/piece_1.png").zoom(2, 2),
-            "BAdvisor": PhotoImage(file="imgs/piece_2.png").zoom(2, 2),
-            "BElephant": PhotoImage(file="imgs/piece_3.png").zoom(2, 2),
-            "BHorse": PhotoImage(file="imgs/piece_4.png").zoom(2, 2),
-            "BChariot": PhotoImage(file="imgs/piece_5.png").zoom(2, 2),
-            "BCannon": PhotoImage(file="imgs/piece_6.png").zoom(2, 2),
-            "BSoldier": PhotoImage(file="imgs/piece_7.png").zoom(2, 2),
-            "RGeneral": PhotoImage(file="imgs/piece_8.png").zoom(2, 2),
-            "RAdvisor": PhotoImage(file="imgs/piece_9.png").zoom(2, 2),
-            "RElephant": PhotoImage(file="imgs/piece_10.png").zoom(2, 2),
-            "RHorse": PhotoImage(file="imgs/piece_11.png").zoom(2, 2),
-            "RChariot": PhotoImage(file="imgs/piece_12.png").zoom(2, 2),
-            "RCannon": PhotoImage(file="imgs/piece_13.png").zoom(2, 2),
-            "RSoldier": PhotoImage(file="imgs/piece_14.png").zoom(2, 2)
+            "NoneType": PhotoImage(file="imgs/piece_0.png"),
+            "BGeneral": PhotoImage(file="imgs/piece_1.png"),
+            "BAdvisor": PhotoImage(file="imgs/piece_2.png"),
+            "BElephant": PhotoImage(file="imgs/piece_3.png"),
+            "BHorse": PhotoImage(file="imgs/piece_4.png"),
+            "BChariot": PhotoImage(file="imgs/piece_5.png"),
+            "BCannon": PhotoImage(file="imgs/piece_6.png"),
+            "BSoldier": PhotoImage(file="imgs/piece_7.png"),
+            "RGeneral": PhotoImage(file="imgs/piece_8.png"),
+            "RAdvisor": PhotoImage(file="imgs/piece_9.png"),
+            "RElephant": PhotoImage(file="imgs/piece_10.png"),
+            "RHorse": PhotoImage(file="imgs/piece_11.png"),
+            "RChariot": PhotoImage(file="imgs/piece_12.png"),
+            "RCannon": PhotoImage(file="imgs/piece_13.png"),
+            "RSoldier": PhotoImage(file="imgs/piece_14.png")
         }
+        if scale:
+            for i, j in self.textures.items():
+                self.textures[i] = j.zoom(2, 2)
 
     def __getitem__(self, item: Piece):
         return self.textures[item.name]
 
 
 class GameView:
-    def __init__(self):
-        self.root = Tk(className="Chinese Chess")
-        self.root.geometry("1100x1111")
-        self.frame = Frame(self.root)
-        self.frame.pack()
-        self.texture = Texture()
-        self.canvas = Canvas(self.frame, bg="black", width=1100, height=1111)
-        self.canvas.pack()
-        self.background = PhotoImage(file="imgs/Board.png")
-        self.canvas.create_image(1100 / 2, 1111 / 2, image=self.background)
-        self.model = None  # GameModel
-
-        self.canvas.bind_all("<Button-1>", self.clickCallbackFunc)
-        self.x_index = (111, 222, 333, 444, 555, 666, 777, 888, 999)
-        self.y_index = (66, 176, 286, 396, 506, 616, 726, 836, 946, 1056)
+    def __init__(self, scale: bool):
+        if scale:
+            self.root = Tk(className="Chinese Chess")
+            self.root.geometry("1100x1111")
+            self.root.resizable(False, False)
+            self.frame = Frame(self.root)
+            self.frame.pack()
+            self.texture = Texture(scale)
+            self.canvas = Canvas(self.frame, bg="black", width=1100, height=1111)
+            self.canvas.pack()
+            self.background = PhotoImage(file="imgs/Board.png")
+            self.canvas.create_image(1100 / 2, 1111 / 2, image=self.background)
+            self.model = None  # GameModel
+            self.canvas.bind_all("<Button-1>", self.clickCallbackFunc)
+            self.x_index = (111, 222, 333, 444, 555, 666, 777, 888, 999)
+            self.y_index = (66, 176, 286, 396, 506, 616, 726, 836, 946, 1056)
+        else:
+            self.root = Tk(className="Chinese Chess")
+            self.root.geometry("550x555")
+            self.root.resizable(False, False)
+            self.frame = Frame(self.root)
+            self.frame.pack()
+            self.texture = Texture(scale)
+            self.canvas = Canvas(self.frame, bg="black", width=550, height=555)
+            self.canvas.pack()
+            self.background = PhotoImage(file="imgs/Board.png").subsample(2, 2)
+            self.canvas.create_image(550 / 2, 555 / 2, image=self.background)
+            self.model = None  # GameModel
+            self.canvas.bind_all("<Button-1>", self.clickCallbackFunc)
+            self.x_index = (55, 111, 166, 222, 277, 333, 388, 444, 499)
+            self.y_index = (33, 88, 143, 198, 253, 308, 363, 418, 473, 528)
 
         for i in self.x_index:
             for j in self.y_index:
