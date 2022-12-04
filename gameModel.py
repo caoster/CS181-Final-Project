@@ -20,14 +20,56 @@ class GameModel:
         self.direction = True  # True for Red, False for Black
         self._draw()
 
-    def isValidMove(self, src_x, src_y, dst_x, dst_y) -> bool:
+    def isValidMove(self, src: tuple[int, int], dst: tuple[int, int]) -> bool:
+        src_x, src_y = src
         piece = self.board[src_x][src_y]
-        assert piece != Piece.NoneType
-        if Piece.diffSideOrEmpty(self.board[src_x][src_y], self.board[dst_x][dst_y]):
-            # TODO: check if valid move
-            return True
-        else:
-            return False
+        assert piece != Piece.NoneType, print("You shall not move a NoneType piece!")
+        return dst in self.getRange(src)
+
+    # Don't try to modify this function: it is strange and ugly but fully tested in CS132!
+    def getRange(self, position: tuple[int, int]) -> list[tuple[int, int]]:
+        x, y = position
+        pieceType = self.board[x][y]
+        result: list[tuple[int, int]] = []
+        if pieceType == Piece.NoneType:
+            return result
+
+        def checkForBlack(loc_x, loc_y):
+            return Piece.getSide(self.board[loc_x][loc_y]) != -1
+
+        def checkForRed(loc_x, loc_y):
+            return Piece.getSide(self.board[loc_x][loc_y]) != 1
+
+        if pieceType == Piece.BGeneral:  # 1
+            pass
+        elif pieceType == Piece.BAdvisor:  # 2
+            pass
+        elif pieceType == Piece.BElephant:  # 3
+            pass
+        elif pieceType == Piece.BHorse:  # 4
+            pass
+        elif pieceType == Piece.BChariot:  # 5
+            pass
+        elif pieceType == Piece.BCannon:  # 6
+            pass
+        elif pieceType == Piece.BSoldier:  # 7
+            pass
+        elif pieceType == Piece.RGeneral:  # 8
+            pass
+        elif pieceType == Piece.RAdvisor:  # 9
+            pass
+        elif pieceType == Piece.RElephant:  # 10
+            pass
+        elif pieceType == Piece.RHorse:  # 11
+            pass
+        elif pieceType == Piece.RChariot:  # 12
+            pass
+        elif pieceType == Piece.RCannon:  # 13
+            pass
+        elif pieceType == Piece.RSoldier:  # 14
+            pass
+
+        return result
 
     def startGame(self):
         # TODO: Call two agents
