@@ -27,6 +27,7 @@ class GameModel:
         return dst in self.getRange(src)
 
     # Don't try to modify this function: it is strange and ugly but fully tested in CS132!
+    # TODO: declare this function out of the file
     def getRange(self, position: tuple[int, int]) -> list[tuple[int, int]]:
         x, y = position
         pieceType = self.board[x][y]
@@ -34,24 +35,124 @@ class GameModel:
         if pieceType == Piece.NoneType:
             return result
 
+        def checkEmpty(loc_x, loc_y):
+            return self.board[loc_x][loc_y] == Piece.NoneType
+
+        def inRange(loc_x, loc_y):
+            return 0 < loc_x < 10 and 0 < loc_y < 11
+
         def checkForBlack(loc_x, loc_y):
-            return Piece.getSide(self.board[loc_x][loc_y]) != -1
+            if Piece.getSide(self.board[loc_x][loc_y]) != -1:
+                result.append((loc_x, loc_y))
 
         def checkForRed(loc_x, loc_y):
-            return Piece.getSide(self.board[loc_x][loc_y]) != 1
+            if Piece.getSide(self.board[loc_x][loc_y]) != 1:
+                result.append((loc_x, loc_y))
+
+        def safeCheckForBlack(loc_x, loc_y):
+            if inRange(loc_x, loc_y):
+                checkForBlack(loc_x, loc_y)
+
+        def safeCheckForRed(loc_x, loc_y):
+            if inRange(loc_x, loc_y):
+                checkForRed(loc_x, loc_y)
 
         if pieceType == Piece.BGeneral:  # 1
-            pass
+            if position == (4, 1):
+                checkForBlack(4, 2)
+                checkForBlack(5, 1)
+            elif position == (4, 2):
+                checkForBlack(4, 1)
+                checkForBlack(5, 2)
+                checkForBlack(4, 3)
+            elif position == (4, 3):
+                checkForBlack(4, 2)
+                checkForBlack(5, 3)
+            elif position == (5, 1):
+                checkForBlack(4, 1)
+                checkForBlack(5, 2)
+                checkForBlack(6, 1)
+            elif position == (5, 2):
+                checkForBlack(4, 2)
+                checkForBlack(5, 1)
+                checkForBlack(5, 3)
+                checkForBlack(6, 2)
+            elif position == (5, 3):
+                checkForBlack(5, 2)
+                checkForBlack(4, 3)
+                checkForBlack(6, 3)
+            elif position == (6, 1):
+                checkForBlack(5, 1)
+                checkForBlack(6, 2)
+            elif position == (6, 2):
+                checkForBlack(6, 1)
+                checkForBlack(5, 2)
+                checkForBlack(6, 3)
+            elif position == (6, 3):
+                checkForBlack(6, 2)
+                checkForBlack(5, 3)
+
         elif pieceType == Piece.BAdvisor:  # 2
-            pass
+            if position == (4, 1):
+                checkForBlack(5, 2)
+            elif position == (6, 1):
+                checkForBlack(5, 2)
+            elif position == (4, 3):
+                checkForBlack(5, 2)
+            elif position == (6, 3):
+                checkForBlack(5, 2)
+            elif position == (5, 2):
+                checkForBlack(4, 1)
+                checkForBlack(6, 1)
+                checkForBlack(4, 3)
+                checkForBlack(6, 3)
+
         elif pieceType == Piece.BElephant:  # 3
-            pass
+            if inRange(x - 1, y - 1) and checkEmpty(x - 1, y - 1) and 0 < y - 2 < 5:
+                safeCheckForBlack(x - 2, y - 2)
+            if inRange(x + 1, y - 1) and checkEmpty(x + 1, y - 1) and 0 < y - 2 < 5:
+                safeCheckForBlack(x + 2, y - 2)
+            if inRange(x - 1, y + 1) and checkEmpty(x - 1, y + 1) and 0 < y + 2 < 5:
+                safeCheckForBlack(x - 2, y + 2)
+            if inRange(x + 1, y + 1) and checkEmpty(x + 1, y + 1) and 0 < y + 2 < 5:
+                safeCheckForBlack(x + 2, y + 2)
+
         elif pieceType == Piece.BHorse:  # 4
-            pass
+            if inRange(x + 1, y) and checkEmpty(x + 1, y):
+                safeCheckForBlack(x + 2, y - 1)
+                safeCheckForBlack(x + 2, y + 1)
+            if inRange(x, y + 1) and checkEmpty(x, y + 1):
+                safeCheckForBlack(x + 1, y + 2)
+                safeCheckForBlack(x - 1, y + 2)
+            if inRange(x - 1, y) and checkEmpty(x - 1, y):
+                safeCheckForBlack(x - 2, y + 1)
+                safeCheckForBlack(x - 2, y - 1)
+            if inRange(x, y - 1) and checkEmpty(x, y - 1):
+                safeCheckForBlack(x - 1, y - 2)
+                safeCheckForBlack(x + 1, y - 2)
+
         elif pieceType == Piece.BChariot:  # 5
+            # TODO: here
             pass
+
         elif pieceType == Piece.BCannon:  # 6
-            pass
+            # Direction: right
+            for i in range(10):
+                if not inRange(x + i, y):
+                    break
+                if checkEmpty(x + i, y):
+                    result.append((x + i, y))
+                    continue
+                for j in range(i + 1, 10):
+                    if not inRange(x + j, y):
+                        break
+                    if not checkEmpty(x + j, y):
+                        if Piece.getSide(self.board[x + j][y]) == 1:
+                            result.append((x + j, y))
+                        break
+                break
+            # TODO: here
+
         elif pieceType == Piece.BSoldier:  # 7
             pass
         elif pieceType == Piece.RGeneral:  # 8
