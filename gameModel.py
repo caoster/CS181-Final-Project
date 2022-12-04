@@ -5,16 +5,15 @@ from gameView import GameView
 class GameModel:
     def __init__(self, canvas: GameView):
         self.board = [
-            [Piece.BChariot, Piece.BHorse, Piece.BElephant, Piece.BAdvisor, Piece.BGeneral, Piece.BAdvisor, Piece.BElephant, Piece.BHorse, Piece.BChariot],
-            [Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType],
-            [Piece.NoneType, Piece.BCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.BCannon, Piece.NoneType],
-            [Piece.BSoldier, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.BSoldier],
-            [Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType],
-            [Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType],
-            [Piece.RSoldier, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.RSoldier],
-            [Piece.NoneType, Piece.RCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RCannon, Piece.NoneType],
-            [Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType],
-            [Piece.RChariot, Piece.RHorse, Piece.RElephant, Piece.RAdvisor, Piece.RGeneral, Piece.RAdvisor, Piece.RElephant, Piece.RHorse, Piece.RChariot]
+            [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot],
+            [Piece.BHorse, Piece.NoneType, Piece.BCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RCannon, Piece.NoneType, Piece.RHorse],
+            [Piece.BElephant, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RElephant],
+            [Piece.BAdvisor, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RAdvisor],
+            [Piece.BGeneral, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RGeneral],
+            [Piece.BAdvisor, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RAdvisor],
+            [Piece.BElephant, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RElephant],
+            [Piece.BHorse, Piece.NoneType, Piece.BCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RCannon, Piece.NoneType, Piece.RHorse],
+            [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot]
         ]
         self.canvas = canvas
         self.canvas.setModel(self)
@@ -22,9 +21,9 @@ class GameModel:
         self._draw()
 
     def isValidMove(self, src_x, src_y, dst_x, dst_y) -> bool:
-        piece = self.board[src_y][src_x]
+        piece = self.board[src_x][src_y]
         assert piece != Piece.NoneType
-        if Piece.diffSideOrEmpty(self.board[src_y][src_x], self.board[dst_y][dst_x]):
+        if Piece.diffSideOrEmpty(self.board[src_x][src_y], self.board[dst_x][dst_y]):
             # TODO: check if valid move
             return True
         else:
@@ -57,8 +56,8 @@ class GameModel:
         # return 3 for draw(?)
         pass
 
-    def _draw(self):
+    def _draw(self) -> None:
         self.canvas.draw(self.board)
 
-    def startApp(self):
+    def startApp(self) -> None:
         self.canvas.startApp()

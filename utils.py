@@ -36,3 +36,6 @@ class Piece(enum.Enum):
     @staticmethod
     def diffSideOrEmpty(piece1, piece2) -> int:
         return Piece.getSide(piece1) * Piece.getSide(piece2) != 1
+
+    def __str__(self):
+        return self.name

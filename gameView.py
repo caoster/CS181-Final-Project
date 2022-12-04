@@ -69,8 +69,7 @@ class GameView:
     def draw(self, grid):
         for i in range(9):
             for j in range(10):
-                # print(self.canvas.find_closest(self.x_index[i], self.y_index[j])[0])
-                self.canvas.itemconfigure(self.canvas.find_closest(self.x_index[i], self.y_index[j])[0], image=self.texture[grid[j][i]])
+                self.canvas.itemconfigure(self.canvas.find_closest(self.x_index[i], self.y_index[j])[0], image=self.texture[grid[i][j]])
         self.canvas.update()
 
     def clickCallbackFunc(self, event: Event):
