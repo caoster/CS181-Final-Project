@@ -1,8 +1,13 @@
+from typing import Final
+
 from utils import Piece
 from gameView import GameView
 
 
 class GameModel:
+    RED: Final[bool] = True
+    BLACK: Final[bool] = False
+
     def __init__(self, canvas: GameView):
         self.board = [
             [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot],
@@ -17,7 +22,7 @@ class GameModel:
         ]
         self.canvas = canvas
         self.canvas.setModel(self)
-        self.direction = True  # True for Red, False for Black
+        self.direction = GameModel.RED
         self._draw()
 
     def isValidMove(self, src: tuple[int, int], dst: tuple[int, int]) -> bool:
@@ -423,11 +428,19 @@ class GameModel:
 
         return result
 
+    def getSide(self, side: bool) -> list[tuple[int, int]]:
+        v = -1  # Black
+        if side:
+            v = 1  # Red
+        result = []
+        for i, x in enumerate(self.board):
+            result += [(i, j) for j, y in enumerate(x) if Piece.getSide(y) == v]
+        return result
+
     def startGame(self):
         # TODO: Call two agents
         while True:
             # Some agent
-            self.direction = not self.direction
             result = self._matchOver()
             if result == 0:
                 continue
@@ -440,15 +453,41 @@ class GameModel:
             else:
                 # Draw?
                 pass
+            self.direction = not self.direction
         pass
 
     def _matchOver(self) -> int:
-        # TODO: helper function: check whether the match is over
         # return 0 for not over
         # return 1 for Red winning
         # return 2 for Black winning
         # return 3 for draw(?)
-        pass
+        justMoved = self.direction
+        if not any(Piece.BGeneral in i for i in self.board):
+            return 1
+        elif not any(Piece.RGeneral in i for i in self.board):
+            return 2
+
+        # TODO: Flying General
+
+        redLose = True
+        all_red = self.getSide(GameModel.RED)
+        for redPiece in all_red:
+            if self.getRange(redPiece):
+                redLose = False
+                break
+        if redLose:
+            return 1
+
+        blackLose = True
+        all_black = self.getSide(GameModel.BLACK)
+        for blackPiece in all_black:
+            if self.getRange(blackPiece):
+                blackLose = True
+                break
+        if blackLose:
+            return 2
+
+        return 0
 
     def _draw(self) -> None:
         self.canvas.draw(self.board)
