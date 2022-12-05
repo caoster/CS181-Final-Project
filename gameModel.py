@@ -28,7 +28,6 @@ class GameModel:
 
     # Don't try to modify this function: it is strange and ugly but fully tested in CS132!
     # TODO: declare this function out of the file
-    # FIXME: minus by 1, Matlab starts array with index 1
     def getRange(self, position: tuple[int, int]) -> list[tuple[int, int]]:
         x, y = position
         pieceType = self.board[x][y]
@@ -40,7 +39,7 @@ class GameModel:
             return self.board[loc_x][loc_y] == Piece.NoneType
 
         def inRange(loc_x, loc_y):
-            return 0 < loc_x < 10 and 0 < loc_y < 11
+            return 0 <= loc_x <= 9 and 0 <= loc_y <= 10
 
         def checkForBlack(loc_x, loc_y):
             if Piece.getSide(self.board[loc_x][loc_y]) != -1:
@@ -59,54 +58,54 @@ class GameModel:
                 checkForRed(loc_x, loc_y)
 
         if pieceType == Piece.BGeneral:  # 1
-            if position == (4, 1):
+            if position == (3, 0):
+                checkForBlack(3, 1)
+                checkForBlack(4, 0)
+            elif position == (3, 1):
+                checkForBlack(3, 0)
+                checkForBlack(4, 1)
+                checkForBlack(3, 2)
+            elif position == (3, 2):
+                checkForBlack(3, 1)
                 checkForBlack(4, 2)
-                checkForBlack(5, 1)
+            elif position == (4, 0):
+                checkForBlack(3, 0)
+                checkForBlack(4, 2)
+                checkForBlack(5, 0)
+            elif position == (4, 1):
+                checkForBlack(3, 1)
+                checkForBlack(4, 0)
+                checkForBlack(4, 2)
+                checkForBlack(6, 1)
             elif position == (4, 2):
                 checkForBlack(4, 1)
+                checkForBlack(3, 2)
                 checkForBlack(5, 2)
-                checkForBlack(4, 3)
-            elif position == (4, 3):
-                checkForBlack(4, 2)
-                checkForBlack(5, 3)
+            elif position == (5, 0):
+                checkForBlack(4, 0)
+                checkForBlack(5, 1)
             elif position == (5, 1):
+                checkForBlack(5, 0)
                 checkForBlack(4, 1)
                 checkForBlack(5, 2)
-                checkForBlack(6, 1)
             elif position == (5, 2):
+                checkForBlack(5, 1)
                 checkForBlack(4, 2)
-                checkForBlack(5, 1)
-                checkForBlack(5, 3)
-                checkForBlack(6, 2)
-            elif position == (5, 3):
-                checkForBlack(5, 2)
-                checkForBlack(4, 3)
-                checkForBlack(6, 3)
-            elif position == (6, 1):
-                checkForBlack(5, 1)
-                checkForBlack(6, 2)
-            elif position == (6, 2):
-                checkForBlack(6, 1)
-                checkForBlack(5, 2)
-                checkForBlack(6, 3)
-            elif position == (6, 3):
-                checkForBlack(6, 2)
-                checkForBlack(5, 3)
 
         elif pieceType == Piece.BAdvisor:  # 2
-            if position == (4, 1):
-                checkForBlack(5, 2)
-            elif position == (6, 1):
-                checkForBlack(5, 2)
-            elif position == (4, 3):
-                checkForBlack(5, 2)
-            elif position == (6, 3):
-                checkForBlack(5, 2)
+            if position == (3, 0):
+                checkForBlack(4, 1)
+            elif position == (5, 0):
+                checkForBlack(4, 1)
+            elif position == (3, 2):
+                checkForBlack(4, 1)
             elif position == (5, 2):
                 checkForBlack(4, 1)
-                checkForBlack(6, 1)
-                checkForBlack(4, 3)
-                checkForBlack(6, 3)
+            elif position == (4, 1):
+                checkForBlack(3, 0)
+                checkForBlack(5, 0)
+                checkForBlack(3, 2)
+                checkForBlack(5, 2)
 
         elif pieceType == Piece.BElephant:  # 3
             if inRange(x - 1, y - 1) and checkEmpty(x - 1, y - 1) and 0 <= y - 2 <= 4:
@@ -241,54 +240,54 @@ class GameModel:
                 safeCheckForBlack(x + 1, y)
 
         elif pieceType == Piece.RGeneral:  # 8
-            if position == (4, 10):
+            if position == (3, 9):
+                checkForRed(3, 8)
                 checkForRed(4, 9)
-                checkForRed(5, 10)
-            elif position == (5, 10):
-                checkForRed(4, 10)
-                checkForRed(6, 10)
-                checkForRed(5, 9)
-            elif position == (6, 10):
-                checkForRed(5, 10)
-                checkForRed(6, 9)
             elif position == (4, 9):
-                checkForRed(4, 8)
+                checkForRed(3, 9)
                 checkForRed(5, 9)
-                checkForRed(4, 10)
+                checkForRed(4, 8)
             elif position == (5, 9):
                 checkForRed(4, 9)
-                checkForRed(5, 10)
-                checkForRed(6, 9)
                 checkForRed(5, 8)
-            elif position == (6, 9):
-                checkForRed(5, 9)
-                checkForRed(6, 8)
-                checkForRed(6, 10)
+            elif position == (3, 8):
+                checkForRed(3, 7)
+                checkForRed(4, 8)
+                checkForRed(3, 9)
             elif position == (4, 8):
+                checkForRed(3, 8)
                 checkForRed(4, 9)
                 checkForRed(5, 8)
+                checkForRed(4, 7)
             elif position == (5, 8):
                 checkForRed(4, 8)
+                checkForRed(5, 7)
                 checkForRed(5, 9)
-                checkForRed(6, 8)
-            elif position == (6, 8):
+            elif position == (3, 7):
+                checkForRed(3, 8)
+                checkForRed(4, 7)
+            elif position == (4, 7):
+                checkForRed(3, 7)
+                checkForRed(4, 8)
+                checkForRed(5, 7)
+            elif position == (5, 7):
+                checkForRed(4, 7)
                 checkForRed(5, 8)
-                checkForRed(6, 9)
 
         elif pieceType == Piece.RAdvisor:  # 9
-            if position == (4, 10):
-                checkForRed(5, 9)
-            elif position == (4, 8):
-                checkForRed(5, 9)
-            elif position == (6, 8):
-                checkForRed(5, 9)
-            elif position == (6, 10):
-                checkForRed(5, 9)
+            if position == (3, 9):
+                checkForRed(4, 8)
+            elif position == (3, 7):
+                checkForRed(4, 8)
+            elif position == (5, 7):
+                checkForRed(4, 8)
             elif position == (5, 9):
                 checkForRed(4, 8)
-                checkForRed(4, 10)
-                checkForRed(6, 8)
-                checkForRed(6, 10)
+            elif position == (4, 8):
+                checkForRed(3, 7)
+                checkForRed(3, 9)
+                checkForRed(5, 7)
+                checkForRed(5, 9)
 
         elif pieceType == Piece.RElephant:  # 10
             if inRange(x - 1, y - 1) and checkEmpty(x - 1, y - 1) and 5 <= y - 2 <= 9:
