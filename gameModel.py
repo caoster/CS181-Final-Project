@@ -87,13 +87,13 @@ class GameModel:
                 checkForBlack(4, 2)
             elif position == (4, 0):
                 checkForBlack(3, 0)
-                checkForBlack(4, 2)
+                checkForBlack(4, 1)
                 checkForBlack(5, 0)
             elif position == (4, 1):
                 checkForBlack(3, 1)
                 checkForBlack(4, 0)
                 checkForBlack(4, 2)
-                checkForBlack(6, 1)
+                checkForBlack(5, 1)
             elif position == (4, 2):
                 checkForBlack(4, 1)
                 checkForBlack(3, 2)
@@ -468,7 +468,7 @@ class GameModel:
             self.board[src[0]][src[1]] = Piece.NoneType
 
             self._draw()
-            time.sleep(0.1)
+            time.sleep(1)
 
             result = self._matchOver()
             self.direction = not self.direction
