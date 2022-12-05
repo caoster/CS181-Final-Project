@@ -8,7 +8,7 @@ class GameModel:
     RED: Final[bool] = True
     BLACK: Final[bool] = False
 
-    def __init__(self, canvas: GameView):
+    def __init__(self, canvas: GameView, RedAgent, BlackAgent):
         self.board = [
             [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot],
             [Piece.BHorse, Piece.NoneType, Piece.BCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RCannon, Piece.NoneType, Piece.RHorse],
@@ -23,16 +23,22 @@ class GameModel:
         self.canvas = canvas
         self.canvas.setModel(self)
         self.direction = GameModel.RED
+        self._red_agent = RedAgent
+        self._red_agent.setGameModel(self)
+        self._black_agent = BlackAgent
+        self._black_agent.setGameModel(self)
         self._draw()
 
+    # Note that this function do not care which side you are
     def isValidMove(self, src: tuple[int, int], dst: tuple[int, int]) -> bool:
         src_x, src_y = src
         piece = self.board[src_x][src_y]
-        assert piece != Piece.NoneType, print("You shall not move a NoneType piece!")
+        if piece == Piece.NoneType:
+            return False
         return dst in self.getRange(src)
 
     # Don't try to modify this function: it is strange and ugly but fully tested in CS132!
-    # TODO: declare this function out of the file
+    # TODO: declare this function outside the file
     def getRange(self, position: tuple[int, int]) -> list[tuple[int, int]]:
         x, y = position
         pieceType = self.board[x][y]
@@ -432,42 +438,69 @@ class GameModel:
         v = -1  # Black
         if side:
             v = 1  # Red
-        result = []
-        for i, x in enumerate(self.board):
-            result += [(i, j) for j, y in enumerate(x) if Piece.getSide(y) == v]
-        return result
+        return self._find_all_position_that_satisfies(lambda a: Piece.getSide(a) == v)
+
+    # Return all locations of this kind of piece
+    def findPiece(self, piece: Piece) -> list[tuple[int, int]]:
+        return self._find_all_position_that_satisfies(lambda a: a == piece)
 
     def startGame(self):
-        # TODO: Call two agents
+        # TODO: deal with end game
         while True:
+            if self.direction == GameModel.RED:
+                src, dst = self._red_agent.step()
+            else:
+                src, dst = self._black_agent.step()
+            if not self.isValidMove(src, dst):
+                # Invalid move
+                pass
+            if (Piece.getSide(self.board[src[0]][src[1]]) == 1) != (self.direction == GameModel.RED):
+                # Agents should only move their own piece
+                pass
+
             # Some agent
             result = self._matchOver()
             if result == 0:
                 continue
             elif result == 1:
+                print("Red win!")
                 # Red wins
                 pass
             elif result == 2:
+                print("Black win!")
                 # Black wins
                 pass
             else:
+                print("Draw!")
                 # Draw?
                 pass
             self.direction = not self.direction
         pass
 
+    # return 0 for not over
+    # return 1 for Red winning
+    # return 2 for Black winning
+    # (Not implemented) return 3 for draw
     def _matchOver(self) -> int:
-        # return 0 for not over
-        # return 1 for Red winning
-        # return 2 for Black winning
-        # return 3 for draw(?)
-        justMoved = self.direction
         if not any(Piece.BGeneral in i for i in self.board):
-            return 1
+            return 1  # BlackGeneral captured, Red wins
         elif not any(Piece.RGeneral in i for i in self.board):
-            return 2
+            return 2  # RedGeneral captured, Black wins
 
-        # TODO: Flying General
+        justMoved = self.direction
+        redG_x, redG_y = self.findPiece(Piece.RGeneral)[0]
+        blackG_x, blackG_y = self.findPiece(Piece.BGeneral)[0]
+        if redG_x == blackG_x:
+            fly = True
+            for i in range(redG_y + 1, blackG_y):
+                if Piece.getSide(self.board[redG_x][i]) != 0:
+                    fly = False
+                    break
+            if fly:
+                if justMoved == GameModel.RED:
+                    return 2  # Black wins
+                else:
+                    return 1  # Red wins
 
         redLose = True
         all_red = self.getSide(GameModel.RED)
@@ -491,6 +524,12 @@ class GameModel:
 
     def _draw(self) -> None:
         self.canvas.draw(self.board)
+
+    def _find_all_position_that_satisfies(self, condition: callable) -> list[tuple[int, int]]:
+        result = []
+        for i, x in enumerate(self.board):
+            result += [(i, j) for j, y in enumerate(x) if condition(y)]
+        return result
 
     def startApp(self) -> None:
         self.canvas.startApp()

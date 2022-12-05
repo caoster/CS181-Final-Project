@@ -1,8 +1,10 @@
 import getopt
 import sys
 
+from ExampleAgent import ExampleAgent
 from gameModel import GameModel
 from gameView import GameView
+from utils import Piece
 
 
 def readConfig():
@@ -46,6 +48,8 @@ if __name__ == "__main__":
     print(sys.argv)
     config = readConfig()
 
+    red_agent = ExampleAgent(GameModel.RED)
+    black_agent = ExampleAgent(GameModel.BLACK)
     v = GameView(config[0])
-    m = GameModel(v)
+    m = GameModel(v, red_agent, black_agent)
     m.startApp()
