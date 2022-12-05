@@ -1,3 +1,4 @@
+import time
 from typing import Final
 
 from utils import Piece
@@ -49,8 +50,13 @@ class GameModel:
         def checkEmpty(loc_x, loc_y):
             return self.board[loc_x][loc_y] == Piece.NoneType
 
+        def inRangeAndEmpty(loc_x, loc_y):
+            if inRange(loc_x, loc_y):
+                return self.board[loc_x][loc_y] == Piece.NoneType
+            return False
+
         def inRange(loc_x, loc_y):
-            return 0 <= loc_x <= 9 and 0 <= loc_y <= 10
+            return 0 <= loc_x < 9 and 0 <= loc_y < 10
 
         def checkForBlack(loc_x, loc_y):
             if Piece.getSide(self.board[loc_x][loc_y]) != -1:
@@ -119,32 +125,32 @@ class GameModel:
                 checkForBlack(5, 2)
 
         elif pieceType == Piece.BElephant:  # 3
-            if inRange(x - 1, y - 1) and checkEmpty(x - 1, y - 1) and 0 <= y - 2 <= 4:
+            if inRangeAndEmpty(x - 1, y - 1) and 0 <= y - 2 <= 4:
                 safeCheckForBlack(x - 2, y - 2)
-            if inRange(x + 1, y - 1) and checkEmpty(x + 1, y - 1) and 0 <= y - 2 <= 4:
+            if inRangeAndEmpty(x + 1, y - 1) and 0 <= y - 2 <= 4:
                 safeCheckForBlack(x + 2, y - 2)
-            if inRange(x - 1, y + 1) and checkEmpty(x - 1, y + 1) and 0 <= y + 2 <= 4:
+            if inRangeAndEmpty(x - 1, y + 1) and 0 <= y + 2 <= 4:
                 safeCheckForBlack(x - 2, y + 2)
-            if inRange(x + 1, y + 1) and checkEmpty(x + 1, y + 1) and 0 <= y + 2 <= 4:
+            if inRangeAndEmpty(x + 1, y + 1) and 0 <= y + 2 <= 4:
                 safeCheckForBlack(x + 2, y + 2)
 
         elif pieceType == Piece.BHorse:  # 4
-            if inRange(x + 1, y) and checkEmpty(x + 1, y):
+            if inRangeAndEmpty(x + 1, y):
                 safeCheckForBlack(x + 2, y - 1)
                 safeCheckForBlack(x + 2, y + 1)
-            if inRange(x, y + 1) and checkEmpty(x, y + 1):
+            if inRangeAndEmpty(x, y + 1):
                 safeCheckForBlack(x + 1, y + 2)
                 safeCheckForBlack(x - 1, y + 2)
-            if inRange(x - 1, y) and checkEmpty(x - 1, y):
+            if inRangeAndEmpty(x - 1, y):
                 safeCheckForBlack(x - 2, y + 1)
                 safeCheckForBlack(x - 2, y - 1)
-            if inRange(x, y - 1) and checkEmpty(x, y - 1):
+            if inRangeAndEmpty(x, y - 1):
                 safeCheckForBlack(x - 1, y - 2)
                 safeCheckForBlack(x + 1, y - 2)
 
         elif pieceType == Piece.BChariot:  # 5
             # Direction: right
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x + i, y):
                     break
                 if checkEmpty(x + i, y):
@@ -153,7 +159,7 @@ class GameModel:
                 checkForBlack(x + i, y)
                 break
             # Direction: left
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x - i, y):
                     break
                 if checkEmpty(x - i, y):
@@ -162,7 +168,7 @@ class GameModel:
                 checkForBlack(x - i, y)
                 break
             # Direction: up
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x, y - i):
                     break
                 if checkEmpty(x, y - i):
@@ -171,7 +177,7 @@ class GameModel:
                 checkForBlack(x, y - i)
                 break
             # Direction: down
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x, y + i):
                     break
                 if checkEmpty(x, y + i):
@@ -182,7 +188,7 @@ class GameModel:
 
         elif pieceType == Piece.BCannon:  # 6
             # Direction: right
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x + i, y):
                     break
                 if checkEmpty(x + i, y):
@@ -197,7 +203,7 @@ class GameModel:
                         break
                 break
             # Direction: left
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x - i, y):
                     break
                 if checkEmpty(x - i, y):
@@ -212,7 +218,7 @@ class GameModel:
                         break
                 break
             # Direction: up
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x, y - i):
                     break
                 if checkEmpty(x, y - i):
@@ -227,7 +233,7 @@ class GameModel:
                         break
                 break
             # Direction: down
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x, y + i):
                     break
                 if checkEmpty(x, y + i):
@@ -301,32 +307,32 @@ class GameModel:
                 checkForRed(5, 9)
 
         elif pieceType == Piece.RElephant:  # 10
-            if inRange(x - 1, y - 1) and checkEmpty(x - 1, y - 1) and 5 <= y - 2 <= 9:
-                checkForRed(x - 2, y - 2)
-            if inRange(x + 1, y - 1) and checkEmpty(x + 1, y - 1) and 5 <= y - 2 <= 9:
-                checkForRed(x + 2, y - 2)
-            if inRange(x - 1, y + 1) and checkEmpty(x - 1, y + 1) and 5 <= y + 2 <= 9:
-                checkForRed(x - 2, y + 2)
-            if inRange(x + 1, y + 1) and checkEmpty(x + 1, y + 1) and 5 <= y + 2 <= 9:
-                checkForRed(x + 2, y + 2)
+            if inRangeAndEmpty(x - 1, y - 1) and 5 <= y - 2 <= 9:
+                safeCheckForRed(x - 2, y - 2)
+            if inRangeAndEmpty(x + 1, y - 1) and 5 <= y - 2 <= 9:
+                safeCheckForRed(x + 2, y - 2)
+            if inRangeAndEmpty(x - 1, y + 1) and 5 <= y + 2 <= 9:
+                safeCheckForRed(x - 2, y + 2)
+            if inRangeAndEmpty(x + 1, y + 1) and 5 <= y + 2 <= 9:
+                safeCheckForRed(x + 2, y + 2)
 
         elif pieceType == Piece.RHorse:  # 11
-            if inRange(x + 1, y) and checkEmpty(x + 1, y):
-                checkForRed(x + 2, y - 1)
-                checkForRed(x + 2, y + 1)
-            if inRange(x, y + 1) and checkEmpty(x, y + 1):
-                checkForRed(x + 1, y + 2)
-                checkForRed(x - 1, y + 2)
-            if inRange(x - 1, y) and checkEmpty(x - 1, y):
-                checkForRed(x - 2, y + 1)
-                checkForRed(x - 2, y - 1)
-            if inRange(x, y - 1) and checkEmpty(x, y - 1):
-                checkForRed(x - 1, y - 2)
-                checkForRed(x + 1, y - 2)
+            if inRangeAndEmpty(x + 1, y):
+                safeCheckForRed(x + 2, y - 1)
+                safeCheckForRed(x + 2, y + 1)
+            if inRangeAndEmpty(x, y + 1):
+                safeCheckForRed(x + 1, y + 2)
+                safeCheckForRed(x - 1, y + 2)
+            if inRangeAndEmpty(x - 1, y):
+                safeCheckForRed(x - 2, y + 1)
+                safeCheckForRed(x - 2, y - 1)
+            if inRangeAndEmpty(x, y - 1):
+                safeCheckForRed(x - 1, y - 2)
+                safeCheckForRed(x + 1, y - 2)
 
         elif pieceType == Piece.RChariot:  # 12
             # Direction: right
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x + i, y):
                     break
                 if checkEmpty(x + i, y):
@@ -335,7 +341,7 @@ class GameModel:
                 checkForRed(x + i, y)
                 break
             # Direction: left
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x - i, y):
                     break
                 if checkEmpty(x - i, y):
@@ -344,7 +350,7 @@ class GameModel:
                 checkForRed(x - i, y)
                 break
             # Direction: up
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x, y - i):
                     break
                 if checkEmpty(x, y - i):
@@ -353,7 +359,7 @@ class GameModel:
                 checkForRed(x, y - i)
                 break
             # Direction: down
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x, y + i):
                     break
                 if checkEmpty(x, y + i):
@@ -364,7 +370,7 @@ class GameModel:
 
         elif pieceType == Piece.RCannon:  # 13
             # Direction: right
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x + i, y):
                     break
                 if checkEmpty(x + i, y):
@@ -379,7 +385,7 @@ class GameModel:
                         break
                 break
             # Direction: left
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x - i, y):
                     break
                 if checkEmpty(x - i, y):
@@ -394,7 +400,7 @@ class GameModel:
                         break
                 break
             # Direction: up
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x, y - i):
                     break
                 if checkEmpty(x, y - i):
@@ -409,7 +415,7 @@ class GameModel:
                         break
                 break
             # Direction: down
-            for i in range(10):
+            for i in range(1, 10):
                 if not inRange(x, y + i):
                     break
                 if checkEmpty(x, y + i):
@@ -445,6 +451,7 @@ class GameModel:
         return self._find_all_position_that_satisfies(lambda a: a == piece)
 
     def startGame(self):
+        time.sleep(1)
         # TODO: deal with end game
         while True:
             if self.direction == GameModel.RED:
@@ -457,24 +464,28 @@ class GameModel:
             if (Piece.getSide(self.board[src[0]][src[1]]) == 1) != (self.direction == GameModel.RED):
                 # Agents should only move their own piece
                 pass
+            self.board[dst[0]][dst[1]] = self.board[src[0]][src[1]]
+            self.board[src[0]][src[1]] = Piece.NoneType
 
-            # Some agent
+            self._draw()
+            time.sleep(0.1)
+
             result = self._matchOver()
+            self.direction = not self.direction
             if result == 0:
                 continue
             elif result == 1:
                 print("Red win!")
+                break
                 # Red wins
-                pass
             elif result == 2:
                 print("Black win!")
+                break
                 # Black wins
-                pass
             else:
                 print("Draw!")
+                break
                 # Draw?
-                pass
-            self.direction = not self.direction
         pass
 
     # return 0 for not over
@@ -492,7 +503,7 @@ class GameModel:
         blackG_x, blackG_y = self.findPiece(Piece.BGeneral)[0]
         if redG_x == blackG_x:
             fly = True
-            for i in range(redG_y + 1, blackG_y):
+            for i in range(blackG_y + 1, redG_y):
                 if Piece.getSide(self.board[redG_x][i]) != 0:
                     fly = False
                     break
@@ -509,16 +520,16 @@ class GameModel:
                 redLose = False
                 break
         if redLose:
-            return 1
+            return 2
 
         blackLose = True
         all_black = self.getSide(GameModel.BLACK)
         for blackPiece in all_black:
             if self.getRange(blackPiece):
-                blackLose = True
+                blackLose = False
                 break
         if blackLose:
-            return 2
+            return 1
 
         return 0
 
@@ -532,4 +543,5 @@ class GameModel:
         return result
 
     def startApp(self) -> None:
+        self.startGame()
         self.canvas.startApp()

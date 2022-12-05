@@ -1,4 +1,6 @@
 from agent import Agent
+from gameModel import GameModel
+import random
 
 
 class ExampleAgent(Agent):
@@ -7,4 +9,11 @@ class ExampleAgent(Agent):
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         # TODO: implement basic step()
-        pass
+        self.game: GameModel
+        all_pieces = self.game.getSide(self.direction)
+        while True:
+            pos: tuple[int, int] = random.choice(all_pieces)
+            all_valid_move = self.game.getRange(pos)
+            if len(all_valid_move) == 0:
+                continue
+            return pos, random.choice(all_valid_move)
