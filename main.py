@@ -4,7 +4,6 @@ import sys
 from ExampleAgent import ExampleAgent
 from gameModel import GameModel
 from gameView import GameView
-from utils import Piece
 
 
 def readConfig():
