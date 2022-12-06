@@ -1,4 +1,5 @@
 from tkinter import Frame, Canvas, Tk, Event, PhotoImage
+
 from utils import Piece
 
 
@@ -31,37 +32,29 @@ class Texture:
 
 class GameView:
     def __init__(self, scale: bool):
+        self.root = Tk(className="Chinese Chess")
+        self.root.resizable(False, False)
+        self.frame = Frame(self.root)
+        self.frame.pack()
+        self.model = None  # GameModel
         if scale:
-            self.root = Tk(className="Chinese Chess")
             self.root.geometry("1100x1111")
-            self.root.resizable(False, False)
-            self.frame = Frame(self.root)
-            self.frame.pack()
-            self.texture = Texture(scale)
             self.canvas = Canvas(self.frame, bg="black", width=1100, height=1111)
-            self.canvas.pack()
             self.background = PhotoImage(file="imgs/Board.png")
             self.canvas.create_image(1100 / 2, 1111 / 2, image=self.background)
-            self.model = None  # GameModel
-            self.canvas.bind_all("<Button-1>", self.clickCallbackFunc)
             self.x_index = (111, 222, 333, 444, 555, 666, 777, 888, 999)
             self.y_index = (66, 176, 286, 396, 506, 616, 726, 836, 946, 1056)
         else:
-            self.root = Tk(className="Chinese Chess")
             self.root.geometry("550x555")
-            self.root.resizable(False, False)
-            self.frame = Frame(self.root)
-            self.frame.pack()
-            self.texture = Texture(scale)
             self.canvas = Canvas(self.frame, bg="black", width=550, height=555)
-            self.canvas.pack()
             self.background = PhotoImage(file="imgs/Board.png").subsample(2, 2)
             self.canvas.create_image(550 / 2, 555 / 2, image=self.background)
-            self.model = None  # GameModel
-            self.canvas.bind_all("<Button-1>", self.clickCallbackFunc)
             self.x_index = (55, 111, 166, 222, 277, 333, 388, 444, 499)
             self.y_index = (33, 88, 143, 198, 253, 308, 363, 418, 473, 528)
+        self.canvas.bind_all("<Button-1>", self.clickCallbackFunc)
+        self.canvas.pack()
 
+        self.texture = Texture(scale)
         for i in self.x_index:
             for j in self.y_index:
                 self.canvas.create_image(i, j, image=self.texture[Piece.NoneType])

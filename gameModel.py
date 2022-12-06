@@ -1,5 +1,6 @@
+import threading
 import time
-from typing import Final
+from typing import Final, Union
 
 from utils import Piece
 from gameView import GameView
@@ -9,8 +10,8 @@ class GameModel:
     RED: Final[bool] = True
     BLACK: Final[bool] = False
 
-    def __init__(self, canvas: GameView, RedAgent, BlackAgent):
-        self.board = [
+    def __init__(self, canvas: GameView, RedAgent, BlackAgent, interval: float):
+        self._board = [
             [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot],
             [Piece.BHorse, Piece.NoneType, Piece.BCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RCannon, Piece.NoneType, Piece.RHorse],
             [Piece.BElephant, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RElephant],
@@ -21,6 +22,7 @@ class GameModel:
             [Piece.BHorse, Piece.NoneType, Piece.BCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RCannon, Piece.NoneType, Piece.RHorse],
             [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot]
         ]
+        self.interval = interval
         self.canvas = canvas
         self.canvas.setModel(self)
         self.direction = GameModel.RED
@@ -33,37 +35,41 @@ class GameModel:
     # Note that this function do not care which side you are
     def isValidMove(self, src: tuple[int, int], dst: tuple[int, int]) -> bool:
         src_x, src_y = src
-        piece = self.board[src_x][src_y]
+        piece = self._board[src_x][src_y]
         if piece == Piece.NoneType:
             return False
         return dst in self.getRange(src)
 
+    # Make attribute board read-only to agent
+    @property
+    def board(self):
+        return self._board
+
     # Don't try to modify this function: it is strange and ugly but fully tested in CS132!
-    # TODO: declare this function outside the file
     def getRange(self, position: tuple[int, int]) -> list[tuple[int, int]]:
         x, y = position
-        pieceType = self.board[x][y]
+        pieceType = self._board[x][y]
         result: list[tuple[int, int]] = []
         if pieceType == Piece.NoneType:
             return result
 
         def checkEmpty(loc_x, loc_y):
-            return self.board[loc_x][loc_y] == Piece.NoneType
+            return self._board[loc_x][loc_y] == Piece.NoneType
 
         def inRangeAndEmpty(loc_x, loc_y):
             if inRange(loc_x, loc_y):
-                return self.board[loc_x][loc_y] == Piece.NoneType
+                return self._board[loc_x][loc_y] == Piece.NoneType
             return False
 
         def inRange(loc_x, loc_y):
             return 0 <= loc_x < 9 and 0 <= loc_y < 10
 
         def checkForBlack(loc_x, loc_y):
-            if Piece.getSide(self.board[loc_x][loc_y]) != -1:
+            if Piece.getSide(self._board[loc_x][loc_y]) != -1:
                 result.append((loc_x, loc_y))
 
         def checkForRed(loc_x, loc_y):
-            if Piece.getSide(self.board[loc_x][loc_y]) != 1:
+            if Piece.getSide(self._board[loc_x][loc_y]) != 1:
                 result.append((loc_x, loc_y))
 
         def safeCheckForBlack(loc_x, loc_y):
@@ -198,7 +204,7 @@ class GameModel:
                     if not inRange(x + j, y):
                         break
                     if not checkEmpty(x + j, y):
-                        if Piece.getSide(self.board[x + j][y]) == 1:
+                        if Piece.getSide(self._board[x + j][y]) == 1:
                             result.append((x + j, y))
                         break
                 break
@@ -213,7 +219,7 @@ class GameModel:
                     if not inRange(x - j, y):
                         break
                     if not checkEmpty(x - j, y):
-                        if Piece.getSide(self.board[x - j][y]) == 1:
+                        if Piece.getSide(self._board[x - j][y]) == 1:
                             result.append((x - j, y))
                         break
                 break
@@ -228,7 +234,7 @@ class GameModel:
                     if not inRange(x, y - j):
                         break
                     if not checkEmpty(x, y - j):
-                        if Piece.getSide(self.board[x][y - j]) == 1:
+                        if Piece.getSide(self._board[x][y - j]) == 1:
                             result.append((x, y - j))
                         break
                 break
@@ -243,7 +249,7 @@ class GameModel:
                     if not inRange(x, y + j):
                         break
                     if not checkEmpty(x, y + j):
-                        if Piece.getSide(self.board[x][y + j]) == 1:
+                        if Piece.getSide(self._board[x][y + j]) == 1:
                             result.append((x, y + j))
                         break
                 break
@@ -380,7 +386,7 @@ class GameModel:
                     if not inRange(x + j, y):
                         break
                     if not checkEmpty(x + j, y):
-                        if Piece.getSide(self.board[x + j][y]) == -1:
+                        if Piece.getSide(self._board[x + j][y]) == -1:
                             result.append((x + j, y))
                         break
                 break
@@ -395,7 +401,7 @@ class GameModel:
                     if not inRange(x - j, y):
                         break
                     if not checkEmpty(x - j, y):
-                        if Piece.getSide(self.board[x - j][y]) == -1:
+                        if Piece.getSide(self._board[x - j][y]) == -1:
                             result.append((x - j, y))
                         break
                 break
@@ -410,7 +416,7 @@ class GameModel:
                     if not inRange(x, y - j):
                         break
                     if not checkEmpty(x, y - j):
-                        if Piece.getSide(self.board[x][y - j]) == -1:
+                        if Piece.getSide(self._board[x][y - j]) == -1:
                             result.append((x, y - j))
                         break
                 break
@@ -425,7 +431,7 @@ class GameModel:
                     if not inRange(x, y + j):
                         break
                     if not checkEmpty(x, y + j):
-                        if Piece.getSide(self.board[x][y + j]) == -1:
+                        if Piece.getSide(self._board[x][y + j]) == -1:
                             result.append((x, y + j))
                         break
                 break
@@ -451,24 +457,23 @@ class GameModel:
         return self._find_all_position_that_satisfies(lambda a: a == piece)
 
     def startGame(self):
-        time.sleep(1)
-        # TODO: deal with end game
+        time.sleep(1)  # Always sleep one second before initiating
         while True:
             if self.direction == GameModel.RED:
                 src, dst = self._red_agent.step()
             else:
                 src, dst = self._black_agent.step()
             if not self.isValidMove(src, dst):
-                # Invalid move
-                pass
-            if (Piece.getSide(self.board[src[0]][src[1]]) == 1) != (self.direction == GameModel.RED):
-                # Agents should only move their own piece
-                pass
-            self.board[dst[0]][dst[1]] = self.board[src[0]][src[1]]
-            self.board[src[0]][src[1]] = Piece.NoneType
+                print("Invalid move!")
+                break
+            if (Piece.getSide(self._board[src[0]][src[1]]) == 1) != (self.direction == GameModel.RED):
+                print("You should only move your own piece!")
+                break
+            self._board[dst[0]][dst[1]] = self._board[src[0]][src[1]]
+            self._board[src[0]][src[1]] = Piece.NoneType
 
             self._draw()
-            time.sleep(1)
+            time.sleep(self.interval)
 
             result = self._matchOver()
             self.direction = not self.direction
@@ -493,9 +498,9 @@ class GameModel:
     # return 2 for Black winning
     # (Not implemented) return 3 for draw
     def _matchOver(self) -> int:
-        if not any(Piece.BGeneral in i for i in self.board):
+        if not any(Piece.BGeneral in i for i in self._board):
             return 1  # BlackGeneral captured, Red wins
-        elif not any(Piece.RGeneral in i for i in self.board):
+        elif not any(Piece.RGeneral in i for i in self._board):
             return 2  # RedGeneral captured, Black wins
 
         justMoved = self.direction
@@ -504,7 +509,7 @@ class GameModel:
         if redG_x == blackG_x:
             fly = True
             for i in range(blackG_y + 1, redG_y):
-                if Piece.getSide(self.board[redG_x][i]) != 0:
+                if Piece.getSide(self._board[redG_x][i]) != 0:
                     fly = False
                     break
             if fly:
@@ -534,11 +539,11 @@ class GameModel:
         return 0
 
     def _draw(self) -> None:
-        self.canvas.draw(self.board)
+        self.canvas.draw(self._board)
 
     def _find_all_position_that_satisfies(self, condition: callable) -> list[tuple[int, int]]:
         result = []
-        for i, x in enumerate(self.board):
+        for i, x in enumerate(self._board):
             result += [(i, j) for j, y in enumerate(x) if condition(y)]
         return result
 

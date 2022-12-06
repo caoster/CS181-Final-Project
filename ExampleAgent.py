@@ -8,8 +8,6 @@ class ExampleAgent(Agent):
         super().__init__(direction)
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
-        # TODO: implement basic step()
-        self.game: GameModel
         all_pieces = self.game.getSide(self.direction)
         while True:
             pos: tuple[int, int] = random.choice(all_pieces)
