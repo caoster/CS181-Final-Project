@@ -1,7 +1,7 @@
 from ExampleAgent import ExampleAgent
 from gameModel import GameModel
 from gameView import GameView
-from utils import Side
+from utils import Player
 
 
 def readConfig():
@@ -17,8 +17,8 @@ if __name__ == "__main__":
     config = readConfig()
     print(config)
 
-    red_agent = ExampleAgent(Side.Red)
-    black_agent = ExampleAgent(Side.Black)
-    v = GameView(config.res2)
-    m = GameModel(v, red_agent, black_agent, config.time)
-    m.startApp()
+    red_agent = ExampleAgent(Player.Red)
+    black_agent = ExampleAgent(Player.Black)
+    view = GameView(config.res2)
+    model = GameModel(view, red_agent, black_agent, config.time)
+    model.startApp()

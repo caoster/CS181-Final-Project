@@ -1,11 +1,11 @@
 from agent import Agent
 from gameModel import GameModel
-from utils import Side
+from utils import Player
 import random
 
 
 class ExampleAgent(Agent):
-    def __init__(self, direction: Side):
+    def __init__(self, direction: Player):
         super().__init__(direction)
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:

@@ -1,19 +1,19 @@
 import enum
 
 
-class Side(enum.Enum):
+class Player(enum.Enum):
     NoneType = 0
     Red = 1
     Black = -1
 
     @staticmethod
     def reverse(side):
-        if side == Side.NoneType:
-            return Side.NoneType
-        elif side == Side.Red:
-            return Side.Black
+        if side == Player.NoneType:
+            return Player.NoneType
+        elif side == Player.Red:
+            return Player.Black
         else:
-            return Side.Red
+            return Player.Red
 
 
 class Piece(enum.Enum):
@@ -36,13 +36,13 @@ class Piece(enum.Enum):
     RSoldier = 14
 
     @staticmethod
-    def getSide(piece) -> Side:
+    def getSide(piece) -> Player:
         if piece == Piece.NoneType:
-            return Side.NoneType
+            return Player.NoneType
         elif "R" == piece.name[0]:
-            return Side.Red
+            return Player.Red
         else:
-            return Side.Black
+            return Player.Black
 
     def __str__(self):
         return self.name
