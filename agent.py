@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from gameModel import GameModel
+from utils import Side
 
 
 class Agent(ABC):
-    def __init__(self, direction: bool):
+    def __init__(self, direction: Side):
         self.game: Optional[GameModel] = None
-        self.direction: bool = direction
+        self.direction: Side = direction
 
     def setGameModel(self, game: GameModel):
         self.game = game
