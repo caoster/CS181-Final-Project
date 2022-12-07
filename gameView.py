@@ -7,7 +7,7 @@ from utils import Piece, Player
 
 class Texture:
     def __init__(self, scale: bool):
-        self.textures = {
+        self._textures = {
             "NoneType": PhotoImage(file="img/piece_0.png"),
             "BGeneral": PhotoImage(file="img/piece_1.png"),
             "BAdvisor": PhotoImage(file="img/piece_2.png"),
@@ -22,14 +22,21 @@ class Texture:
             "RHorse": PhotoImage(file="img/piece_11.png"),
             "RChariot": PhotoImage(file="img/piece_12.png"),
             "RCannon": PhotoImage(file="img/piece_13.png"),
-            "RSoldier": PhotoImage(file="img/piece_14.png")
+            "RSoldier": PhotoImage(file="img/piece_14.png"),
+            "ChoiceBox": PhotoImage(file="img/ChoiceBox.png")
         }
+        self.size = 25
         if scale:
-            for i, j in self.textures.items():
-                self.textures[i] = j.zoom(2, 2)
+            self.size *= 2
+        if scale:
+            for i, j in self._textures.items():
+                self._textures[i] = j.zoom(2, 2)
+
+    def choiceBox(self):
+        return self._textures["ChoiceBox"]
 
     def __getitem__(self, item: Piece):
-        return self.textures[item.name]
+        return self._textures[item.name]
 
 
 class GameView:
@@ -60,6 +67,8 @@ class GameView:
         for i, x in enumerate(self.x_index):
             for j, y in enumerate(self.y_index):
                 self.canvas.create_image(x, y, image=self.texture[Piece.NoneType], tags=f"{i}-{j}")
+                # self.canvas.moveto(self.canvas.gettags(f"{i}-{j}")[0], x - self.texture.size, y - self.texture.size)
+        self.canvas.create_image(-1000, -1000, image=self.texture.choiceBox(), tags="ChoiceBox")
 
         # Mouse control
         self.clickData: Optional[tuple[int, int]] = None
@@ -72,31 +81,42 @@ class GameView:
                 self.canvas.itemconfigure(self.canvas.find_closest(self.x_index[i], self.y_index[j])[0], image=self.texture[grid[i][j]])
         self.canvas.update()
 
+    def _update_choice_and_draw(self):
+        if self.clickData is None:
+            self.canvas.moveto(self.canvas.gettags("ChoiceBox")[0], -1000, -1000)
+        else:
+            self.canvas.moveto(self.canvas.gettags("ChoiceBox")[0], self.x_index[self.clickData[0]] - self.texture.size, self.y_index[self.clickData[1]] - self.texture.size)
+        self.canvas.update()
+
     def clickCallbackFunc(self, event: Event):
         itemId = self.canvas.find_closest(event.x, event.y)
         if len(itemId) == 0:
             return
         itemTag = self.canvas.gettags(itemId[0])[0].split("-")
-        if len(itemTag) == 1:
+        if itemTag[0] == "bg":
             return
-        x = int(itemTag[0])
-        y = int(itemTag[1])
-        if self.clickData is None:
-            self.clickData = (x, y)
-        elif self.clickData == (x, y):
+        elif itemTag[0] == "ChoiceBox":
             self.clickData = None
         else:
-            try:
-                if self.red_queue is not None:
-                    self.red_queue.put((self.clickData, (x, y)), block=False)
-            except Full:
-                pass
-            try:
-                if self.black_queue is not None:
-                    self.black_queue.put((self.clickData, (x, y)), block=False)
-            except Full:
-                pass
-            self.clickData = None
+            x = int(itemTag[0])
+            y = int(itemTag[1])
+            if self.clickData is None:
+                self.clickData = (x, y)
+            elif self.clickData == (x, y):
+                self.clickData = None
+            else:
+                try:
+                    if self.red_queue is not None:
+                        self.red_queue.put((self.clickData, (x, y)), block=False)
+                except Full:
+                    pass
+                try:
+                    if self.black_queue is not None:
+                        self.black_queue.put((self.clickData, (x, y)), block=False)
+                except Full:
+                    pass
+                self.clickData = None
+        self._update_choice_and_draw()
 
     def enableMouse(self, side: Player, tunnel: Queue):
         if side == Player.NoneType:
