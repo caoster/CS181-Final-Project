@@ -1,6 +1,8 @@
 from tkinter import Frame, Canvas, Tk, Event, PhotoImage
+from typing import Optional
+from queue import Queue
 
-from utils import Piece
+from utils import Piece, Player
 
 
 class Texture:
@@ -59,6 +61,10 @@ class GameView:
             for j in self.y_index:
                 self.canvas.create_image(i, j, image=self.texture[Piece.NoneType])
 
+        # Mouse control
+        self.red_queue: Optional[Queue] = None
+        self.black_queue: Optional[Queue] = None
+
     def draw(self, grid):
         for i in range(9):
             for j in range(10):
@@ -66,7 +72,16 @@ class GameView:
         self.canvas.update()
 
     def clickCallbackFunc(self, event: Event):
+        # TODO: implement the state machine
         pass
+
+    def enableMouse(self, side: Player, tunnel: Queue):
+        if side == Player.NoneType:
+            print("Invalid side!")
+        elif side == Player.Red:
+            self.red_queue = tunnel
+        else:
+            self.black_queue = tunnel
 
     def setModel(self, model):
         self.model = model

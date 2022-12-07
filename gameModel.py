@@ -1,3 +1,4 @@
+from threading import Thread
 import time
 
 from utils import Piece, Player
@@ -539,5 +540,6 @@ class GameModel:
         return result
 
     def startApp(self) -> None:
-        self.startGame()
+        game = Thread(target=self.startGame)
+        game.start()
         self._canvas.startApp()
