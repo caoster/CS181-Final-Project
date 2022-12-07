@@ -43,6 +43,7 @@ class GameView:
     def __init__(self, scale: bool):
         self.root = Tk(className="Chinese Chess")
         self.root.resizable(False, False)
+        self.root.bind("<Escape>", lambda _: self.root.destroy())
         self.frame = Frame(self.root)
         self.frame.pack()
         self.model = None  # GameModel
