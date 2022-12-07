@@ -1,5 +1,6 @@
 from threading import Thread
 import time
+from typing import Optional
 
 from utils import Piece, Player
 from gameView import GameView
@@ -28,6 +29,7 @@ class GameModel:
         self._black_agent = BlackAgent
         self._black_agent.setGameModel(self)
         self._draw()
+        self._gameThread: Optional[Thread] = None
 
     # Note that this function do not care which side you are
     def isValidMove(self, src: tuple[int, int], dst: tuple[int, int]) -> bool:
@@ -483,11 +485,6 @@ class GameModel:
                 print("Black win!")
                 break
                 # Black wins
-            else:
-                print("Draw!")
-                break
-                # Draw?
-        pass
 
     def _matchOver(self) -> Player:
         if not any(Piece.BGeneral in i for i in self._board):
@@ -540,6 +537,6 @@ class GameModel:
         return result
 
     def startApp(self) -> None:
-        game = Thread(target=self.startGame)
-        game.start()
+        self._gameThread = Thread(target=self.startGame, daemon=True)
+        self._gameThread.start()
         self._canvas.startApp()
