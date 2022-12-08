@@ -68,7 +68,6 @@ class GameView:
         for i, x in enumerate(self.x_index):
             for j, y in enumerate(self.y_index):
                 self.canvas.create_image(x, y, image=self.texture[Piece.NoneType], tags=f"{i}-{j}")
-                # self.canvas.moveto(self.canvas.gettags(f"{i}-{j}")[0], x - self.texture.size, y - self.texture.size)
         self.canvas.create_image(-1000, -1000, image=self.texture.choiceBox(), tags="ChoiceBox")
 
         # Mouse control
@@ -77,10 +76,11 @@ class GameView:
         self.black_queue: Optional[Queue] = None
 
     def draw(self, grid):
+        self.canvas.moveto(self.canvas.gettags("ChoiceBox")[0], -1000, -1000)
         for i in range(9):
             for j in range(10):
                 self.canvas.itemconfigure(self.canvas.find_closest(self.x_index[i], self.y_index[j])[0], image=self.texture[grid[i][j]])
-        self.canvas.update()
+        self._update_choice_and_draw()
 
     def _update_choice_and_draw(self):
         if self.clickData is None:
