@@ -3,7 +3,8 @@ from typing import Optional
 
 from agent import Agent
 from utils import Piece, Player
-import math, copy
+import math
+import copy
 
 
 class minimaxAgent(Agent):
