@@ -536,6 +536,14 @@ class GameModel:
             result += [(i, j) for j, y in enumerate(x) if condition(y)]
         return result
 
+    def __eq__(self, other):
+        # Allows two states to be compared.
+        return hasattr(other, 'board') and self._board == other._board
+
+    def __hash__(self):
+        # Allows gameModel to be keys of dictionaries.
+        return hash(tuple(tuple(x) for x in self._board))
+
     def startApp(self) -> None:
         self._gameThread = Thread(target=self.startGame, daemon=True)
         self._gameThread.start()
