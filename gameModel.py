@@ -582,7 +582,7 @@ class GameModel:
             self._draw()
             time.sleep(self._interval)
 
-            result = self._board.isMatchOver(self._direction)
+            result = self._board.isMatchOver()
             self._direction = Player.reverse(self._direction)
             if result == Player.NoneType:
                 continue
