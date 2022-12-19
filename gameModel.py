@@ -4,14 +4,31 @@ from typing import Optional
 
 from utils import Piece, Player
 from gameView import GameView
+import copy
 
 
 class GameState:
     def __init__(self):
         self.board: Optional[list[list[Piece]]] = None
+        self.myself = Player.Red
+        self.opponent = Player.Black
 
     def __getitem__(self, item):
         return self.board[item]
+
+    def getNextState(self, action: tuple[tuple[int, int], tuple[int, int]]) -> 'GameState':
+        src, dst = action
+        newState = GameState()
+        newState.board = copy.deepcopy(self.board)
+        newState.board[dst[0]][dst[1]] = newState.board[src[0]][src[1]]
+        newState.board[src[0]][src[1]] = Piece.NoneType
+        if self.myself == Player.Red:
+            newState.myself = Player.Black
+            newState.opponent = Player.Red
+        else:
+            newState.myself = Player.Red
+            newState.opponent = Player.Black
+        return newState
 
     # Note that this function do not care which side you are
     def isValidMove(self, src: tuple[int, int], dst: tuple[int, int]) -> bool:
@@ -422,7 +439,7 @@ class GameState:
 
         return result
 
-    def isMatchOver(self, justMoved: Player) -> Player:
+    def isMatchOver(self) -> Player:
         if not any(Piece.BGeneral in i for i in self.board):
             return Player.Red  # BlackGeneral captured, Red wins
         elif not any(Piece.RGeneral in i for i in self.board):
@@ -437,7 +454,7 @@ class GameState:
                     fly = False
                     break
             if fly:
-                if justMoved == Player.Red:
+                if self.opponent == Player.Red:
                     return Player.Black  # Black wins
                 else:
                     return Player.Red  # Red wins
@@ -526,6 +543,9 @@ class GameModel:
     # Make attribute board read-only to agent
     @property
     def board(self):
+        return self._board
+
+    def getGameState(self):
         return self._board
 
     def getRange(self, position: tuple[int, int]):

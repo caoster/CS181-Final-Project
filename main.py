@@ -2,6 +2,7 @@ from queue import Queue
 
 from ExampleAgent import ExampleAgent
 from HumanPlayer.mouseAgent import MouseAgent
+from Adversarial.MinimaxAgent import MinimaxAgent
 from agent import Agent
 from gameModel import GameModel
 from gameView import GameView
@@ -27,6 +28,8 @@ def initAgent(side: Player, choice: str, relate_view: GameView) -> Agent:
         relate_view.enableMouse(side, tunnel)
     elif choice == "ExampleAgent":
         agent = ExampleAgent(side)
+    elif choice == "MinimaxAgent":
+        agent = MinimaxAgent(side, 3)
     else:
         assert False, "No such agent!"
     return agent
