@@ -546,7 +546,7 @@ class GameModel:
         return self._board
 
     def getGameState(self):
-        return self._board
+        return copy.deepcopy(self._board)
 
     def getRange(self, position: tuple[int, int]):
         return self._board.getRange(position)
