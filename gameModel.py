@@ -1,3 +1,4 @@
+from __future__ import annotations
 from threading import Thread
 import time
 from typing import Optional
@@ -16,7 +17,7 @@ class GameState:
     def __getitem__(self, item):
         return self.board[item]
 
-    def getNextState(self, action: tuple[tuple[int, int], tuple[int, int]]) -> 'GameState':
+    def getNextState(self, action: tuple[tuple[int, int], tuple[int, int]]) -> GameState:
         src, dst = action
         newState = GameState()
         newState.board = copy.deepcopy(self.board)
