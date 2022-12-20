@@ -127,7 +127,11 @@ class MCTSAgent(Agent):
 
     @staticmethod
     def backup(node: MCTSnode, reward: float):
+        leaf_side = node.state.myself
         while node is not None:
             node.visit_time += 1
-            node.quality_value += reward
+            if node.state.myself == leaf_side:
+                node.quality_value += reward
+            else:
+                node.quality_value -= reward
             node = node.parent
