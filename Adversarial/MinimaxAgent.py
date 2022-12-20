@@ -21,7 +21,7 @@ class MinimaxAgent(Agent):
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
 
         def maxValue(state, depth, playerSide, a, b):
-            if depth == self.depth * 2 or state.getWinner():
+            if depth == self.depth * 2 or state.isMatchOver():
                 return self.evaluationFunction(state)
             maximum = -math.inf
             legalActions = state.getLegalActionsBySide(playerSide)
@@ -36,7 +36,7 @@ class MinimaxAgent(Agent):
             return maximum
 
         def minValue(state, depth, playerSide, a, b):
-            if depth == self.depth * 2 or state.getWinner():
+            if depth == self.depth * 2 or state.isMatchOver():
                 return self.evaluationFunction(state)
             minimum = math.inf
             legalActions = state.getLegalActionsBySide(playerSide)

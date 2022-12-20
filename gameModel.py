@@ -480,6 +480,9 @@ class GameState:
 
         return Player.NoneType
 
+    def isMatchOver(self):
+        return self.getWinner() != Player.NoneType
+
     def init_with_start_game(self):
         self.board = [
             [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot],
