@@ -5,6 +5,7 @@ class Player(enum.Enum):
     NoneType = 0
     Red = 1
     Black = -1
+    Draw = 10  # For getWinner()
 
     @staticmethod
     def reverse(side):

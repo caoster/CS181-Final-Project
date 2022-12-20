@@ -23,12 +23,8 @@ class GameState:
         newState.board = copy.deepcopy(self.board)
         newState.board[dst[0]][dst[1]] = newState.board[src[0]][src[1]]
         newState.board[src[0]][src[1]] = Piece.NoneType
-        if self.myself == Player.Red:
-            newState.myself = Player.Black
-            newState.opponent = Player.Red
-        else:
-            newState.myself = Player.Red
-            newState.opponent = Player.Black
+        newState.myself = Player.reverse(newState.myself)
+        newState.opponent = Player.reverse(newState.opponent)
         return newState
 
     # Note that this function do not care which side you are
@@ -440,7 +436,7 @@ class GameState:
 
         return result
 
-    def isMatchOver(self) -> Player:
+    def getWinner(self) -> Player:
         if not any(Piece.BGeneral in i for i in self.board):
             return Player.Red  # BlackGeneral captured, Red wins
         elif not any(Piece.RGeneral in i for i in self.board):
@@ -477,6 +473,10 @@ class GameState:
                 break
         if blackLose:
             return Player.Red
+
+        # TODO: if draw, return Player.Draw
+        # No pieces captured in 60 steps
+        # Three identical moves
 
         return Player.NoneType
 
@@ -583,7 +583,7 @@ class GameModel:
             self._draw()
             time.sleep(self._interval)
 
-            result = self._board.isMatchOver()
+            result = self._board.getWinner()
             self._direction = Player.reverse(self._direction)
             if result == Player.NoneType:
                 continue
