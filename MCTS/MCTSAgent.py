@@ -92,7 +92,7 @@ class MCTSnode:
 
 class MCTSAgent(Agent):
 
-    def __init__(self, direction: Player, computation_budget: int = 200):
+    def __init__(self, direction: Player, computation_budget: int = 100):
         super().__init__(direction)
         self.root = MCTSnode()
         self.computation_budget = computation_budget
@@ -100,7 +100,7 @@ class MCTSAgent(Agent):
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         new_state = self.game.getGameState()
         if new_state in self.root.children.keys():
-            self.root = self.root.children[new_state]
+            self.root, _ = self.root.children[new_state]
             self.root.parent = None
         else:
             self.root = MCTSnode()

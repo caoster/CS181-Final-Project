@@ -25,8 +25,9 @@ class GameState:
 
     def getNextState(self, action: tuple[tuple[int, int], tuple[int, int]]) -> GameState:
         src, dst = action
-        newState = GameState()
-        newState.board = copy.deepcopy(self.board)
+        newState = copy.deepcopy(self)
+        # newState.myself = self.myself
+        # newState.board = copy.deepcopy(self.board)
         newState.board[dst[0]][dst[1]] = newState.board[src[0]][src[1]]
         newState.board[src[0]][src[1]] = Piece.NoneType
         newState.swapDirection()
