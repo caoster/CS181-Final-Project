@@ -7,7 +7,7 @@ from agent import Agent
 from gameModel import GameModel
 from gameView import GameView
 from utils import Player
-from MCTS.MCTSAgent import MCTSAgent, MCTSnode
+from MCTS.MCTSAgent import MCTSAgent
 
 
 def readConfig():

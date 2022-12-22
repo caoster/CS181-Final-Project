@@ -58,9 +58,6 @@ class MCTSnode:
         return next_state, choice
 
     def bestChild(self, is_exploration: bool) -> tuple[MCTSnode, tuple[tuple[int, int], tuple[int, int]]]:
-        best_score = -float('inf')
-        best_child = None
-        best_action = None
         if is_exploration:
             c = 1 / math.sqrt(2.0)
         else:

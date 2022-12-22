@@ -1,5 +1,4 @@
 from agent import Agent
-from gameModel import GameModel
 from utils import Player
 import random
 

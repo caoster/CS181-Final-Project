@@ -6,7 +6,7 @@ from utils import Piece, Player
 
 
 class Texture:
-    def __init__(self, scale: bool):
+    def __init__(self, scale: int):
         self._textures = {
             "NoneType": PhotoImage(file="img/piece_0.png"),
             "BGeneral": PhotoImage(file="img/piece_1.png"),
