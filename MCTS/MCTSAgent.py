@@ -1,19 +1,12 @@
 from __future__ import annotations
 
+import copy
 import math
 import random
 
 from agent import Agent
 from gameModel import GameState
 from utils import Player
-
-
-class MCTSGameState(GameState):
-    def __init__(self):
-        super().__init__()
-
-    def calRewardFromState(self) -> float:
-        raise NotImplemented
 
 
 class MCTSnode:
@@ -25,7 +18,7 @@ class MCTSnode:
         self.visit_time: int = 0
         self.quality_value: float = 0.0
 
-    def setState(self, state: MCTSGameState):
+    def setState(self, state: GameState):
         self.state = state
 
     def setParent(self, parent: MCTSnode):
@@ -43,16 +36,7 @@ class MCTSnode:
         return len(self.children) == len(self.all_valid_actions)
 
     def find_all_valid_actions(self):
-        # if self.all_valid_actions is not None:
-        #     return
-        # self.all_valid_actions: Optional[(tuple, tuple)] = []
-        # self.state: GameState
-        # all_pieces = self.state.getSide(self.state.myself)
-        # for piece in all_pieces:
-        #     possible_pos = self.state.getRange(piece)
-        #     for pos in possible_pos:
-        #         self.all_valid_actions.append(piece, pos)
-        return self.state.getLegalActionsBySide(self.state.myself)
+        self.all_valid_actions = self.state.getLegalActionsBySide(self.state.myself)
 
     def expand(self) -> MCTSnode:
         next_state, action = self.randomChooseNextState()
@@ -62,7 +46,9 @@ class MCTSnode:
         next_node.parent = self
         return next_node
 
-    def randomChooseNextState(self) -> tuple[MCTSGameState, tuple[tuple[int, int], tuple[int, int]]]:
+    def randomChooseNextState(self) -> tuple[GameState, tuple[tuple[int, int], tuple[int, int]]]:
+        if self.all_valid_actions is None:
+            self.find_all_valid_actions()
         choice = random.choice(self.all_valid_actions)
         next_state = self.state.getNextState(choice)
         while next_state in self.children.keys():
@@ -89,19 +75,29 @@ class MCTSnode:
 
         return best_child, best_action
 
+    def calRewardFromState(self, direction: Player) -> float:
+        winner = self.state.getWinner()
+        if winner == direction:
+            return 100000
+        elif winner == Player.reverse(direction):
+            return -100000
+
     def calUCB(self, c: float, child: MCTSnode) -> float:
         # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
-        return child.quality_value / child.visit_time + c * math.sqrt(2 * math.log(self.visit_time) / child.visit_time)
+        return child.quality_value / (child.visit_time + 1e-5) + c * math.sqrt(2 * math.log(self.visit_time + 1) / (child.visit_time + 1e-5))
 
 
 class MCTSAgent(Agent):
 
-    def __init__(self, direction: Player, node: MCTSnode, computation_budget: int):
+    def __init__(self, direction: Player, computation_budget: int):
         super().__init__(direction)
-        self.root = node
+        self.root = None
         self.computation_budget = computation_budget
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
+        self.root = MCTSnode()
+        self.root.setState(self.game.getGameState())
+        self.root.state.myself = self.direction
         for i in range(self.computation_budget):
             expand_node = self.treePolicy(self.root)
             reward = self.defaultPolicy(expand_node)
@@ -111,19 +107,18 @@ class MCTSAgent(Agent):
 
     @staticmethod
     def treePolicy(node: MCTSnode) -> MCTSnode:
-        if node.state.isMatchOver() == Player.NoneType:
+        if not node.state.isMatchOver():
             if node.is_all_expand():
-                node = node.bestChild(True)
+                node, _ = node.bestChild(True)
             else:
                 expand_node = node.expand()
                 return expand_node
         return node
 
-    @staticmethod
-    def defaultPolicy(node: MCTSnode) -> float:
-        while node.state.isMatchOver() == Player.NoneType:
+    def defaultPolicy(self, node: MCTSnode) -> float:
+        while not node.state.isMatchOver():
             node = node.expand()
-        return node.state.calRewardFromState()
+        return node.calRewardFromState(self.direction)
 
     @staticmethod
     def backup(node: MCTSnode, reward: float):
