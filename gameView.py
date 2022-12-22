@@ -26,9 +26,12 @@ class Texture:
             "ChoiceBox": PhotoImage(file="img/ChoiceBox.png")
         }
         self.size = 25
-        if scale:
+        if scale == 4:
+            self.size *= 4
+            for i, j in self._textures.items():
+                self._textures[i] = j.zoom(4, 4)
+        elif scale == 2:
             self.size *= 2
-        if scale:
             for i, j in self._textures.items():
                 self._textures[i] = j.zoom(2, 2)
 
@@ -40,21 +43,28 @@ class Texture:
 
 
 class GameView:
-    def __init__(self, scale: bool):
+    def __init__(self, scale: int):
         self.root = Tk(className="Chinese Chess")
         self.root.resizable(False, False)
         self.root.bind("<Escape>", lambda _: self.root.destroy())
         self.frame = Frame(self.root)
         self.frame.pack()
         self.model = None  # GameModel
-        if scale:
+        if scale == 4:
+            self.root.geometry("2200x2222")
+            self.canvas = Canvas(self.frame, bg="black", width=2200, height=2222)
+            self.background = PhotoImage(file="img/Board.png").zoom(2, 2)
+            self.canvas.create_image(2200 / 2, 2222 / 2, image=self.background, tags="bg")
+            self.x_index = (222, 444, 666, 888, 1110, 1332, 1554, 1776, 1998)
+            self.y_index = (132, 352, 572, 792, 1012, 1232, 1452, 1672, 1892, 2112)
+        elif scale == 2:
             self.root.geometry("1100x1111")
             self.canvas = Canvas(self.frame, bg="black", width=1100, height=1111)
             self.background = PhotoImage(file="img/Board.png")
             self.canvas.create_image(1100 / 2, 1111 / 2, image=self.background, tags="bg")
             self.x_index = (111, 222, 333, 444, 555, 666, 777, 888, 999)
             self.y_index = (66, 176, 286, 396, 506, 616, 726, 836, 946, 1056)
-        else:
+        else:  # scale == 1
             self.root.geometry("550x555")
             self.canvas = Canvas(self.frame, bg="black", width=550, height=555)
             self.background = PhotoImage(file="img/Board.png").subsample(2, 2)
