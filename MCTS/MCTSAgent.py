@@ -12,6 +12,7 @@ from utils import Player
 
 class MCTSnode:
     def __init__(self):
+        self.num_all_valid_actions = None
         self.parent = None
         self.state = None
         self.all_valid_actions = None
@@ -32,29 +33,30 @@ class MCTSnode:
         self.quality_value = quality_value
 
     def is_all_expand(self) -> bool:
-        if self.all_valid_actions is None:
-            self.find_all_valid_actions()
-        return len(self.children) == len(self.all_valid_actions)
+        return len(self.children) == self.num_all_valid_actions
 
     def find_all_valid_actions(self):
         self.all_valid_actions = self.state.getLegalActionsBySide(self.state.myself)
+        self.num_all_valid_actions = len(self.all_valid_actions)
 
     def expand(self) -> MCTSnode:
         next_state, action = self.randomChooseNextState()
         next_node = MCTSnode()
         next_node.setState(next_state)
+        next_node.find_all_valid_actions()
         self.children[next_state] = (next_node, action)
         next_node.parent = self
         return next_node
 
     def randomChooseNextState(self) -> tuple[GameState, tuple[tuple[int, int], tuple[int, int]]]:
-        if self.all_valid_actions is None:
-            self.find_all_valid_actions()
-        choice = random.choice(self.all_valid_actions)
-        next_state = self.state.getNextState(choice)
-        while next_state in self.children.keys():
+        if len(self.all_valid_actions) == 0:
+            print("Error: all_valid_actions has already been an empty list but still get access to randomChooseNextState function!")
+        elif len(self.all_valid_actions) == 1:
+            choice = self.all_valid_actions[0]
+        else:
             choice = random.choice(self.all_valid_actions)
-            next_state = self.state.getNextState(choice)
+        self.all_valid_actions.remove(choice)
+        next_state = self.state.getNextState(choice)
         return next_state, choice
 
     def bestChild(self, is_exploration: bool) -> tuple[MCTSnode, tuple[tuple[int, int], tuple[int, int]]]:
@@ -82,6 +84,8 @@ class MCTSnode:
 
     def calUCB(self, c: float, child: MCTSnode) -> float:
         # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
+        if child.visit_time == 0:
+            return 0.0
         UCB = child.quality_value / child.visit_time + c * math.sqrt(2 * math.log(self.visit_time) / child.visit_time)
         return UCB
 
@@ -102,8 +106,6 @@ class MCTSAgent(Agent):
             self.root = MCTSnode()
             self.root.setState(new_state)
             self.root.state.myself = self.direction
-        # self.root.setState(self.game.getGameState())
-        # self.root.state.myself = self.direction
         self.root.find_all_valid_actions()
         # print(len(self.root.all_valid_actions))
         for i in range(self.computation_budget):
@@ -121,15 +123,14 @@ class MCTSAgent(Agent):
             if node.is_all_expand():
                 node, _ = node.bestChild(True)
             else:
-                expand_node = node.expand()
-                return expand_node
+                return node.expand()
         return node
 
     def defaultPolicy(self, node: MCTSnode) -> float:
         round_limit = 600
         r = 0
         while not node.state.isMatchOver():
-            node = node.expand()
+            node = self.treePolicy(node)
             r += 1
             if r > round_limit:
                 print("tie!")
