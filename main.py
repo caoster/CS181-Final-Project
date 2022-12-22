@@ -33,7 +33,7 @@ def initAgent(side: Player, choice: str, relate_view: GameView) -> Agent:
     elif choice == "MinimaxAgent":
         agent = MinimaxAgent(side)
     elif choice == "MCTSAgent":
-        agent = MCTSAgent(side, 30)
+        agent = MCTSAgent(side)
     else:
         assert False, "No such agent!"
     return agent

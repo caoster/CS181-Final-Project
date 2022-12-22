@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import copy
 import math
 import random
+
+import numpy as np
 
 from agent import Agent
 from gameModel import GameState
@@ -60,27 +61,27 @@ class MCTSnode:
         best_score = -float('inf')
         best_child = None
         best_action = None
-        for child, action in self.children.values():
-            child: MCTSnode
-            if is_exploration:
-                c = 1 / math.sqrt(2.0)
-            else:
-                c = 0.0
-
-            UCB = self.calUCB(c, child)
-            if UCB > best_score:
-                best_child = child
-                best_score = UCB
-                best_action = action
+        if is_exploration:
+            c = 1 / math.sqrt(2.0)
+        else:
+            c = 0.0
+        UCB_list = np.array([self.calUCB(c, child) for child, _ in self.children.values()])
+        best_score = np.amax(UCB_list)
+        best_idx = np.argwhere(np.isclose(UCB_list, best_score, 1.e-3, 1.e-5)).squeeze()
+        if best_idx.size != 0:
+            best_choice = np.random.choice(best_idx)
+        else:
+            best_choice = np.argmax(UCB_list)
+        best_child, best_action = list(self.children.values())[best_choice]
 
         return best_child, best_action
 
     def calRewardFromState(self, direction: Player) -> float:
         winner = self.state.getWinner()
         if winner == direction:
-            return 100000
+            return 10
         elif winner == Player.reverse(direction):
-            return -100000
+            return -10
 
     def calUCB(self, c: float, child: MCTSnode) -> float:
         # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
@@ -89,7 +90,7 @@ class MCTSnode:
 
 class MCTSAgent(Agent):
 
-    def __init__(self, direction: Player, computation_budget: int):
+    def __init__(self, direction: Player, computation_budget: int = 1000):
         super().__init__(direction)
         self.root = None
         self.computation_budget = computation_budget
@@ -98,10 +99,14 @@ class MCTSAgent(Agent):
         self.root = MCTSnode()
         self.root.setState(self.game.getGameState())
         self.root.state.myself = self.direction
+        self.root.find_all_valid_actions()
+        print(len(self.root.all_valid_actions))
         for i in range(self.computation_budget):
             expand_node = self.treePolicy(self.root)
             reward = self.defaultPolicy(expand_node)
             self.backup(expand_node, reward)
+        print(*[ch.visit_time for ch, _ in self.root.children.values()])
+
         self.root, action = self.root.bestChild(False)
         return action
 
