@@ -12,10 +12,16 @@ class GameState:
     def __init__(self):
         self.board: Optional[list[list[Piece]]] = None
         self.myself = Player.Red
-        self.opponent = Player.Black
 
     def __getitem__(self, item):
         return self.board[item]
+
+    @property
+    def opponent(self) -> Player:
+        return Player.reverse(self.myself)
+
+    def swapDirection(self):
+        self.myself = Player.reverse(self.myself)
 
     def getNextState(self, action: tuple[tuple[int, int], tuple[int, int]]) -> GameState:
         src, dst = action
@@ -23,8 +29,7 @@ class GameState:
         newState.board = copy.deepcopy(self.board)
         newState.board[dst[0]][dst[1]] = newState.board[src[0]][src[1]]
         newState.board[src[0]][src[1]] = Piece.NoneType
-        newState.myself = Player.reverse(newState.myself)
-        newState.opponent = Player.reverse(newState.opponent)
+        newState.swapDirection()
         return newState
 
     # Note that this function do not care which side you are
@@ -451,7 +456,7 @@ class GameState:
                     fly = False
                     break
             if fly:
-                if self.opponent == Player.Red:
+                if self.myself == Player.Red:
                     return Player.Black  # Black wins
                 else:
                     return Player.Red  # Red wins
@@ -532,7 +537,6 @@ class GameModel:
         self._interval: float = interval
         self._canvas: GameView = canvas
         self._canvas.setModel(self)
-        self._direction: Player = Player.Red
         self._red_agent = RedAgent
         self._red_agent.setGameModel(self)
         self._black_agent = BlackAgent
@@ -568,16 +572,16 @@ class GameModel:
     def startGame(self):
         time.sleep(1)  # Always sleep one second before initiating
         while True:
-            if self._direction == Player.Red:
+            if self._board.myself == Player.Red:
                 src, dst = self._red_agent.step()
-            elif self._direction == Player.Black:
+            elif self._board.myself == Player.Black:
                 src, dst = self._black_agent.step()
             else:
                 raise  # Robustness
             if not self.isValidMove(src, dst):
                 print("Invalid move!")
                 break
-            if Piece.getSide(self._board[src[0]][src[1]]) != self._direction:
+            if Piece.getSide(self._board[src[0]][src[1]]) != self._board.myself:
                 print("You should only move your own piece!")
                 break
             self._board[dst[0]][dst[1]] = self._board[src[0]][src[1]]
@@ -587,7 +591,7 @@ class GameModel:
             time.sleep(self._interval)
 
             result = self._board.getWinner()
-            self._direction = Player.reverse(self._direction)
+            self._board.swapDirection()
             if result == Player.NoneType:
                 continue
             elif result == Player.Red:
