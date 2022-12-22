@@ -48,6 +48,9 @@ class Piece(enum.Enum):
     def __str__(self):
         return self.name
 
+    def __int__(self):
+        return self.value
+
 
 class Counter(dict):
 
