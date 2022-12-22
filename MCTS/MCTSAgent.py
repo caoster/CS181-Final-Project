@@ -48,11 +48,21 @@ class MCTSnode:
         next_node.parent = self
         return next_node
 
+    def randomExpand(self) -> MCTSnode:
+        action = random.choice(self.all_valid_actions)
+        next_state = self.state.getNextState(action)
+        next_node = MCTSnode()
+        next_node.setState(next_state)
+        next_node.find_all_valid_actions()
+        self.children[next_state] = (next_node, action)
+        next_node.parent = self
+        return next_node
+
     def randomChooseNextState(self) -> tuple[GameState, tuple[tuple[int, int], tuple[int, int]]]:
         if len(self.all_valid_actions) == 0:
             print("Error: all_valid_actions has already been an empty list but still get access to randomChooseNextState function!")
-        elif len(self.all_valid_actions) == 1:
-            choice = self.all_valid_actions[0]
+        # elif len(self.all_valid_actions) == 1:
+        #     choice = self.all_valid_actions[0]
         else:
             choice = random.choice(self.all_valid_actions)
         self.all_valid_actions.remove(choice)
@@ -109,9 +119,9 @@ class MCTSAgent(Agent):
         self.root.find_all_valid_actions()
         # print(len(self.root.all_valid_actions))
         for i in range(self.computation_budget):
-            expand_node = self.treePolicy(self.root)
-            reward = self.defaultPolicy(expand_node)
-            self.backup(expand_node, reward)
+            expand_node = self.treePolicy(self.root)  # expand one node
+            expand_node, reward = self.defaultPolicy(expand_node)
+            self.backup(expand_node, reward, self.direction)
         print(*[child.visit_time for child, _ in self.root.children.values()])
 
         self.root, action = self.root.bestChild(False)
@@ -130,20 +140,39 @@ class MCTSAgent(Agent):
         round_limit = 600
         r = 0
         while not node.state.isMatchOver():
-            node = self.treePolicy(node)
+            # node = self.treePolicy(node)
+            node = node.randomExpand()
             r += 1
             if r > round_limit:
                 print("tie!")
                 return 0
-        return node.calRewardFromState(self.direction)
+        return node, node.calRewardFromState(self.direction)
 
     @staticmethod
-    def backup(node: MCTSnode, reward: float):
-        leaf_side = node.state.myself
-        while node is not None:
+    def backup(node: MCTSnode, reward: float, direction: Player):
+        # TODO: Verify direction/Player. Verify the Pieces got by indexing with actions.
+        evaluate = [[0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 9.5, 14.5, 10, 7],
+                    [0, 0, 0, 9.5, 14.5, 10, 7],
+                    [0, 5.5, 5.5, 7.5, 12.5, 8, 5],
+                    [0, 0.5, 0.5, 2.5, 7.5, 3, 0],
+                    [0, 5, 5, 7, 12, 7.5, 4.5],
+                    [0, 8, 8, 10, 15, 10.5, 7.5]]
+        whole = np.zeros((15, 15))
+        whole[1:8, 8:15] = np.array(evaluate)
+        whole[8:15, 1:8] = np.array(evaluate)
+        leaf_side = node.state.myself # why we need leaf node side? what we need is the root node side?
+        while node.parent is not None:
             node.visit_time += 1
-            if node.state.myself == leaf_side:
+            parent = node.parent
+            _, action = parent.children[node.state]
+            consumer = int(parent.state.board[action[0][0]][action[0][1]])
+            consumee = int(parent.state.board[action[1][0]][action[1][1]])
+            if node.state.myself == direction:
+                reward -= whole[consumer][consumee]
                 node.quality_value += reward
             else:
+                reward += whole[consumer][consumee]
                 node.quality_value -= reward
             node = node.parent
+        node.visit_time += 1
