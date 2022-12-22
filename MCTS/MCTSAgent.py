@@ -64,8 +64,8 @@ class MCTSnode:
             c = 0.0
         UCB_list = np.array([self.calUCB(c, child) for child, _ in self.children.values()])
         best_score = np.amax(UCB_list)
-        best_idx = np.argwhere(np.isclose(UCB_list, best_score, 1.e-3, 1.e-5)).squeeze()
-        if best_idx.size != 0:
+        best_idx = np.argwhere(np.isclose(UCB_list, best_score)).squeeze()
+        if best_idx.size > 1:
             best_choice = np.random.choice(best_idx)
         else:
             best_choice = np.argmax(UCB_list)
@@ -82,27 +82,35 @@ class MCTSnode:
 
     def calUCB(self, c: float, child: MCTSnode) -> float:
         # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
-        return child.quality_value / (child.visit_time + 1e-5) + c * math.sqrt(2 * math.log(self.visit_time + 1) / (child.visit_time + 1e-5))
+        UCB = child.quality_value / child.visit_time + c * math.sqrt(2 * math.log(self.visit_time) / child.visit_time)
+        return UCB
 
 
 class MCTSAgent(Agent):
 
-    def __init__(self, direction: Player, computation_budget: int = 1000):
+    def __init__(self, direction: Player, computation_budget: int = 200):
         super().__init__(direction)
-        self.root = None
+        self.root = MCTSnode()
         self.computation_budget = computation_budget
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
-        self.root = MCTSnode()
-        self.root.setState(self.game.getGameState())
-        self.root.state.myself = self.direction
+        new_state = self.game.getGameState()
+        if new_state in self.root.children.keys():
+            self.root = self.root.children[new_state]
+            self.root.parent = None
+        else:
+            self.root = MCTSnode()
+            self.root.setState(new_state)
+            self.root.state.myself = self.direction
+        # self.root.setState(self.game.getGameState())
+        # self.root.state.myself = self.direction
         self.root.find_all_valid_actions()
-        print(len(self.root.all_valid_actions))
+        # print(len(self.root.all_valid_actions))
         for i in range(self.computation_budget):
             expand_node = self.treePolicy(self.root)
             reward = self.defaultPolicy(expand_node)
             self.backup(expand_node, reward)
-        print(*[ch.visit_time for ch, _ in self.root.children.values()])
+        print(*[child.visit_time for child, _ in self.root.children.values()])
 
         self.root, action = self.root.bestChild(False)
         return action
@@ -118,8 +126,14 @@ class MCTSAgent(Agent):
         return node
 
     def defaultPolicy(self, node: MCTSnode) -> float:
+        round_limit = 600
+        r = 0
         while not node.state.isMatchOver():
             node = node.expand()
+            r += 1
+            if r > round_limit:
+                print("tie!")
+                return 0
         return node.calRewardFromState(self.direction)
 
     @staticmethod
