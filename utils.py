@@ -13,8 +13,10 @@ class Player(enum.Enum):
             return Player.NoneType
         elif side == Player.Red:
             return Player.Black
-        else:
+        elif side == Player.Black:
             return Player.Red
+        else:
+            assert False, "Player.reverse is called upon Player.Draw"  # Theoretically not possible
 
 
 class Piece(enum.Enum):
