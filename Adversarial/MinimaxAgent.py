@@ -8,7 +8,8 @@ from gameModel import GameState
 class MinimaxAgent(Agent, EvaluationMatrix):
 
     def __init__(self, direction: Player, depth=2):
-        super().__init__(direction)
+        Agent.__init__(self, direction)
+        EvaluationMatrix.__init__(self)
         self.index = 0
         self.depth = depth
         self.playerSide = direction
