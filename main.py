@@ -1,4 +1,6 @@
+from multiprocessing import Pool
 from queue import Queue
+from typing import Optional
 
 from ExampleAgent import ExampleAgent
 from HumanPlayer.mouseAgent import MouseAgent
@@ -20,6 +22,8 @@ def readConfig():
     parser.add_argument("-R", "--Red", action="store", type=str, default="MouseAgent", help="The player of red side, default using MouseAgent.")
     parser.add_argument("-B", "--Black", action="store", type=str, default="ExampleAgent", help="The player of black side, default using ExampleAgent.")
     parser.add_argument("-n", "--no-graphic", action="store_true", help="Turn off graphic, this option will disable -r and -r4.")
+    parser.add_argument("-m", "--num-of-matches", action="store", type=int, default=1, help="If the value is greater than 1, -n is enabled automatically.")
+    parser.add_argument("-p", "--parallel", action="store", type=int, default=1, help="The maximum number of processes allowed.")
     args = parser.parse_args()
     return args
 
@@ -41,21 +45,34 @@ def initAgent(side: Player, choice: str, relate_view: GameView) -> Agent:
     return agent
 
 
-if __name__ == "__main__":
-    config = readConfig()
-    print(config)
-
-    if config.no_graphic:
-        assert config.Red != "MouseAgent", "MouseAgent (Red) is not allowed when graphic is turned off."
-        assert config.Black != "MouseAgent", "MouseAgent (Black) is not allowed when graphic is turned off."
+def singleGame(settings) -> Optional[Player]:
+    if settings.no_graphic:
+        assert settings.Red != "MouseAgent", "MouseAgent (Red) is not allowed when graphic is turned off."
+        assert settings.Black != "MouseAgent", "MouseAgent (Black) is not allowed when graphic is turned off."
         view = NoGraphic()
-    elif config.res4:
+    elif settings.res4:
         view = GameView(4)
-    elif config.res2:
+    elif settings.res2:
         view = GameView(2)
     else:
         view = GameView(1)
-    red_agent = initAgent(Player.Red, config.Red, view)
-    black_agent = initAgent(Player.Black, config.Black, view)
-    model = GameModel(view, red_agent, black_agent, config.time)
-    model.startApp()
+    red_agent = initAgent(Player.Red, settings.Red, view)
+    black_agent = initAgent(Player.Black, settings.Black, view)
+    model = GameModel(view, red_agent, black_agent, settings.time)
+    return model.startApp()
+
+
+if __name__ == "__main__":
+    config = readConfig()
+    if config.num_of_matches != 1:
+        config.no_graphic = True
+    print(config)
+
+    executor = Pool(processes=config.parallel)
+    result = executor.starmap(singleGame, [(config,)] * config.num_of_matches)
+    print(f"{'<---------------- Result ---------------->':^42}")
+    print(f"|{'Total matches (including RE)':>32}: {config.num_of_matches:>5} |")
+    print(f"|{f'Red ({config.Red}) Win':>32}: {result.count(Player.Red):>5} |")
+    print(f"|{f'Black ({config.Black}) Win':>32}: {result.count(Player.Black):>5} |")
+    print(f"|{'Draw':>32}: {result.count(Player.Draw):>5} |")
+    print(f"{'<---------------------------------------->':^42}")

@@ -60,7 +60,6 @@ class Counter(dict):
         self.setdefault(idx, 0)
         return dict.__getitem__(self, idx)
 
-
     def copy(self):
         """
         Returns a copy of the counter

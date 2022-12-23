@@ -580,11 +580,9 @@ class GameModel:
             else:
                 raise  # Robustness
             if not self.isValidMove(src, dst):
-                print("Invalid move!")
-                break
+                assert False, "Invalid move!"
             if Piece.getSide(self._board[src[0]][src[1]]) != self._board.myself:
-                print("You should only move your own piece!")
-                break
+                assert False, "You should only move your own piece!"
             self._board[dst[0]][dst[1]] = self._board[src[0]][src[1]]
             self._board[src[0]][src[1]] = Piece.NoneType
 
@@ -597,19 +595,22 @@ class GameModel:
                 continue
             elif result == Player.Red:
                 print("Red win!")
-                break
+                return Player.Red
                 # Red wins
             elif result == Player.Black:
                 print("Black win!")
-                break
+                return Player.Black
                 # Black wins
+            elif result == Player.Draw:
+                print("Draw!")
+                return Player.Draw
 
     def _draw(self) -> None:
         self._canvas.draw(self._board)
 
-    def startApp(self) -> None:
+    def startApp(self) -> Optional[Player]:
         if type(self._canvas) == NoGraphic:
-            self.startGame()
+            return self.startGame()
         else:
             self._gameThread = Thread(target=self.startGame, daemon=True)
             self._gameThread.start()
