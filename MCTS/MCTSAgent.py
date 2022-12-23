@@ -107,7 +107,7 @@ class MCTSnode:
 
 class MCTSAgent(Agent):
 
-    def __init__(self, direction: Player, computation_budget: int = 1000):
+    def __init__(self, direction: Player, computation_budget: int = 3000):
         super().__init__(direction)
         self.root = MCTSnode()
         self.computation_budget = computation_budget
@@ -127,7 +127,7 @@ class MCTSAgent(Agent):
             expand_node = self.treePolicy(self.root)  # expand one node
             expand_node, reward = self.defaultPolicy(expand_node)
             self.backup(expand_node, reward, self.direction)
-        print(*[f"{child.visit_time}: {child.quality_value} | " for child, _ in self.root.children.values()])
+        print(*[f"{child.visit_time}: {child.quality_value / child.visit_time} | " for child, _ in self.root.children.values()])
         self.root, action = self.root.bestChild(False)
         return action
 
@@ -141,11 +141,11 @@ class MCTSAgent(Agent):
         return node
 
     def defaultPolicy(self, node: MCTSnode) -> tuple[MCTSnode, float]:
-        round_limit = 60
+        round_limit = 15
         r = 0
         while not node.state.isMatchOver():
-            # node = self.treePolicy(node)
-            node = node.randomExpand()
+            node = self.treePolicy(node)
+            # node = node.randomExpand()
             r += 1
             if r > round_limit:
                 # print("tie!")
@@ -190,10 +190,13 @@ class MCTSAgent(Agent):
             _, action = parent.children[node.state]
             consumer = int(parent.state.board[action[0][0]][action[0][1]])
             consumee = int(parent.state.board[action[1][0]][action[1][1]])
+            reward -= 0.001
+
             if node.state.myself == direction:
-                reward = 0.9 * reward - whole[consumer][consumee]
+                reward = 0.99 * reward - 2 * whole[consumer][consumee]
+                node.quality_value -= reward
             else:
-                reward = 0.9 * reward + whole[consumer][consumee]
+                reward = 0.99 * reward + whole[consumer][consumee]
                 node.quality_value += reward
             node = node.parent
         node.visit_time += 1
