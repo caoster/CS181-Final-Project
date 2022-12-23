@@ -51,11 +51,14 @@ class MCTSnode:
     def randomExpand(self) -> MCTSnode:
         action = random.choice(self.all_valid_actions)
         next_state = self.state.getNextState(action)
-        next_node = MCTSnode()
-        next_node.setState(next_state)
-        next_node.find_all_valid_actions()
-        self.children[next_state] = (next_node, action)
-        next_node.parent = self
+        if next_state not in self.children.keys():
+            next_node = MCTSnode()
+            next_node.setState(next_state)
+            next_node.find_all_valid_actions()
+            self.children[next_state] = (next_node, action)
+            next_node.parent = self
+        else:
+            next_node = self.children[next_state][0]
         return next_node
 
     def randomChooseNextState(self) -> tuple[GameState, tuple[tuple[int, int], tuple[int, int]]]:
@@ -88,9 +91,9 @@ class MCTSnode:
     def calRewardFromState(self, direction: Player) -> float:
         winner = self.state.getWinner()
         if winner == direction:
-            return 10
+            return 20
         elif winner == Player.reverse(direction):
-            return -10
+            return -20
 
     def calUCB(self, c: float, child: MCTSnode) -> float:
         # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
@@ -102,7 +105,7 @@ class MCTSnode:
 
 class MCTSAgent(Agent):
 
-    def __init__(self, direction: Player, computation_budget: int = 100):
+    def __init__(self, direction: Player, computation_budget: int = 300):
         super().__init__(direction)
         self.root = MCTSnode()
         self.computation_budget = computation_budget
@@ -161,7 +164,6 @@ class MCTSAgent(Agent):
         whole = np.zeros((15, 15))
         whole[1:8, 8:15] = np.array(evaluate)
         whole[8:15, 1:8] = np.array(evaluate)
-        leaf_side = node.state.myself # why we need leaf node side? what we need is the root node side?
         while node.parent is not None:
             node.visit_time += 1
             parent = node.parent
