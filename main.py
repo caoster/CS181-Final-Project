@@ -65,6 +65,7 @@ def singleGame(settings) -> Optional[Player]:
 if __name__ == "__main__":
     config = readConfig()
     if config.num_of_matches != 1:
+        config.time = 0.0
         config.no_graphic = True
     print(config)
 
