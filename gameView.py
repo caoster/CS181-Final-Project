@@ -42,6 +42,17 @@ class Texture:
         return self._textures[item.name]
 
 
+class NoGraphic:
+    def __init__(self):
+        pass
+
+    def draw(self, grid):
+        pass
+
+    def setModel(self, model):
+        pass
+
+
 class GameView:
     def __init__(self, scale: int):
         self.root = Tk(className="Chinese Chess")

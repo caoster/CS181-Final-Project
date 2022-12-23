@@ -5,7 +5,7 @@ from HumanPlayer.mouseAgent import MouseAgent
 from Adversarial.MinimaxAgent import MinimaxAgent
 from agent import Agent
 from gameModel import GameModel
-from gameView import GameView
+from gameView import GameView, NoGraphic
 from utils import Player
 from MCTS.MCTSAgent import MCTSAgent
 
@@ -19,6 +19,7 @@ def readConfig():
                         help="The time interval in seconds between calling step functions, default interval is 1.0 second.")
     parser.add_argument("-R", "--Red", action="store", type=str, default="MouseAgent", help="The player of red side, default using MouseAgent.")
     parser.add_argument("-B", "--Black", action="store", type=str, default="ExampleAgent", help="The player of black side, default using ExampleAgent.")
+    parser.add_argument("-n", "--no-graphic", action="store_true", help="Turn off graphic, this option will disable -r and -r4.")
     args = parser.parse_args()
     return args
 
@@ -44,7 +45,11 @@ if __name__ == "__main__":
     config = readConfig()
     print(config)
 
-    if config.res4:
+    if config.no_graphic:
+        assert config.Red != "MouseAgent", "MouseAgent (Red) is not allowed when graphic is turned off."
+        assert config.Black != "MouseAgent", "MouseAgent (Black) is not allowed when graphic is turned off."
+        view = NoGraphic()
+    elif config.res4:
         view = GameView(4)
     elif config.res2:
         view = GameView(2)

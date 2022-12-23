@@ -4,7 +4,7 @@ import time
 from typing import Optional
 
 from utils import Piece, Player
-from gameView import GameView
+from gameView import GameView, NoGraphic
 import copy
 
 
@@ -608,6 +608,9 @@ class GameModel:
         self._canvas.draw(self._board)
 
     def startApp(self) -> None:
-        self._gameThread = Thread(target=self.startGame, daemon=True)
-        self._gameThread.start()
-        self._canvas.startApp()
+        if type(self._canvas) == NoGraphic:
+            self.startGame()
+        else:
+            self._gameThread = Thread(target=self.startGame, daemon=True)
+            self._gameThread.start()
+            self._canvas.startApp()
