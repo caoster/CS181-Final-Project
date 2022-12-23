@@ -85,15 +85,17 @@ class MCTSnode:
         else:
             best_choice = np.argmax(UCB_list)
         best_child, best_action = list(self.children.values())[best_choice]
-
+        if not is_exploration:
+            # best_child: MCTSnode
+            print(f"choose child node with visit_time = {best_child.visit_time}")
         return best_child, best_action
 
     def calRewardFromState(self, direction: Player) -> float:
         winner = self.state.getWinner()
         if winner == direction:
-            return 0
+            return 20
         elif winner == Player.reverse(direction):
-            return 0
+            return -20
 
     def calUCB(self, c: float, child: MCTSnode) -> float:
         # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
@@ -105,7 +107,7 @@ class MCTSnode:
 
 class MCTSAgent(Agent):
 
-    def __init__(self, direction: Player, computation_budget: int = 400):
+    def __init__(self, direction: Player, computation_budget: int = 200):
         super().__init__(direction)
         self.root = MCTSnode()
         self.computation_budget = computation_budget
@@ -125,10 +127,9 @@ class MCTSAgent(Agent):
             expand_node = self.treePolicy(self.root)  # expand one node
             expand_node, reward = self.defaultPolicy(expand_node)
             self.backup(expand_node, reward, self.direction)
-        print(*[child.visit_time for child, _ in self.root.children.values()])
-
+        print(*[f"{child.visit_time}: {child.quality_value} | " for child, _ in self.root.children.values()])
+        # print(*[child.quality_value for child, _ in self.root.children.values()])
         self.root, action = self.root.bestChild(False)
-        print(action)
         return action
 
     @staticmethod
@@ -140,7 +141,7 @@ class MCTSAgent(Agent):
                 return node.expand()
         return node
 
-    def defaultPolicy(self, node: MCTSnode) -> float:
+    def defaultPolicy(self, node: MCTSnode) -> tuple[MCTSnode, float]:
         round_limit = 600
         r = 0
         while not node.state.isMatchOver():
@@ -155,13 +156,13 @@ class MCTSAgent(Agent):
     @staticmethod
     def backup(node: MCTSnode, reward: float, direction: Player):
         # TODO: Verify direction/Player. Verify the Pieces got by indexing with actions.
-        evaluate = [[0, 0, 0, 1, 1, 1, 1],
+        evaluate = [[0, 0, 0, 0, 0, 0, 0],
                     [0, 0, 0, 9.5, 14.5, 10, 7],
                     [0, 0, 0, 9.5, 14.5, 10, 7],
-                    [50, 5.5, 5.5, 7.5, 12.5, 8, 5],
-                    [50, 0.5, 0.5, 2.5, 7.5, 3, 0],
-                    [50, 5, 5, 7, 12, 7.5, 4.5],
-                    [50, 8, 8, 10, 15, 10.5, 7.5]]
+                    [0, 5.5, 5.5, 7.5, 12.5, 8, 5],
+                    [0, 0.5, 0.5, 2.5, 7.5, 3, 0],
+                    [0, 5, 5, 7, 12, 7.5, 4.5],
+                    [0, 8, 8, 10, 15, 10.5, 7.5]]
         whole = np.zeros((15, 15))
         whole[1:8, 8:15] = np.array(evaluate)
         whole[8:15, 1:8] = np.array(evaluate)
@@ -172,10 +173,10 @@ class MCTSAgent(Agent):
             consumer = int(parent.state.board[action[0][0]][action[0][1]])
             consumee = int(parent.state.board[action[1][0]][action[1][1]])
             if node.state.myself == direction:
-                reward = 0.9 * reward - whole[consumer][consumee]
+                reward -= whole[consumer][consumee]
                 node.quality_value += reward
             else:
-                reward = 0.9 * reward + whole[consumer][consumee]
+                reward += whole[consumer][consumee]
                 node.quality_value -= reward
             node = node.parent
         node.visit_time += 1
