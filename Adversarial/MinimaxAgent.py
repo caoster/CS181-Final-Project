@@ -1,6 +1,6 @@
 from agent import Agent
 from data import EvaluationMatrix
-from utils import Player
+from utils import Player, Piece
 import math
 from gameModel import GameState
 
@@ -29,13 +29,14 @@ class MinimaxAgent(Agent, EvaluationMatrix):
         enemyScore = 0
         for piece in myPiece:
             x, y = piece
-            pieceType = gameState[x][y]
-            myScore += self.pieceValue[pieceType] * self.pieceScore[pieceType][x][y]
+            myPieceType = gameState[x][y]
+            myScore += self.pieceValue[myPieceType] * self.pieceScore[myPieceType][x][y]
             attackPosition = gameState.getRange(piece)
             for position in attackPosition:
                 x, y = position
                 pieceType = gameState[x][y]
-                myScore += self.pieceValue[pieceType]
+                if pieceType != Piece.NoneType:
+                    myScore += self.pieceValue[pieceType] * self.pieceScore[myPieceType][x][y]
             for threat in myThreat[piece]:
                 x, y = threat
                 pieceType = gameState[x][y]
