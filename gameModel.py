@@ -442,6 +442,16 @@ class GameState:
 
         return result
 
+    # Returns a dict with {position1: [threat1, threat2], position2: [threat1, threat2, threat3]}
+    def getThreatBySide(self, side: Player) -> dict[tuple[int, int], list[tuple[int, int]]]:
+        # This is a very naive implementation
+        result: dict[tuple[int, int], list[tuple[int, int]]] = {x: [] for x in self.getSide(side)}
+        for piece in self.getSide(Player.reverse(side)):
+            for position in self.getRange(piece):
+                if position in result:
+                    result[position].append(piece)
+        return result
+
     def getWinner(self) -> Player:
         if not any(Piece.BGeneral in i for i in self.board):
             return Player.Red  # BlackGeneral captured, Red wins
