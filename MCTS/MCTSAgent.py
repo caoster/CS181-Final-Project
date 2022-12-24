@@ -7,7 +7,8 @@ import numpy as np
 
 from agent import Agent
 from gameModel import GameState
-from utils import Player
+from utils import Player, Piece
+from data import EvaluationMatrix
 
 
 class MCTSnode:
@@ -92,10 +93,11 @@ class MCTSnode:
 
     def calRewardFromState(self, direction: Player) -> float:
         winner = self.state.getWinner()
-        if winner == direction:
-            return 20
-        elif winner == Player.reverse(direction):
-            return -20
+        # if winner == direction:
+        #     return 2
+        # elif winner == Player.reverse(direction):
+        #     return 0
+        return 0
 
     def calUCB(self, c: float, child: MCTSnode) -> float:
         # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
@@ -104,15 +106,32 @@ class MCTSnode:
         UCB = child.quality_value / child.visit_time + c * math.sqrt(2 * math.log(self.visit_time) / child.visit_time)
         return UCB
 
+    def initQvalue(self, matrix: EvaluationMatrix) -> None:
+        myPiece = self.state.getSide(self.state.myself)
+        enemyPiece = self.state.getSide(Player.reverse(self.state.myself))
+        score = 0
+        for piece in myPiece:
+            pieceType = self.state[piece[0]][piece[1]]
+            score += matrix.pieceValue[pieceType] * matrix.pieceScore[pieceType][piece[0]][piece[1]]
+        for piece in enemyPiece:
+            pieceType = self.state[piece[0]][piece[1]]
+            score -= matrix.pieceValue[pieceType] * matrix.pieceScore[pieceType][piece[0]][piece[1]]
+        assert self.quality_value == 0
+        self.quality_value = -score
 
 class MCTSAgent(Agent):
-
-    def __init__(self, direction: Player, computation_budget: int = 3000):
+    def __init__(self, direction: Player, computation_budget: int = 400):
         super().__init__(direction)
         self.root = MCTSnode()
+        self.evaluate_matrix = EvaluationMatrix()
         self.computation_budget = computation_budget
+        self.evaluate_matrix.pieceValue[Piece.NoneType] = 0
+        for key in self.evaluate_matrix.pieceValue.keys():
+            self.evaluate_matrix.pieceValue[key] /= computation_budget ** 1.5
+        self.evaluate_matrix.pieceValue["compensate"] = self.evaluate_matrix.pieceValue[Piece.RChariot]
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
+        print("MCTS starts thinking!")
         new_state = self.game.getGameState()
         if new_state in self.root.children.keys():
             self.root, _ = self.root.children[new_state]
@@ -120,43 +139,47 @@ class MCTSAgent(Agent):
         else:
             self.root = MCTSnode()
             self.root.setState(new_state)
+            self.root.initQvalue(self.evaluate_matrix)
             self.root.state.myself = self.direction
         self.root.find_all_valid_actions()
         # print(len(self.root.all_valid_actions))
         for i in range(self.computation_budget):
             expand_node = self.treePolicy(self.root)  # expand one node
             expand_node, reward = self.defaultPolicy(expand_node)
-            self.backup(expand_node, reward, self.direction)
-        print(*[f"{child.visit_time}: {child.quality_value / child.visit_time} | " for child, _ in self.root.children.values()])
+            self.backup(expand_node, reward)
+        print(*[f"{child.visit_time}: {child.quality_value}" for child, _ in self.root.children.values()])
         self.root, action = self.root.bestChild(False)
+        print("MCTS stops thinking.")
         return action
 
-    @staticmethod
-    def treePolicy(node: MCTSnode) -> MCTSnode:
+    # @staticmethod
+    def treePolicy(self, node: MCTSnode) -> MCTSnode:
         if not node.state.isMatchOver():
             if node.is_all_expand():
                 node, _ = node.bestChild(True)
             else:
-                return node.expand()
+                node = node.expand()
+                node.initQvalue(self.evaluate_matrix)
+                return node
         return node
 
     def defaultPolicy(self, node: MCTSnode) -> tuple[MCTSnode, float]:
-        round_limit = 15
+        round_limit = 500
         r = 0
         while not node.state.isMatchOver():
             node = self.treePolicy(node)
             # node = node.randomExpand()
             r += 1
             if r > round_limit:
-                # print("tie!")
+                print("tie!")
                 return node, 0
         node.state.swapDirection()
         reward = node.calRewardFromState(self.direction)
         node.state.swapDirection()
         return node, reward
 
-    @staticmethod
-    def backup(node: MCTSnode, reward: float, direction: Player):
+    # @staticmethod
+    def backup(self, node: MCTSnode, reward: float):
         # TODO: Verify direction/Player. Verify the Pieces got by indexing with actions.
         # evaluate = [[0, 0, 0, 10, 10, 10, 10],
         #             [0, 0, 0, 9.5, 14.5, 10, 7],
@@ -165,38 +188,39 @@ class MCTSAgent(Agent):
         #             [25, 0.5, 0.5, 2.5, 7.5, 3, 0],
         #             [25, 5, 5, 7, 12, 7.5, 4.5],
         #             [25, 8, 8, 10, 15, 10.5, 7.5]]
-        reward_matrix = np.array([
-            [0, 0, 0, 12, 17, 12.5, 9.5],
-            [0, 0, 0, 11, 16, 11.5, 8.5],
-            [0, 0, 0, 11, 16, 11.5, 8.5],
-            [6, 7, 7, 9, 14, 9.5, 6.5],
-            [1, 2, 2, 4, 9, 4.5, 1.5],
-            [5.5, 6.5, 6.5, 8.5, 13.5, 9, 6],
-            [8.5, 9.5, 9.5, 11.5, 16.5, 12, 9]
-        ])
-        whole = np.zeros((15, 15))
+        # reward_matrix = np.array([
+        #     [0, 0, 0, 12, 17, 12.5, 9.5],
+        #     [0, 0, 0, 11, 16, 11.5, 8.5],
+        #     [0, 0, 0, 11, 16, 11.5, 8.5],
+        #     [6, 7, 7, 9, 14, 9.5, 6.5],
+        #     [1, 2, 2, 4, 9, 4.5, 1.5],
+        #     [5.5, 6.5, 6.5, 8.5, 13.5, 9, 6],
+        #     [8.5, 9.5, 9.5, 11.5, 16.5, 12, 9]
+        # ])
+        # power_matrix = np.array([0, 3, 0.025, 0.025, 0.05, 0.1, 0.05, 0.01, 3, 0.025, 0.025, 0.05, 0.1, 0.05, 0.01])
+        # whole = np.zeros((15, 15))
         # whole[1:8, 8:15] = np.array(evaluate)
         # whole[8:15, 1:8] = np.array(evaluate)
-        if direction == Player.Red:
-            whole[1:8, 8:15] = np.transpose(reward_matrix)
-            whole[8:15, 1:8] = reward_matrix
-        else:
-            whole[1:8, 8:15] = reward_matrix
-            whole[8:15, 1:8] = np.transpose(reward_matrix)
-        whole *= 0.1
+        # if direction == Player.Red:
+        #     whole[1:8, 8:15] = np.transpose(reward_matrix)
+        #     whole[8:15, 1:8] = reward_matrix
+        # else:
+        #     whole[1:8, 8:15] = reward_matrix
+        #     whole[8:15, 1:8] = np.transpose(reward_matrix)
+        # whole *= 0.1
         while node.parent is not None:
             node.visit_time += 1
             parent = node.parent
             _, action = parent.children[node.state]
-            consumer = int(parent.state.board[action[0][0]][action[0][1]])
-            consumee = int(parent.state.board[action[1][0]][action[1][1]])
-            reward -= 0.001
-
-            if node.state.myself == direction:
-                reward = 0.99 * reward - 2 * whole[consumer][consumee]
+            consumer = parent.state[action[0][0]][action[0][1]]
+            consumee = parent.state[action[1][0]][action[1][1]]
+            if consumee == Piece.NoneType:
+                consumer = Piece.NoneType
+            if node.state.myself == self.direction:
+                reward = 0.99 * reward + (self.evaluate_matrix.pieceValue[consumer]-self.evaluate_matrix.pieceValue[consumee])
                 node.quality_value -= reward
             else:
-                reward = 0.99 * reward + whole[consumer][consumee]
+                reward = 0.99 * reward + (self.evaluate_matrix.pieceValue[consumee]-self.evaluate_matrix.pieceValue[consumer])
                 node.quality_value += reward
             node = node.parent
         node.visit_time += 1
