@@ -15,11 +15,13 @@ class MinimaxAgent(Agent, EvaluationMatrix):
         self.playerSide = direction
 
     def evaluationFunction(self, gameState: GameState) -> int:
+        gameState.swapDirection()
         winner = gameState.getWinner()
+        gameState.swapDirection()
         if winner == self.playerSide:
-            return 100000
+            return 1000000
         elif winner == Player.reverse(self.playerSide):
-            return -100000
+            return -1000000
         myPiece = gameState.getSide(self.playerSide)
         enemyPiece = gameState.getSide(Player.reverse(self.playerSide))
         myScore = 0
