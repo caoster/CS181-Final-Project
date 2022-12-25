@@ -42,12 +42,28 @@ class MCTSnode:
         self.num_all_valid_actions = len(self.all_valid_actions)
 
     def initQvalue(self, matrix: EvaluationMatrix) -> None:
+        assert self.quality_value == 0
+        self.state.swapDirection()
+        winner = self.state.getWinner()
+        self.state.swapDirection()
+        # if Player.reverse(self.state.myself) == winner:
+        #     self.quality_value += 100000000
+        # elif self.state.myself == winner:
+        #     self.quality_value -= 100000000
+        if Player.reverse(self.state.myself) == Player.Red:
+            my_counter = {Piece.RGeneral: 1, Piece.RAdvisor: 2, Piece.RElephant: 2, Piece.RHorse: 2, Piece.RChariot: 2, Piece.RCannon: 2, Piece.RSoldier: 5}
+            enemy_counter = {Piece.BGeneral: 1, Piece.BAdvisor: 2, Piece.BElephant: 2, Piece.BHorse: 2, Piece.BChariot: 2, Piece.BCannon: 2, Piece.BSoldier: 5}
+        else:
+            my_counter = {Piece.BGeneral: 1, Piece.BAdvisor: 2, Piece.BElephant: 2, Piece.BHorse: 2, Piece.BChariot: 2, Piece.BCannon: 2, Piece.BSoldier: 5}
+            enemy_counter = {Piece.RGeneral: 1, Piece.RAdvisor: 2, Piece.RElephant: 2, Piece.RHorse: 2, Piece.RChariot: 2, Piece.RCannon: 2, Piece.RSoldier: 5}
         myPiece = self.state.getSide(Player.reverse(self.state.myself))
         enemyPiece = self.state.getSide(self.state.myself)
         myThreat = self.state.getThreatBySide(Player.reverse(self.state.myself))
         score = 0
         for piece in myPiece:
             pieceType = self.state[piece[0]][piece[1]]
+            assert my_counter[pieceType] > 0
+            my_counter[pieceType] -= 1
             score += matrix.pieceValue[pieceType] * matrix.pieceScore[pieceType][piece[0]][piece[1]]
             attack_pos = self.state.getRange(piece)
             for threat in myThreat[piece]:
@@ -58,8 +74,13 @@ class MCTSnode:
                 score += matrix.pieceValue[pieceType]
         for piece in enemyPiece:
             pieceType = self.state[piece[0]][piece[1]]
+            assert enemy_counter[pieceType] > 0
+            enemy_counter[pieceType] -= 1
             score -= matrix.pieceValue[pieceType] * matrix.pieceScore[pieceType][piece[0]][piece[1]]
-        assert self.quality_value == 0
+        for piece in my_counter.keys():
+            score -= my_counter[piece] * matrix.pieceValue[piece]
+        for piece in enemy_counter.keys():
+            score += enemy_counter[piece] * matrix.pieceValue[piece]
         self.quality_value = score
 
     def expand(self) -> MCTSnode:
@@ -116,11 +137,12 @@ class MCTSnode:
 
     def calRewardFromState(self, direction: Player) -> float:
         winner = self.state.getWinner()
+        # if self.state.findPiece(Piece.RGeneral) is not [] and self.state.findPiece(Piece.BGeneral) is not []:
         if winner == direction:
             return 10
         elif winner == Player.reverse(direction):
             return -10
-        # return 0
+        return 0
 
     def calUCB(self, c: float, child: MCTSnode) -> float:
         # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
@@ -160,7 +182,9 @@ class MCTSAgent(Agent):
             expand_node, reward = self.defaultPolicy(expand_node)
             self.backup(expand_node, reward)
         print(self.tie)
-        print(*[f"{child.visit_time}: {child.quality_value}" for child, _ in self.root.children.values()])
+        # for child, _ in self.root.children.values():
+        #     print(f"{child.visit_time}: {child.quality_value}")
+        # print(*[f"{child.visit_time}: {child.quality_value}" for child, _ in self.root.children.values()])
         self.root, action = self.root.bestChild(False)
         print("MCTS stops thinking.")
         return action
@@ -180,8 +204,8 @@ class MCTSAgent(Agent):
         round_limit = 200
         r = 0
         while not node.state.isMatchOver():
-            node = self.treePolicy(node)
-            # node = node.randomExpand(self.evaluate_matrix)
+            # node = self.treePolicy(node)
+            node = node.randomExpand(self.evaluate_matrix)
             r += 1
             if r > round_limit:
                 self.tie += 1
@@ -202,10 +226,10 @@ class MCTSAgent(Agent):
             if consumee == Piece.NoneType:
                 consumer = Piece.NoneType
             if node.state.myself == self.direction:
-                reward = 0.99 * reward
+                # reward = 0.9 * reward
                 node.quality_value -= reward
             else:
-                reward = 0.99 * reward
+                # reward = 0.9 * reward
                 node.quality_value += reward
             node = node.parent
         node.visit_time += 1
