@@ -3,10 +3,22 @@
 
 
 #include <ostream>
+#include <vector>
+#include <algorithm>
 
 using Position = std::pair<size_t, size_t>;
 using Action = std::pair<Position, Position>;
 
+class Player;
+class Piece;
+
+// This function can find a value in vector<vector<int>>
+template<typename T>
+inline bool find_2D(std::vector<std::vector<T>> matrix, T value) {
+    return std::find_if(matrix.begin(), matrix.end(), [value](const std::vector<T> &v) {
+        return find(v.begin(), v.end(), value) != v.end();
+    }) != matrix.end();
+}
 
 class Player {
 public:
@@ -16,7 +28,7 @@ public:
 
     Player() = delete;
 
-    constexpr explicit Player(Value player) : _value(player) {}
+    constexpr Player(Value player) : _value(player) {} // Let clang-tidy shut up, I need non-explicit here.
 
     constexpr bool operator==(Player that) const { return _value == that._value; }
 

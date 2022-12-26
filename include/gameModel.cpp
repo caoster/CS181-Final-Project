@@ -475,3 +475,104 @@ std::vector<Position> GameState::getRange(Position position) {
     }
     return result;
 }
+
+std::unordered_map<Position, std::vector<Position>> GameState::getThreatBySide(Player side) {
+    // A very naive implementation, yet fast enough for C++
+//    TODO: Returns a dict with {position1: [threat1, threat2], position2: [threat1, threat2, threat3]}
+//    def getThreatBySide(self, side: Player) -> dict[tuple[int, int], list[tuple[int, int]]]:
+//        result: dict[tuple[int, int], list[tuple[int, int]]] = {x: [] for x in self.getSide(side)}
+//        for piece in self.getSide(Player.reverse(side)):
+//            for position in self.getRange(piece):
+//                if position in result:
+//                    result[position].append(piece)
+//        return result
+}
+
+std::vector<Position> GameState::getSide(Player side) {
+    std::vector<Position> result{};
+    for (size_t i = 0; i < board.size(); ++i) {
+        for (size_t j = 0; j < board[i].size(); ++j) {
+            if (board[i][j].getSide() == side)
+                result.emplace_back(i, j);
+        }
+    }
+    return result;
+}
+
+std::vector<Position> GameState::findPiece(Piece piece) {
+    std::vector<Position> result{};
+    for (size_t i = 0; i < board.size(); ++i) {
+        for (size_t j = 0; j < board[i].size(); ++j) {
+            if (board[i][j] == piece)
+                result.emplace_back(i, j);
+        }
+    }
+    return result;
+}
+
+std::vector<Action> GameState::getLegalActionsBySide(Player direction) {
+    std::vector<Action> result{};
+    auto pieces = getSide(direction);
+    for (auto &piece: pieces) {
+        auto range = getRange(piece);
+        for (auto &j: range) {
+            result.emplace_back(piece, j);
+        }
+    }
+    return result;
+}
+
+Player GameState::getWinner() {
+    if (!find_2D(board, {Piece::BGeneral})) return Player::Red; // BlackGeneral captured, Red wins
+    if (!find_2D(board, {Piece::RGeneral})) return Player::Black; // RedGeneral captured, Black wins
+    auto [redG_x, redG_y] = findPiece(Piece::RGeneral)[0];
+    auto [blackG_x, blackG_y] = findPiece(Piece::BGeneral)[0];
+    if (redG_x == blackG_x) {
+        bool fly = true;
+        for (size_t i = blackG_y + 1; i < redG_y; ++i) {
+            if (board[redG_x][i].getSide() != Player::NoneType) {
+                fly = false;
+                break;
+            }
+        }
+        if (fly) return myself.reverse();
+    }
+
+    bool redLose = true;
+    auto allRed = getSide(Player::Red);
+    for (auto red: allRed) {
+        if (!getRange(red).empty()) {
+            redLose = false;
+            break;
+        }
+    }
+    if (redLose) return Player::Black;
+
+    bool blackLose = true;
+    auto allBlack = getSide(Player::Black);
+    for (auto black: allBlack) {
+        if (!getRange(black).empty()) {
+            blackLose = false;
+            break;
+        }
+    }
+    if (blackLose) return Player::Red;
+    // TODO: if draw, return Player.Draw
+    // No pieces captured in 60 steps
+    // Three identical moves
+    return Player::NoneType;
+}
+
+void GameState::init_with_start_game() {
+    board = {
+            {Piece::BChariot,  Piece::NoneType, Piece::NoneType, Piece::BSoldier, Piece::NoneType, Piece::NoneType, Piece::RSoldier, Piece::NoneType, Piece::NoneType, Piece::RChariot},
+            {Piece::BHorse,    Piece::NoneType, Piece::BCannon,  Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::RCannon,  Piece::NoneType, Piece::RHorse},
+            {Piece::BElephant, Piece::NoneType, Piece::NoneType, Piece::BSoldier, Piece::NoneType, Piece::NoneType, Piece::RSoldier, Piece::NoneType, Piece::NoneType, Piece::RElephant},
+            {Piece::BAdvisor,  Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::RAdvisor},
+            {Piece::BGeneral,  Piece::NoneType, Piece::NoneType, Piece::BSoldier, Piece::NoneType, Piece::NoneType, Piece::RSoldier, Piece::NoneType, Piece::NoneType, Piece::RGeneral},
+            {Piece::BAdvisor,  Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::RAdvisor},
+            {Piece::BElephant, Piece::NoneType, Piece::NoneType, Piece::BSoldier, Piece::NoneType, Piece::NoneType, Piece::RSoldier, Piece::NoneType, Piece::NoneType, Piece::RElephant},
+            {Piece::BHorse,    Piece::NoneType, Piece::BCannon,  Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::RCannon,  Piece::NoneType, Piece::RHorse},
+            {Piece::BChariot,  Piece::NoneType, Piece::NoneType, Piece::BSoldier, Piece::NoneType, Piece::NoneType, Piece::RSoldier, Piece::NoneType, Piece::NoneType, Piece::RChariot}
+    };
+}
