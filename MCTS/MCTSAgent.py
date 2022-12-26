@@ -39,17 +39,47 @@ class MCTSnode:
 
     def find_all_valid_actions(self):
         self.all_valid_actions = self.state.getLegalActionsBySide(self.state.myself)
+        if self.state.myself == Player.Red:
+            my_general = Piece.RGeneral
+            other_general = Piece.BGeneral
+        elif self.state.myself == Player.Black:
+            my_general = Piece.BGeneral
+            other_general = Piece.RGeneral
+        # checkmate opponent
+        attack = self.state.getThreatBySide(Player.reverse(self.state.myself))
+        other_piece_pos = self.state.findPiece(other_general)
+        if other_piece_pos != [] and attack[other_piece_pos[0]] != []:
+            actions = []
+            for my_piece_pos in attack[other_piece_pos[0]]:
+                actions.append((my_piece_pos, other_piece_pos[0]))
+            self.all_valid_actions = actions
+            self.num_all_valid_actions = len(self.all_valid_actions)
+            return
+        # avoid direct checkmate
+        threats = self.state.getThreatBySide(self.state.myself)
+        my_piece_pos = self.state.findPiece(my_general)
+        if my_piece_pos != [] and threats[my_piece_pos[0]] != []:
+            actions = []
+            for action in self.all_valid_actions:
+                state = self.state.getNextState(action=action)
+                new_threats = state.getThreatBySide(self.state.myself)
+                my_new_piece_pos = state.findPiece(my_general)
+                if my_new_piece_pos != [] and new_threats[my_new_piece_pos[0]] == []:
+                    actions.append(action)
+            if actions != []:
+                self.all_valid_actions = actions
+                self.num_all_valid_actions = len(self.all_valid_actions)
+                return
+        # avoid action lead to checkmate
+        for action in self.all_valid_actions:
+            state = self.state.getNextState(action=action)
+            new_threats = state.getThreatBySide(self.state.myself)
+            my_new_piece_pos = state.findPiece(my_general)
+            if my_new_piece_pos != [] and new_threats[my_new_piece_pos[0]] != []:
+                self.all_valid_actions.remove(action)
         self.num_all_valid_actions = len(self.all_valid_actions)
 
     def initQvalue(self, matrix: EvaluationMatrix) -> None:
-        assert self.quality_value == 0
-        self.state.swapDirection()
-        winner = self.state.getWinner()
-        self.state.swapDirection()
-        # if Player.reverse(self.state.myself) == winner:
-        #     self.quality_value += 100000000
-        # elif self.state.myself == winner:
-        #     self.quality_value -= 100000000
         if Player.reverse(self.state.myself) == Player.Red:
             my_counter = {Piece.RGeneral: 1, Piece.RAdvisor: 2, Piece.RElephant: 2, Piece.RHorse: 2, Piece.RChariot: 2, Piece.RCannon: 2, Piece.RSoldier: 5}
             enemy_counter = {Piece.BGeneral: 1, Piece.BAdvisor: 2, Piece.BElephant: 2, Piece.BHorse: 2, Piece.BChariot: 2, Piece.BCannon: 2, Piece.BSoldier: 5}
@@ -62,7 +92,6 @@ class MCTSnode:
         score = 0
         for piece in myPiece:
             pieceType = self.state[piece[0]][piece[1]]
-            assert my_counter[pieceType] > 0
             my_counter[pieceType] -= 1
             score += matrix.pieceValue[pieceType] * matrix.pieceScore[pieceType][piece[0]][piece[1]]
             attack_pos = self.state.getRange(piece)
@@ -74,7 +103,6 @@ class MCTSnode:
                 score += matrix.pieceValue[pieceType]
         for piece in enemyPiece:
             pieceType = self.state[piece[0]][piece[1]]
-            assert enemy_counter[pieceType] > 0
             enemy_counter[pieceType] -= 1
             score -= matrix.pieceValue[pieceType] * matrix.pieceScore[pieceType][piece[0]][piece[1]]
         for piece in my_counter.keys():
@@ -139,9 +167,9 @@ class MCTSnode:
         winner = self.state.getWinner()
         # if self.state.findPiece(Piece.RGeneral) is not [] and self.state.findPiece(Piece.BGeneral) is not []:
         if winner == direction:
-            return 10
+            return 1
         elif winner == Player.reverse(direction):
-            return -10
+            return -1
         return 0
 
     def calUCB(self, c: float, child: MCTSnode) -> float:
@@ -153,14 +181,14 @@ class MCTSnode:
 
 
 class MCTSAgent(Agent):
-    def __init__(self, direction: Player, computation_budget: int = 400):
+    def __init__(self, direction: Player, computation_budget: int = 100):
         super().__init__(direction)
         self.root = MCTSnode()
         self.evaluate_matrix = EvaluationMatrix()
         self.computation_budget = computation_budget
         self.tie = 0
         for key in self.evaluate_matrix.pieceValue.keys():
-            self.evaluate_matrix.pieceValue[key] /= computation_budget ** 1.5
+            self.evaluate_matrix.pieceValue[key] /= 10000
         # self.evaluate_matrix.pieceValue["compensate"] = self.evaluate_matrix.pieceValue[Piece.RChariot]
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
@@ -182,8 +210,8 @@ class MCTSAgent(Agent):
             expand_node, reward = self.defaultPolicy(expand_node)
             self.backup(expand_node, reward)
         print(self.tie)
-        # for child, _ in self.root.children.values():
-        #     print(f"{child.visit_time}: {child.quality_value}")
+        for child, _ in self.root.children.values():
+            print(f"{child.visit_time}: {child.quality_value / child.visit_time}")
         # print(*[f"{child.visit_time}: {child.quality_value}" for child, _ in self.root.children.values()])
         self.root, action = self.root.bestChild(False)
         print("MCTS stops thinking.")
