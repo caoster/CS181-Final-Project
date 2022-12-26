@@ -4,6 +4,10 @@
 
 #include <ostream>
 
+using Position = std::pair<size_t, size_t>;
+using Action = std::pair<Position, Position>;
+
+
 class Player {
 public:
     enum Value {
@@ -12,14 +16,18 @@ public:
 
     Player() = delete;
 
-    constexpr explicit Player(Value player) : value(player) {}
+    constexpr explicit Player(Value player) : _value(player) {}
 
-    constexpr bool operator==(Player that) const { return value == that.value; }
+    constexpr bool operator==(Player that) const { return _value == that._value; }
 
-    constexpr bool operator!=(Player that) const { return value != that.value; }
+    constexpr bool operator!=(Player that) const { return _value != that._value; }
+
+    constexpr bool operator==(Player::Value that) const { return _value == that; }
+
+    constexpr bool operator!=(Player::Value that) const { return _value != that; }
 
     friend std::ostream &operator<<(std::ostream &os, const Player &player) {
-        switch (player.value) {
+        switch (player._value) {
             case NoneType:
                 return os << "NoneType";
             case Red:
@@ -33,9 +41,9 @@ public:
 
     [[nodiscard]] Player reverse() const {
         // Player.reverse should never be called upon Draw
-        if (value == Red) {
+        if (_value == Red) {
             return Player(Black);
-        } else if (value == Black) {
+        } else if (_value == Black) {
             return Player(Red);
         } else {
             return Player(NoneType);
@@ -43,7 +51,7 @@ public:
     }
 
 private:
-    Value value;
+    Value _value;
 };
 
 
@@ -71,14 +79,16 @@ public:
 
     Piece() = delete;
 
-    constexpr explicit Piece(Value piece) : value(piece) {}
+    constexpr Piece(Value piece) : _value(piece) {} // Let clang-tidy shut up, I need non-explicit here.
 
-    constexpr bool operator==(Piece that) const { return value == that.value; }
+    constexpr bool operator==(Piece that) const { return _value == that._value; }
 
-    constexpr bool operator!=(Piece that) const { return value != that.value; }
+    constexpr bool operator!=(Piece that) const { return _value != that._value; }
+
+    Value value() { return _value; }
 
     [[nodiscard]] Player getSide() const {
-        switch (value) {
+        switch (_value) {
             case NoneType:
                 return Player(Player::NoneType);
             case BGeneral:
@@ -100,11 +110,48 @@ public:
         }
     }
 
+    friend std::ostream &operator<<(std::ostream &os, const Piece &piece) {
+        switch (piece._value) {
+            case NoneType:
+                return os << "NoneType";
+            case BGeneral:
+                return os << "BGeneral";
+            case BAdvisor:
+                return os << "BAdvisor";
+            case BElephant:
+                return os << "BElephant";
+            case BHorse:
+                return os << "BHorse";
+            case BChariot:
+                return os << "BChariot";
+            case BCannon:
+                return os << "BCannon";
+            case BSoldier:
+                return os << "BSoldier";
+            case RGeneral:
+                return os << "RGeneral";
+            case RAdvisor:
+                return os << "RAdvisor";
+            case RElephant:
+                return os << "RElephant";
+            case RHorse:
+                return os << "RHorse";
+            case RChariot:
+                return os << "RChariot";
+            case RCannon:
+                return os << "RCannon";
+            case RSoldier:
+                return os << "RSoldier";
+        }
+    }
+
 private:
-    Value value;
+    Value _value;
 };
 
 // TODO: implement dict with unordered map
+// key = tuple[gameState, tuple[(int, int), (int, int)]]
+// _value = float
 //class Counter(dict):
 //
 //    def __getitem__(self, idx):
