@@ -11,6 +11,17 @@
 
 using Position = std::pair<size_t, size_t>;
 using Action = std::pair<Position, Position>;
+using ScoreMatrix = std::vector<std::vector<int>>;
+
+// This function can transpose a matrix
+template<typename T>
+std::vector<std::vector<T>> transpose(std::vector<std::vector<T>> in) {
+    std::vector<std::vector<T>> out(in[0].size(), std::vector<T>(in.size()));
+    for (size_t i = 0; i < in.size(); ++i)
+        for (size_t j = 0; j < in[0].size(); ++j)
+            out[j][i] = in[i][j];
+    return out;
+}
 
 // This function can find a value in vector<vector<int>>
 template<typename T>
@@ -54,11 +65,11 @@ public:
     [[nodiscard]] Player reverse() const {
         // Player.reverse should never be called upon Draw
         if (_value == Red) {
-            return Player(Black);
+            return {Black};
         } else if (_value == Black) {
-            return Player(Red);
+            return {Red};
         } else {
-            return Player(NoneType);
+            return {NoneType};
         }
     }
 
@@ -102,7 +113,7 @@ public:
     [[nodiscard]] Player getSide() const {
         switch (_value) {
             case NoneType:
-                return Player(Player::NoneType);
+                return {Player::NoneType};
             case BGeneral:
             case BAdvisor:
             case BElephant:
@@ -110,7 +121,7 @@ public:
             case BChariot:
             case BCannon:
             case BSoldier:
-                return Player(Player::Black);
+                return {Player::Black};
             case RGeneral:
             case RAdvisor:
             case RElephant:
@@ -118,7 +129,7 @@ public:
             case RChariot:
             case RCannon:
             case RSoldier:
-                return Player(Player::Red);
+                return {Player::Red};
         }
     }
 
@@ -157,8 +168,18 @@ public:
         }
     }
 
+    friend std::hash<Piece>;
+
 private:
     Value _value;
+};
+
+
+template<>
+struct std::hash<Piece> {
+    std::size_t operator()(const Piece &k) const {
+        return (std::hash<int>()(k._value));
+    }
 };
 
 // TODO: implement dict with unordered map
