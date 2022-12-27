@@ -46,6 +46,7 @@ macro(setup name)
             PRIVATE
             ${INCLUDE_FILE}
             ${RANDOM}
+            ${MINIMAX}
             )
 endmacro(setup)
 

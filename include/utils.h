@@ -13,6 +13,13 @@ using Position = std::pair<size_t, size_t>;
 using Action = std::pair<Position, Position>;
 using ScoreMatrix = std::vector<std::vector<int>>;
 
+template<>
+struct std::hash<Position> {
+    std::size_t operator()(const Position &k) const {
+        return (std::hash<size_t>()(k.first) ^ (std::hash<size_t>()(k.second) << 1));
+    }
+};
+
 // This function can transpose a matrix
 template<typename T>
 std::vector<std::vector<T>> transpose(std::vector<std::vector<T>> in) {

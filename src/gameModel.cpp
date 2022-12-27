@@ -480,14 +480,18 @@ std::vector<Position> GameState::getRange(Position position) {
 
 std::unordered_map<Position, std::vector<Position>> GameState::getThreatBySide(Player side) {
     // A very naive implementation, yet fast enough for C++
-//    TODO: Returns a dict with {position1: [threat1, threat2], position2: [threat1, threat2, threat3]}
-//    def getThreatBySide(self, side: Player) -> dict[tuple[int, int], list[tuple[int, int]]]:
-//        result: dict[tuple[int, int], list[tuple[int, int]]] = {x: [] for x in self.getSide(side)}
-//        for piece in self.getSide(Player.reverse(side)):
-//            for position in self.getRange(piece):
-//                if position in result:
-//                    result[position].append(piece)
-//        return result
+    std::unordered_map<Position, std::vector<Position>> result;
+    for (auto piece: getSide(side)) {
+        result[piece] = std::vector<Position>();
+    }
+    for (auto piece: getSide(side.reverse())) {
+        for (auto position: getRange(piece)) {
+            if (result.find(position) != result.end()) {
+                result[position].push_back(piece);
+            }
+        }
+    }
+    return result;
 }
 
 std::vector<Position> GameState::getSide(Player side) {
