@@ -14,7 +14,7 @@ class MinimaxAgent(Agent, EvaluationMatrix):
         self.depth = depth
         self.playerSide = direction
 
-    def evaluationFunction(self, gameState: GameState) -> int:
+    def evaluationFunction(self, gameState: GameState) -> float:
         gameState.swapDirection()
         winner = gameState.getWinner()
         gameState.swapDirection()
@@ -24,28 +24,33 @@ class MinimaxAgent(Agent, EvaluationMatrix):
             return -1000000
         myPiece = gameState.getSide(self.playerSide)
         enemyPiece = gameState.getSide(Player.reverse(self.playerSide))
-        myThreat = gameState.getThreatBySide(self.playerSide)
         myScore = 0
         enemyScore = 0
+        myThreat = gameState.getThreatBySide(self.playerSide)
         for piece in myPiece:
             x, y = piece
             myPieceType = gameState[x][y]
             myScore += self.pieceValue[myPieceType] * self.pieceScore[myPieceType][x][y]
+            myScore *= 0.1
+
             attackPosition = gameState.getRange(piece)
+            flexibility = 0
             for position in attackPosition:
                 x, y = position
                 pieceType = gameState[x][y]
                 if pieceType != Piece.NoneType:
-                    myScore += self.pieceValue[pieceType] * self.pieceScore[myPieceType][x][y]
-            for threat in myThreat[piece]:
-                x, y = threat
-                pieceType = gameState[x][y]
-                myScore -= self.pieceValue[pieceType]
+                    myScore += self.pieceValue[pieceType] * 2
+                else:
+                    flexibility += 1
+            myScore += flexibility * self.pieceFlexibility[myPieceType]
+            myScore -= self.pieceValue[myPieceType] * len(myThreat[piece])
+            protector = gameState.getProtectorBySide(self.playerSide, piece)
+            myScore += self.pieceValue[myPieceType] * len(protector)
         for piece in enemyPiece:
             x, y = piece
             pieceType = gameState[x][y]
             enemyScore += self.pieceValue[pieceType] * self.pieceScore[pieceType][x][y]
-        return myScore - enemyScore
+        return myScore - enemyScore * 0.1
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
 
@@ -75,7 +80,7 @@ class MinimaxAgent(Agent, EvaluationMatrix):
                 b = min(b, minimum)
             return minimum
 
-        print("Minimax Agent is thinking...")
+        print("Minimax starts thinking...")
         gameState = self.game.getGameState()
         legalMoves = gameState.getLegalActionsBySide(self.playerSide)
         bestMove = None
@@ -90,5 +95,5 @@ class MinimaxAgent(Agent, EvaluationMatrix):
             if value > beta:
                 break
             alpha = max(alpha, value)
-        print("Minimax Agent has finished thinking...")
+        print("Minimax stops thinking...")
         return bestMove
