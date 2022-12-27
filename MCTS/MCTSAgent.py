@@ -96,7 +96,8 @@ class MCTSnode:
                     actions.append(action)
             if actions:
                 self.all_valid_actions = actions
-        for action in self.all_valid_actions:
+        tmp_all_valid_actions = self.all_valid_actions.copy()
+        for action in tmp_all_valid_actions:
             pre_pos = action[0]
             next_pos = action[1]
             if self.state.board[pre_pos[0]][pre_pos[1]] not in (my_cannon, my_chariot, my_horse) or pre_pos == my_piece_pos[0]:
@@ -104,9 +105,12 @@ class MCTSnode:
             state = self.state.getNextState(action=action)
             new_threats = state.getThreatBySide(self.state.myself)
             if new_threats[next_pos] and next_pos not in my_general_neighbor:
-                self.all_valid_actions.remove(action)
-        self.num_all_valid_actions = len(self.all_valid_actions)
-        assert self.num_all_valid_actions != 0, "get you !"
+                tmp_all_valid_actions.remove(action)
+        if len(tmp_all_valid_actions) > 0:
+            self.all_valid_actions = tmp_all_valid_actions
+            self.num_all_valid_actions = len(self.all_valid_actions)
+
+        # assert self.num_all_valid_actions != 0, "get you !"
 
     def initQvalue(self, matrix: EvaluationMatrix) -> None:
         if Player.reverse(self.state.myself) == Player.Red:
