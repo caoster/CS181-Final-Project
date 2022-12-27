@@ -24,8 +24,8 @@ class MinimaxAgent(Agent, EvaluationMatrix):
             return -1000000
         myPiece = gameState.getSide(self.playerSide)
         enemyPiece = gameState.getSide(Player.reverse(self.playerSide))
-        myScore = 0
-        enemyScore = 0
+        myScore: float = 0
+        enemyScore: float = 0
         myThreat = gameState.getThreatBySide(self.playerSide)
         for piece in myPiece:
             x, y = piece
@@ -34,7 +34,7 @@ class MinimaxAgent(Agent, EvaluationMatrix):
             myScore *= 0.1
 
             attackPosition = gameState.getRange(piece)
-            flexibility = 0
+            flexibility: int = 0
             for position in attackPosition:
                 x, y = position
                 pieceType = gameState[x][y]
@@ -82,6 +82,9 @@ class MinimaxAgent(Agent, EvaluationMatrix):
 
         print("Minimax starts thinking...")
         gameState = self.game.getGameState()
+        totalPieces = len(gameState.getSide(self.playerSide)) + len(gameState.getSide(Player.reverse(self.playerSide)))
+        fraction: float = 1 - (totalPieces / 32)
+        self.depth = int(fraction * 4) + 2
         legalMoves = gameState.getLegalActionsBySide(self.playerSide)
         bestMove = None
         bestValue = -math.inf
