@@ -5,12 +5,12 @@
 #include <ostream>
 #include <vector>
 #include <algorithm>
+#include <cassert>
+
+#define NOT_REACHED assert(false && "This statement should not be reached!");
 
 using Position = std::pair<size_t, size_t>;
 using Action = std::pair<Position, Position>;
-
-class Player;
-class Piece;
 
 // This function can find a value in vector<vector<int>>
 template<typename T>

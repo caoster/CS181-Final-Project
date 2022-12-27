@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CHESS "Chinese_Chess")
 project(${CHESS} VERSION 0.0.1)
 add_subdirectory(JUCE)
-file(GLOB INCLUDE_FILE include/*.h include/*.cpp main.cpp)
+file(GLOB INCLUDE_FILE include/*.h src/*.cpp main.cpp)
 
 macro(setup name)
     juce_add_gui_app(${name} PRODUCT_NAME ${name})
