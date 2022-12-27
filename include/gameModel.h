@@ -4,9 +4,11 @@
 #include <vector>
 #include <unordered_map>
 #include "utils.h"
+#include "agent.h"
+#include "gameView.h"
 
 class GameState {
-public:
+public: // functions
     GameState() = default;
 
     GameState(GameState &gameState) {
@@ -41,6 +43,7 @@ public:
 
     void init_with_start_game();
 
+public: // variables
     std::vector<std::vector<Piece>> board;
     Player myself{Player::Red};
 };
@@ -52,5 +55,45 @@ public:
 //    def __hash__(self):
 //        # Allows gameModel to be keys of dictionaries.
 //        return hash(tuple(tuple(x) for x in self.board))
+
+
+class GameModel {
+public: // functions
+    GameModel() = delete;
+
+    GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent, float interval);
+
+    // Note that this function do not care which side you are
+    bool isValidMove(Position src, Position dst);
+
+    // Getter of board
+    const GameState &board() { return _board; }
+
+    GameState getGameState();
+
+    std::vector<Position> getRange(Position position);
+
+    std::vector<Position> getSide(Player side);
+
+    // Return all locations of this kind of piece
+    std::vector<Position> findPiece(Piece piece);
+
+    std::vector<Action> getLegalActionBySide(Player direction);
+
+    Player startGame();
+
+    Player startApp();
+
+private: // functions
+    void _draw();
+
+private: // variables
+    GameState _board;
+    float _interval;
+    GameView *_canvas;
+    Agent *_red_agent;
+    Agent *_black_agent;
+    // self._gameThread: Optional[Thread] = None
+};
 
 #endif //GAMEMODEL_H

@@ -1,5 +1,7 @@
-#include "gameModel.h"
+#include "../include/gameModel.h"
 #include <algorithm>
+#include <thread>
+#include <cassert>
 
 
 GameState GameState::getNextState(Action action) {
@@ -575,4 +577,96 @@ void GameState::init_with_start_game() {
             {Piece::BHorse,    Piece::NoneType, Piece::BCannon,  Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::NoneType, Piece::RCannon,  Piece::NoneType, Piece::RHorse},
             {Piece::BChariot,  Piece::NoneType, Piece::NoneType, Piece::BSoldier, Piece::NoneType, Piece::NoneType, Piece::RSoldier, Piece::NoneType, Piece::NoneType, Piece::RChariot}
     };
+}
+
+GameModel::GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent, float interval) {
+    _board.init_with_start_game();
+    _interval = interval;
+    _canvas = canvas;
+    _canvas->setModel(this);
+    _red_agent = RedAgent;
+    _red_agent->setGameModel(this);
+    _black_agent = BlackAgent;
+    _black_agent->setGameModel(this);
+    _draw();
+// self._gameThread: Optional[Thread] = None
+}
+
+bool GameModel::isValidMove(Position src, Position dst) {
+    return _board.isValidMove(src, dst);
+}
+
+GameState GameModel::getGameState() {
+    return {_board};
+}
+
+std::vector<Position> GameModel::getRange(Position position) {
+    return _board.getRange(position);
+}
+
+std::vector<Position> GameModel::getSide(Player side) {
+    return _board.getSide(side);
+}
+
+std::vector<Position> GameModel::findPiece(Piece piece) {
+    return _board.findPiece(piece);
+}
+
+std::vector<Action> GameModel::getLegalActionBySide(Player direction) {
+    return _board.getLegalActionsBySide(direction);
+}
+
+Player GameModel::startGame() {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    while (true) {
+        Position src, dst;
+        if (_board.myself == Player::Red) {
+            std::tie(src, dst) = _red_agent->step();
+        } else if (_board.myself == Player::Black) {
+            std::tie(src, dst) = _black_agent->step();
+        }
+        if (!isValidMove(src, dst)) {
+            assert(false && "Invalid move!");
+        }
+        if (_board.board[src.first][src.second].getSide() != _board.myself) {
+            assert(false && "You should only move your own piece!");
+        }
+        _board.board[dst.first][dst.second] = _board.board[src.first][src.second];
+        _board.board[src.first][src.second] = Piece::NoneType;
+        _draw();
+        std::this_thread::sleep_for(std::chrono::nanoseconds((long) (_interval * 1e9)));
+
+        auto result = _board.getWinner();
+        _board.swapDirection();
+        if (result == Player::NoneType) continue;
+        else if (result == Player::Red) {
+            fprintf(stdout, "Red win!\n");
+            return Player::Red;
+        } else if (result == Player::Black) {
+            fprintf(stdout, "Black win!\n");
+            return Player::Black;
+        } else if (result == Player::Draw) {
+            fprintf(stdout, "Draw!\n");
+            return Player::Draw;
+        } else {
+            // Just in case
+            NOT_REACHED
+        }
+    }
+}
+
+Player GameModel::startApp() {
+    // TODO: here
+    return Player::NoneType;
+}
+//    def startApp(self) -> Optional[Player]:
+//        if type(self._canvas) == NoGraphic:
+//            return self.startGame()
+//        else:
+//            self._gameThread = Thread(target=self.startGame, daemon=True)
+//            self._gameThread.start()
+//            self._canvas.startApp()
+
+void GameModel::_draw() {
+    _canvas->draw(_board.board);
 }
