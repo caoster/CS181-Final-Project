@@ -2,25 +2,26 @@ from copy import deepcopy
 from agent import Agent
 from utils import Piece, Player, Counter
 import random
+from data import EvaluationMatrix
 
 
-class QLearningAgent(Agent):
-    def __init__(self, direction: Player, numTraining=100, alpha=0.2, gamma=0.8, q_value=None):
+class QLearningAgent(Agent,EvaluationMatrix):
+    def __init__(self, direction: Player,alpha=0.2, gamma=0.8, epsilon=0, q_value=None):
         """
         alpha    - learning rate
         gamma    - discount factor
         numTraining - number of training episodes
         """
         super().__init__(direction)
-
-        # self.episodesSoFar = 0
-        # self.accumTrainRewards = 0.0
-        # self.accumTestRewards = 0.0
-        self.numTraining = int(numTraining)
-        # self.epsilon = float(epsilon)# 好像可以不用
+        EvaluationMatrix.__init__(self)
+        self.epsilon = float(epsilon)
         self.alpha = float(alpha)
         self.discount = float(gamma)
         self.q_value = q_value
+        self.last_state = None
+        self.last_action=None
+        self.playerSide = direction
+        self.myreward=0
 
     def getQValueBoard(self) -> Counter:
         return self.q_value
@@ -28,12 +29,6 @@ class QLearningAgent(Agent):
     def getQValue(self, current_board, action: tuple[tuple[int, int], tuple[int, int]]) -> float:
 
         return self.q_value[(current_board, action)]
-
-    # def computeValueFromQValues(self, current_board) -> float:
-    #     if self.getLegalActions(current_board)==None:
-    #         return None
-    #     best_action=self.computeActionFromQValues(current_board)
-    #     return self.getQValue(current_board,best_action)
 
     def computeActionFromQValues(self, current_board) -> tuple[tuple[int, int], tuple[int, int]]:
         q_list = [self.getQValue(current_board, action) for action in self.game.getLegalActionsBySide(self.direction)]
@@ -43,83 +38,62 @@ class QLearningAgent(Agent):
             if q_list[i] == max_q:
                 max_index.append(i)
         index = random.choice(max_index)
-        # I recommend you saving `self.game.getLegalActionsBySide(self.direction)`, the method's result is not guaranteed to be stable
-        # You may also use `enumerate`:
-        """
-                >>> a = [3, 6, 9, 11, 2]
-                >>> for index, value in enumerate(a):
-                ...     print(f"Index: {index}, Value: {value}")
-        
-                Index: 0, Value: 3
-                Index: 1, Value: 6
-                Index: 2, Value: 9
-                Index: 3, Value: 11
-                Index: 4, Value: 2
-        """
-        # Remember to remove this when you commit
         return self.game.getLegalActionsBySide(self.direction)[index]
 
-    def update(self, current_board, action: tuple[tuple[int, int], tuple[int, int]], next_board, next_all_actions: list[tuple[tuple[int, int], tuple[int, int]]], reward: float):
+
+    def update(self, current_action):
         # get the old estimate
-        old_estimate = self.getQValue(current_board, action)
+        old_estimate = self.getQValue(self.last_state, self.last_action)
         # compute max Q
-        q_list = [self.getQValue(current_board, action) for action in next_all_actions]
-        best_action = next_all_actions[q_list.index(max(q_list))]
-        max_q = self.getQValue(next_board, best_action)
+        best_action=self.computeActionFromQValues(self.game)
+        max_q = self.getQValue(self.game, best_action)
+        opponentReward=self.getReward(self.game.getGameState(),current_action,Player.reverse(self.playerSide))
+        reward=self.myreward-opponentReward
         sample = reward + self.discount * max_q
         # update the q_value
-        self.q_value[(current_board, action)] = (1 - self.alpha) * old_estimate + self.alpha * sample
+        self.q_value[(self.last_state, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * sample
 
-    def getReward(self, action: tuple[tuple[int, int], tuple[int, int]]) -> float:
+    def getReward(self, state, action: tuple[tuple[int, int], tuple[int, int]], direction) -> float:
         """
             If the action has eaten one piece, return the corresponding reward;
             Else 0
         """
-        eatenPieceType = self.game.board[action[1][0]][action[1][1]]
-        if eatenPieceType == Piece.NoneType:
-            return 0
-        elif eatenPieceType == Piece.BSoldier:
-            return 1
-        elif eatenPieceType == Piece.BAdvisor:
-            return 2
-        elif eatenPieceType == Piece.BElephant:
-            return 2
-        elif eatenPieceType == Piece.BHorse:
-            return 4
-        elif eatenPieceType == Piece.BCannon:
-            return 4.5
-        elif eatenPieceType == Piece.BChariot:
-            return 9
-        elif eatenPieceType == Piece.BGeneral:
-            return 100
-
-    def get_next_board_and_action(self, action: tuple[tuple[int, int], tuple[int, int]]):
-        # get next board
-        src, dst = action[0], action[1]
-        new_board = deepcopy(self.game.board)
-        new_board[dst[0]][dst[1]] = new_board[src[0]][src[1]]
-        new_board[src[0]][src[1]] = Piece.NoneType
-
-        # get next pieces
-        all_pieces = new_board.getSide()
-
-        # get all actions
-        actions = []
-        for piece in all_pieces:
-            possible_position = new_board.getRange(piece)
-            for position in possible_position:
-                actions.append((piece, position))
-
-        # convert new_board to tuple for hashing
-        new_board = tuple(tuple(x) for x in new_board)
-        return new_board, actions
+        score = 0
+        nextstate=state.getNextState(action)
+        nextstate.swapDirection()
+        winner = nextstate.getWinner()
+        if winner == direction:
+            score = 100000
+        elif winner == Player.reverse(direction):
+            score =  -100000
+        else:
+            myPiece = state.getSide(direction)
+            for piece in myPiece:
+                x, y = piece
+                pieceType = state[x][y]
+                score += self.pieceValue[pieceType] * self.pieceScore[pieceType][x][y]
+            eatenPieceType = self.game.board[action[1][0]][action[1][1]]
+            if eatenPieceType == Piece.BSoldier or eatenPieceType == Piece.RSoldier:
+                score += 1
+            elif eatenPieceType == Piece.BAdvisor or eatenPieceType == Piece.RAdvisor:
+                score += 2
+            elif eatenPieceType == Piece.BElephant or eatenPieceType == Piece.RElephant:
+                score += 2
+            elif eatenPieceType == Piece.BHorse or eatenPieceType == Piece.RHorse:
+                score += 4
+            elif eatenPieceType == Piece.BCannon or eatenPieceType == Piece.RCannon:
+                score += 4.5
+            elif eatenPieceType == Piece.BChariot or eatenPieceType == Piece.RChariot:
+                score += 9
+        return score
+        
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         # get action
-        action = self.computeActionFromQValues(self.game)
+        action = self.computeActionFromQValues(self.game.getGameState())
+        # save action and state
+        self.last_action=action
+        self.last_state=self.game.getGameState()
         # get reward
-        reward = self.getReward(action)
-        # update
-        next_board, next_all_actions = self.get_next_board_and_action(action)
-        self.update(self.game, action, next_board, next_all_actions, reward)
+        self.myreward = self.getReward(self.last_state,self.last_action,self.playerSide)
         return action

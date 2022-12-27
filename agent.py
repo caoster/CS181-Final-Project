@@ -30,6 +30,9 @@ class Agent(ABC):
     # 4. findPiece(...)
     # 5. self.board  # This is read-only
     #
+    def update(self,action=None):
+        pass
+
     @abstractmethod
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         raise NotImplementedError
