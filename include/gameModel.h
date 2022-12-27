@@ -46,6 +46,8 @@ public: // functions
 
     void init_with_start_game();
 
+	Piece operator[](Position position) const { return board[position.first][position.second]; }
+
 public: // variables
     std::vector<std::vector<Piece>> board;
     Player myself{Player::Red};

@@ -21,7 +21,7 @@ private:
 	int index;
 	double maxValue(GameState state, int depth, Player player, double alpha, double beta);
 	double minValue(GameState state, int depth, Player player, double alpha, double beta);
-	double evaluationFunction(const GameState &state);
+	double evaluationFunction(GameState state);
 };
 
 #endif// CS181_FINAL_PROJECT_CPP_MINIMAXAGENT_H
