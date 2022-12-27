@@ -452,6 +452,13 @@ class GameState:
                     result[position].append(piece)
         return result
 
+    def getProtectorBySide(self, side: Player, position: tuple[int, int]) -> list[tuple[int, int]]:
+        result: list[tuple[int, int]] = []
+        for piece in self.getSide(side):
+            if position in self.getRange(piece):
+                result.append(piece)
+        return result
+
     def getWinner(self) -> Player:
         if not any(Piece.BGeneral in i for i in self.board):
             return Player.Red  # BlackGeneral captured, Red wins

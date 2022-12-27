@@ -14,6 +14,15 @@ class EvaluationMatrix:
             Piece.BSoldier: 30, Piece.RSoldier: 30,
             Piece.NoneType: 0
         }
+        self.pieceFlexibility = {
+            Piece.BGeneral: 0, Piece.RGeneral: 0,
+            Piece.BAdvisor: 1, Piece.RAdvisor: 1,
+            Piece.BElephant: 1, Piece.RElephant: 1,
+            Piece.BHorse: 13, Piece.RHorse: 13,
+            Piece.BChariot: 7, Piece.RChariot: 7,
+            Piece.BCannon: 7, Piece.RCannon: 7,
+            Piece.BSoldier: 1.5, Piece.RSoldier: 1.5
+        }
         self.RGeneralScore = np.array([
             [0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -118,14 +127,14 @@ class EvaluationMatrix:
             [0, 0, 0, 2, 8, 2, 0, 0, 0],
             [-2, 0, 4, 2, 6, 2, 4, 0, -2],
             [0, 0, 0, 2, 4, 2, 0, 0, 0],
-            [4, 0, 8, 6, 10, 6, 8, 0, 4],
+            [4, 0, 8, 6, 20, 6, 8, 0, 4],
             [0, 2, 4, 6, 6, 6, 4, 2, 0],
             [0, 0, 2, 6, 6, 6, 2, 0, 0]
         ])
         self.BCannonScore = np.array([
             [0, 0, 2, 6, 6, 6, 2, 0, 0],
             [0, 2, 4, 6, 6, 6, 4, 2, 0],
-            [4, 0, 8, 6, 10, 6, 8, 0, 4],
+            [4, 0, 8, 6, 20, 6, 8, 0, 4],
             [0, 0, 0, 2, 4, 2, 0, 0, 0],
             [-2, 0, 4, 2, 6, 2, 4, 0, -2],
             [0, 0, 0, 2, 8, 2, 0, 0, 0],
