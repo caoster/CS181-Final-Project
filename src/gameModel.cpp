@@ -490,6 +490,18 @@ std::unordered_map<Position, std::vector<Position>> GameState::getThreatBySide(P
 //        return result
 }
 
+std::vector<Position> GameState::getProtectorBySide(Player side, Position position) {
+	std::vector<Position> result;
+	for (auto piece : getSide(side)) {
+		for (auto pos : getRange(piece)) {
+			if (pos == position) {
+				result.emplace_back(piece);
+			}
+		}
+	}
+	return result;
+}
+
 std::vector<Position> GameState::getSide(Player side) {
     std::vector<Position> result{};
     for (size_t i = 0; i < board.size(); ++i) {

@@ -25,7 +25,7 @@ public: // variables
             {Piece::NoneType,  0}
     };
 
-    std::unordered_map<Piece::Value, float> pieceFlexibility{
+    std::unordered_map<Piece::Value, double> pieceFlexibility{
             {Piece::BGeneral,  0},
             {Piece::RGeneral,  0},
             {Piece::BAdvisor,  1},

@@ -31,6 +31,8 @@ public: // functions
     // Returns a dict with {position1: [threat1, threat2], position2: [threat1, threat2, threat3]}
     std::unordered_map<Position, std::vector<Position>> getThreatBySide(Player side);
 
+	std::vector<Position> getProtectorBySide(Player side, Position position);
+
     std::vector<Position> getSide(Player side);
 
     // Return all locations of this kind of piece
