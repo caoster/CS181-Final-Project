@@ -55,6 +55,17 @@ class MCTSnode:
             self.all_valid_actions = actions
             self.num_all_valid_actions = len(self.all_valid_actions)
             return
+        # avoid action lead to checkmate, 
+        for action in self.all_valid_actions:
+            state = self.state.getNextState(action=action)
+            new_threats = state.getThreatBySide(self.state.myself)
+            if action[0] == my_piece_pos[0]:
+                my_new_piece_pos = action[1]
+            else:
+                my_new_piece_pos = my_piece_pos[0]
+            if new_threats[my_new_piece_pos] != []:
+                self.all_valid_actions.remove(action)
+        self.num_all_valid_actions = len(self.all_valid_actions)
         # avoid direct checkmate
         threats = self.state.getThreatBySide(self.state.myself)
         my_piece_pos = self.state.findPiece(my_general)
@@ -63,21 +74,16 @@ class MCTSnode:
             for action in self.all_valid_actions:
                 state = self.state.getNextState(action=action)
                 new_threats = state.getThreatBySide(self.state.myself)
-                my_new_piece_pos = state.findPiece(my_general)
-                if my_new_piece_pos != [] and new_threats[my_new_piece_pos[0]] == []:
+                if action[0] == my_piece_pos[0]:
+                    my_new_piece_pos = action[1]
+                else:
+                    my_new_piece_pos = my_piece_pos[0]
+                if new_threats[my_new_piece_pos] == []:
                     actions.append(action)
             if actions != []:
                 self.all_valid_actions = actions
                 self.num_all_valid_actions = len(self.all_valid_actions)
                 return
-        # avoid action lead to checkmate
-        for action in self.all_valid_actions:
-            state = self.state.getNextState(action=action)
-            new_threats = state.getThreatBySide(self.state.myself)
-            my_new_piece_pos = state.findPiece(my_general)
-            if my_new_piece_pos != [] and new_threats[my_new_piece_pos[0]] != []:
-                self.all_valid_actions.remove(action)
-        self.num_all_valid_actions = len(self.all_valid_actions)
 
     def initQvalue(self, matrix: EvaluationMatrix) -> None:
         if Player.reverse(self.state.myself) == Player.Red:
@@ -214,6 +220,7 @@ class MCTSAgent(Agent):
             print(f"{child.visit_time}: {child.quality_value / child.visit_time}")
         # print(*[f"{child.visit_time}: {child.quality_value}" for child, _ in self.root.children.values()])
         self.root, action = self.root.bestChild(False)
+        print(action)
         print("MCTS stops thinking.")
         return action
 
