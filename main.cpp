@@ -1,35 +1,58 @@
-#include <iostream>
-#include "include/utils.h"
-#include "include/gameModel.h"
+#include <JuceHeader.h>
+#include <thread>
 
-int main() {
-    auto q = GameState();
-    for (size_t i = 0; i < 9; ++i) {
-        q.board.emplace_back();
-        for (size_t j = 0; j < 10; ++j) {
-            q.board[i].emplace_back(Piece::NoneType);
-        }
+class MainContentComponent : public Component {
+public:
+    MainContentComponent() {
+        setSize(600, 300);
     }
-    q.board[1][2] = Piece::BCannon;
-    std::cout << q.board[1][2] << std::endl;
 
-    auto r = q.getNextState(Action{{1, 2}, {2, 3}});
-    std::cout << q.board[1][2] << std::endl;
-    std::cout << q.board[2][3] << std::endl;
-    std::cout << r.board[1][2] << std::endl;
-    std::cout << r.board[2][3] << std::endl;
 
-//        self.board = [
-//            [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot],
-//            [Piece.BHorse, Piece.NoneType, Piece.BCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RCannon, Piece.NoneType, Piece.RHorse],
-//            [Piece.BElephant, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RElephant],
-//            [Piece.BAdvisor, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RAdvisor],
-//            [Piece.BGeneral, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RGeneral],
-//            [Piece.BAdvisor, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RAdvisor],
-//            [Piece.BElephant, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RElephant],
-//            [Piece.BHorse, Piece.NoneType, Piece.BCannon, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.NoneType, Piece.RCannon, Piece.NoneType, Piece.RHorse],
-//            [Piece.BChariot, Piece.NoneType, Piece.NoneType, Piece.BSoldier, Piece.NoneType, Piece.NoneType, Piece.RSoldier, Piece.NoneType, Piece.NoneType, Piece.RChariot]
-//        ]
+    ~MainContentComponent() override {
+        fprintf(stdout, "ByeBye!\n");
+    }
 
-    return 0;
-}
+private:
+    // GUI related
+    juce::Label titleLabel;
+    juce::TextButton Part2CK2;
+    juce::TextButton Node2Button;
+
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContentComponent)
+};
+
+class Application : public juce::JUCEApplication {
+public:
+    Application() = default;
+
+    const juce::String getApplicationName() override { return "Chinese Chess"; }
+    const juce::String getApplicationVersion() override { return "1.0.0"; }
+
+    void initialise(const juce::String &) override { mainWindow = new MainWindow(getApplicationName(), new MainContentComponent, *this); }
+
+    void shutdown() override { delete mainWindow; }
+
+private:
+    class MainWindow : public juce::DocumentWindow {
+    public:
+        MainWindow(const juce::String &name, juce::Component *c, JUCEApplication &a) : DocumentWindow(name, juce::Colours::darkgrey, juce::DocumentWindow::allButtons), app(a) {
+            setUsingNativeTitleBar(true);
+            setContentOwned(c, true);
+            setResizable(false, false);
+            centreWithSize(getWidth(), getHeight());
+            setVisible(true);
+        }
+
+        void closeButtonPressed() override { app.systemRequestedQuit(); }
+
+    private:
+        JUCEApplication &app;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
+    };
+
+    MainWindow *mainWindow{nullptr};
+};
+
+START_JUCE_APPLICATION(Application)
