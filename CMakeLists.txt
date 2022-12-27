@@ -6,6 +6,7 @@ project(${CHESS} VERSION 0.0.1)
 add_subdirectory(JUCE)
 file(GLOB INCLUDE_FILE include/*.h src/*.cpp main.cpp)
 file(GLOB RANDOM RandomAgent/*.h RandomAgent/*.cpp)
+file(GLOB MINIMAX MinimaxAgent/*.h MinimaxAgent/*.cpp)
 
 macro(setup name)
     juce_add_gui_app(${name} PRODUCT_NAME ${name})

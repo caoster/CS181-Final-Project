@@ -1176,6 +1176,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+.clang-format
 
 .vscode/*
 !.vscode/settings.json
