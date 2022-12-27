@@ -6,9 +6,9 @@ import random
 import numpy as np
 
 from agent import Agent
+from data import EvaluationMatrix
 from gameModel import GameState
 from utils import Player, Piece
-from data import EvaluationMatrix
 
 
 class MCTSnode:
@@ -42,9 +42,23 @@ class MCTSnode:
         if self.state.myself == Player.Red:
             my_general = Piece.RGeneral
             other_general = Piece.BGeneral
+            my_cannon = Piece.RCannon
+            my_horse = Piece.RHorse
+            my_chariot = Piece.RChariot
         elif self.state.myself == Player.Black:
             my_general = Piece.BGeneral
             other_general = Piece.RGeneral
+            my_cannon = Piece.BCannon
+            my_horse = Piece.BHorse
+            my_chariot = Piece.BChariot
+
+        my_piece_pos = self.state.findPiece(my_general)
+        if not my_piece_pos:
+            self.all_valid_actions = []
+            self.num_all_valid_actions = 0
+            return
+        my_general_neighbor = self.state.getRange(my_piece_pos[0])
+
         # checkmate opponent
         attack = self.state.getThreatBySide(Player.reverse(self.state.myself))
         other_piece_pos = self.state.findPiece(other_general)
@@ -55,7 +69,7 @@ class MCTSnode:
             self.all_valid_actions = actions
             self.num_all_valid_actions = len(self.all_valid_actions)
             return
-        # avoid action lead to checkmate, 
+        # avoid action lead to checkmate,
         for action in self.all_valid_actions:
             state = self.state.getNextState(action=action)
             new_threats = state.getThreatBySide(self.state.myself)
@@ -63,13 +77,13 @@ class MCTSnode:
                 my_new_piece_pos = action[1]
             else:
                 my_new_piece_pos = my_piece_pos[0]
-            if new_threats[my_new_piece_pos] != []:
+            if new_threats[my_new_piece_pos]:
                 self.all_valid_actions.remove(action)
         self.num_all_valid_actions = len(self.all_valid_actions)
+
         # avoid direct checkmate
         threats = self.state.getThreatBySide(self.state.myself)
-        my_piece_pos = self.state.findPiece(my_general)
-        if my_piece_pos != [] and threats[my_piece_pos[0]] != []:
+        if threats[my_piece_pos[0]]:
             actions = []
             for action in self.all_valid_actions:
                 state = self.state.getNextState(action=action)
@@ -78,12 +92,21 @@ class MCTSnode:
                     my_new_piece_pos = action[1]
                 else:
                     my_new_piece_pos = my_piece_pos[0]
-                if new_threats[my_new_piece_pos] == []:
+                if not new_threats[my_new_piece_pos]:
                     actions.append(action)
-            if actions != []:
+            if actions:
                 self.all_valid_actions = actions
-                self.num_all_valid_actions = len(self.all_valid_actions)
-                return
+        for action in self.all_valid_actions:
+            pre_pos = action[0]
+            next_pos = action[1]
+            if self.state.board[pre_pos[0]][pre_pos[1]] not in (my_cannon, my_chariot, my_horse) or pre_pos == my_piece_pos[0]:
+                continue
+            state = self.state.getNextState(action=action)
+            new_threats = state.getThreatBySide(self.state.myself)
+            if new_threats[next_pos] and next_pos not in my_general_neighbor:
+                self.all_valid_actions.remove(action)
+        self.num_all_valid_actions = len(self.all_valid_actions)
+        assert self.num_all_valid_actions != 0, "get you !"
 
     def initQvalue(self, matrix: EvaluationMatrix) -> None:
         if Player.reverse(self.state.myself) == Player.Red:
