@@ -5,6 +5,7 @@ class Player;
 class Piece;
 class GameState;
 class GameModel;
+class Texture;
 class GameView;
 
 #endif //INCLUDE_H

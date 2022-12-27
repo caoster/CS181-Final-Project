@@ -1,26 +1,6 @@
 #include <JuceHeader.h>
 #include <thread>
-
-class MainContentComponent : public Component {
-public:
-    MainContentComponent() {
-        setSize(600, 300);
-    }
-
-
-    ~MainContentComponent() override {
-        fprintf(stdout, "ByeBye!\n");
-    }
-
-private:
-    // GUI related
-    juce::Label titleLabel;
-    juce::TextButton Part2CK2;
-    juce::TextButton Node2Button;
-
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContentComponent)
-};
+#include "include/gameView.h"
 
 class Application : public juce::JUCEApplication {
 public:
@@ -29,7 +9,7 @@ public:
     const juce::String getApplicationName() override { return "Chinese Chess"; }
     const juce::String getApplicationVersion() override { return "1.0.0"; }
 
-    void initialise(const juce::String &) override { mainWindow = new MainWindow(getApplicationName(), new MainContentComponent, *this); }
+    void initialise(const juce::String &) override { mainWindow = new MainWindow(getApplicationName(), new GameView, *this); }
 
     void shutdown() override { delete mainWindow; }
 
