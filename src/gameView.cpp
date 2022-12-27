@@ -24,31 +24,31 @@ Texture::Texture(int scale) {
 }
 
 GameView::GameView() {
-    background.setSize(1110 * resolution / 2, 1111 * resolution / 2);
+    background.setSize(1110 * config.resolution / 2, 1111 * config.resolution / 2);
     background.setTopLeftPosition(0, 0);
-    background.setImage(ImageFileFormat::loadFrom(File("./img/Board.png")).rescaled(1110 * resolution / 2, 1111 * resolution / 2, Graphics::ResamplingQuality::highResamplingQuality));
+    background.setImage(ImageFileFormat::loadFrom(File("./img/Board.png")).rescaled(1110 * config.resolution / 2, 1111 * config.resolution / 2, Graphics::ResamplingQuality::highResamplingQuality));
     addAndMakeVisible(background);
 
-    textures = Texture(resolution);
+    textures = Texture(config.resolution);
     auto noColour = juce::Colour((uint8) 0, (uint8) 0, (uint8) 0, 0.0f);
     int x_index[]{111, 222, 333, 444, 555, 666, 777, 888, 999};
     int y_index[]{66, 176, 286, 396, 506, 616, 726, 836, 946, 1056};
     for (auto &x: x_index) {
-        x = (int) ((float) x * (resolution / 2.0f));
+        x = (int) ((float) x * ((float) config.resolution / 2.0f));
     }
     for (auto &y: y_index) {
-        y = (int) ((float) y * (resolution / 2.0f));
+        y = (int) ((float) y * ((float) config.resolution / 2.0f));
     }
     auto default_image = textures.textures[Piece::NoneType];
     for (size_t i = 0; i < 9; ++i) {
         for (size_t j = 0; j < 10; ++j) {
-            pieces[i][j].setSize(resolution * 50, resolution * 50);
+            pieces[i][j].setSize(config.resolution * 50, config.resolution * 50);
             pieces[i][j].setCentrePosition(x_index[i], y_index[j]);
             pieces[i][j].setImages(false, false, true, default_image, 1.0f, noColour, default_image, 0.8f, noColour, default_image, 0.8f, noColour, 0.0f);
             addAndMakeVisible(pieces[i][j]);
         }
     }
-    setSize(1110 * resolution / 2, 1111 * resolution / 2);
+    setSize(1110 * config.resolution / 2, 1111 * config.resolution / 2);
 }
 
 void GameView::draw(std::vector<std::vector<Piece>> grid) {

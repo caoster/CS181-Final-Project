@@ -5,6 +5,7 @@ set(CHESS "Chinese_Chess")
 project(${CHESS} VERSION 0.0.1)
 add_subdirectory(JUCE)
 file(GLOB INCLUDE_FILE include/*.h src/*.cpp main.cpp)
+file(GLOB RANDOM RandomAgent/*.h RandomAgent/*.cpp)
 
 macro(setup name)
     juce_add_gui_app(${name} PRODUCT_NAME ${name})
@@ -43,6 +44,7 @@ macro(setup name)
     target_sources(${name}
             PRIVATE
             ${INCLUDE_FILE}
+            ${RANDOM}
             )
 endmacro(setup)
 

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include "include.h"
 #include "utils.h"
 #include "agent.h"
 #include "gameView.h"
@@ -61,7 +62,7 @@ class GameModel {
 public: // functions
     GameModel() = delete;
 
-    GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent, float interval);
+    GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent);
 
     // Note that this function do not care which side you are
     bool isValidMove(Position src, Position dst);

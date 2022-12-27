@@ -579,9 +579,9 @@ void GameState::init_with_start_game() {
     };
 }
 
-GameModel::GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent, float interval) {
+GameModel::GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent) {
     _board.init_with_start_game();
-    _interval = interval;
+    _interval = config.interval;
     _canvas = canvas;
     _canvas->setModel(this);
     _red_agent = RedAgent;

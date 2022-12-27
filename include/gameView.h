@@ -17,8 +17,6 @@ public: // variables
     juce::Image choiceBox;
 };
 
-#define resolution 2 // Must be 1/2/4
-
 class GameView : public Component {
 public:
     GameView();

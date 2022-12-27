@@ -15,7 +15,7 @@ public:
 
     virtual Action step() = 0;
 
-private:
+protected:
     GameModel *game{nullptr};
     Player direction;
 };
