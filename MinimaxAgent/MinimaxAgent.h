@@ -13,7 +13,7 @@
 
 class MinimaxAgent : public Agent, public EvaluationMatrix {
 public:
-	MinimaxAgent(Player player, int depth) : Agent(player), max_depth(depth) { EvaluationMatrix(); }
+	MinimaxAgent(Player player, int depth) : Agent(player), EvaluationMatrix(), max_depth(depth) {}
 	Action step() override;
 
 private:

@@ -58,9 +58,9 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 				flexibility++;
 		}
 		myScore += flexibility * pieceFlexibility[myPieceType.value()];
-		myScore -= (size_t) pieceValue[myPieceType.value()] * myThreat[piece].size();
+		myScore -= static_cast<double>((size_t) pieceValue[myPieceType.value()] * myThreat[piece].size());
 		std::vector<Position> protector = state.getProtectorBySide(direction, piece);
-		myScore += protector.size() * (size_t) pieceValue[myPieceType.value()];
+		myScore += static_cast<double>(protector.size() * (size_t) pieceValue[myPieceType.value()]);
 	}
 	for (auto piece: enemyPiece) {
 		Piece enemyPieceType = state[piece];
@@ -76,9 +76,9 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 				flexibility++;
 		}
 		enemyScore += flexibility * pieceFlexibility[enemyPieceType.value()];
-		enemyScore -= (size_t) pieceValue[enemyPieceType.value()] * enemyThreat[piece].size();
+		enemyScore -= static_cast<double>((size_t) pieceValue[enemyPieceType.value()] * enemyThreat[piece].size());
 		std::vector<Position> protector = state.getProtectorBySide(direction.reverse(), piece);
-		enemyScore += protector.size() * (size_t) pieceValue[enemyPieceType.value()];
+		enemyScore += static_cast<double>(protector.size() * (size_t) pieceValue[enemyPieceType.value()]);
 	}
 	return myScore - enemyScore;
 }
