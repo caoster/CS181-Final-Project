@@ -13,6 +13,9 @@ class Agent(ABC):
     def setGameModel(self, game: GameModel):
         self.game = game
 
+    def update(self, action=None):
+        pass
+
     # When this function is being called, you should return a step in format of:
     # ((src_x, src_y), (dst_x, dst_y))
     # You should:
@@ -30,9 +33,6 @@ class Agent(ABC):
     # 4. findPiece(...)
     # 5. self.board  # This is read-only
     #
-    def update(self,action=None):
-        pass
-
     @abstractmethod
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         raise NotImplementedError

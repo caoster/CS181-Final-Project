@@ -54,7 +54,7 @@ def remap_keys(q_value: Counter):
     for k,v in q_value.items():
         for i in range(9):
             for j in range(10):
-                k[0][i][j]=json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False)
+                k[0][i][j]=json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False, default=str)
         # k[0]=json.dumps(obj=k[0].__dict__,ensure_ascii=False)
         return_list.append({'key':k,'value':v})
 
@@ -74,8 +74,8 @@ if __name__ == "__main__":
         model.startApp()
         q_value=red_agent.getQValueBoard()
         js=json.dumps(remap_keys(q_value))
-        file = open('checkpoints.txt', 'w')
+        file = open('checkpoints.txt', 'a')
         file.write("Training episode: {}\n".format(i+1))
         file.write(js)  
         print("Training episode: {}".format(i+1))
-    file.close()
+        file.close()
