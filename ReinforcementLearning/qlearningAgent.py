@@ -23,6 +23,9 @@ class QLearningAgent(Agent,EvaluationMatrix):
         self.playerSide = direction
         self.myreward=0
 
+    def getState(self):
+        return tuple(tuple(x) for x in self.game.getGameState().getBoard())
+
     def getQValueBoard(self) -> Counter:
         return self.q_value
 
@@ -45,13 +48,17 @@ class QLearningAgent(Agent,EvaluationMatrix):
         # get the old estimate
         old_estimate = self.getQValue(self.last_state, self.last_action)
         # compute max Q
-        best_action=self.computeActionFromQValues(self.game)
-        max_q = self.getQValue(self.game, best_action)
+        state=tuple(tuple(x) for x in self.game.getGameState().getBoard())
+        # best_action=self.computeActionFromQValues(self.game)
+        best_action=self.computeActionFromQValues(state)
+        # max_q = self.getQValue(self.game, best_action)
+        max_q = self.getQValue(state, best_action)
         opponentReward=self.getReward(self.game.getGameState(),current_action,Player.reverse(self.playerSide))
         reward=self.myreward-opponentReward
         sample = reward + self.discount * max_q
         # update the q_value
-        self.q_value[(self.last_state, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * sample
+        laststate=tuple(tuple(x) for x in self.last_state.getBoard())
+        self.q_value[(laststate, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * sample
 
     def getReward(self, state, action: tuple[tuple[int, int], tuple[int, int]], direction) -> float:
         """
@@ -90,7 +97,9 @@ class QLearningAgent(Agent,EvaluationMatrix):
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         # get action
-        action = self.computeActionFromQValues(self.game.getGameState())
+        state=tuple(tuple(x) for x in self.game.getGameState().getBoard())
+        # action = self.computeActionFromQValues(self.game.getGameState())
+        action = self.computeActionFromQValues(state)
         # save action and state
         self.last_action=action
         self.last_state=self.game.getGameState()

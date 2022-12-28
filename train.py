@@ -50,21 +50,22 @@ def initAgent(side: Player, choice: str, relate_view: GameView, q_value=None) ->
 
 
 def remap_keys(q_value: Counter):
-    # return_list=[]
-    # for k,v in q_value.items():
-    #     k[0]=
+    return_list=[]
+    for k,v in q_value.items():
+        for i in range(9):
+            for j in range(10):
+                k[0][i][j]=json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False)
+        # k[0]=json.dumps(obj=k[0].__dict__,ensure_ascii=False)
+        return_list.append({'key':k,'value':v})
 
-    return [{'key':(1,2),'value':v} for k,v in q_value.items()]
+    return return_list
 
 if __name__ == "__main__":
     config = readConfig()
-    if config.num_of_matches != 1:
-        config.time = 0.0
-        config.no_graphic = True
     print(config)
     q_value=Counter()  
     
-    for i in range(100):
+    for i in range(10000):
         # view = NoGraphic()
         view = GameView(2)
         red_agent = initAgent(Player.Red, config.Red, view,q_value)

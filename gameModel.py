@@ -16,6 +16,9 @@ class GameState:
     def __getitem__(self, item):
         return self.board[item]
 
+    def getBoard(self):
+        return self.board
+
     @property
     def opponent(self) -> Player:
         return Player.reverse(self.myself)
@@ -592,8 +595,10 @@ class GameModel:
         while True:
             if self._board.myself == Player.Red:
                 src, dst = self._red_agent.step()
+                self._black_agent.update((src, dst))
             elif self._board.myself == Player.Black:
                 src, dst = self._black_agent.step()
+                self._red_agent.update((src, dst))
             else:
                 raise  # Robustness
             if not self.isValidMove(src, dst):
