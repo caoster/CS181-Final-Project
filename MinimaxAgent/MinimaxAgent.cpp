@@ -43,6 +43,7 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 	double myScore = 0;
 	double enemyScore = 0;
 	std::unordered_map<Position, std::vector<Position>> myThreat = state.getThreatBySide(direction);
+	std::unordered_map<Position, std::vector<Position>> enemyThreat = state.getThreatBySide(direction.reverse());
 	for (auto piece: myPiece) {
 		auto [x, y] = piece;
 		Piece myPieceType = state[piece];
@@ -58,6 +59,26 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 		}
 		myScore += flexibility * pieceFlexibility[myPieceType.value()];
 		myScore -= (size_t) pieceValue[myPieceType.value()] * myThreat[piece].size();
+		std::vector<Position> protector = state.getProtectorBySide(direction, piece);
+		myScore += protector.size() * pieceValue[myPieceType.value()];
+	}
+	for (auto piece: enemyPiece){
+		Piece enemyPieceType = state[piece];
+		auto [x, y] = piece;
+		enemyScore += pieceValue[enemyPieceType.value()] * pieceScore[enemyPieceType.value()][x][y];
+		enemyScore *= 0.1;
+
+		std::vector<Position> attackPosition = state.getRange(piece);
+		int flexibility = 0;
+		for (auto &position: attackPosition) {
+			Piece pieceType = state[position];
+			if (pieceType == Piece::NoneType)
+				flexibility++;
+		}
+		enemyScore += flexibility * pieceFlexibility[enemyPieceType.value()];
+		enemyScore -= (size_t) pieceValue[enemyPieceType.value()] * enemyThreat[piece].size();
+		std::vector<Position> protector = state.getProtectorBySide(direction.reverse(), piece);
+		enemyScore += protector.size() * pieceValue[enemyPieceType.value()];
 	}
 	return myScore - enemyScore;
 }
