@@ -1,6 +1,4 @@
-from multiprocessing import Pool
 from queue import Queue
-from typing import Optional
 
 from ExampleAgent import ExampleAgent
 from HumanPlayer.mouseAgent import MouseAgent
@@ -52,11 +50,14 @@ def initAgent(side: Player, choice: str, relate_view: GameView, q_value=None) ->
 def remap_keys(q_value: Counter):
     return_list=[]
     for k,v in q_value.items():
+        new_k=[]
         for i in range(9):
+            new_k.append([])
             for j in range(10):
-                k[0][i][j]=json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False, default=str)
+        #         k[0][i][j]=json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False, default=str)
+                new_k[i].append(json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False, default=str))
         # k[0]=json.dumps(obj=k[0].__dict__,ensure_ascii=False)
-        return_list.append({'key':k,'value':v})
+        return_list.append({'key':(new_k,k[1]),'value':v})
 
     return return_list
 
@@ -74,7 +75,7 @@ if __name__ == "__main__":
         model.startApp()
         q_value=red_agent.getQValueBoard()
         js=json.dumps(remap_keys(q_value))
-        file = open('checkpoints.txt', 'a')
+        file = open('checkpoints.txt', 'w')
         file.write("Training episode: {}\n".format(i+1))
         file.write(js)  
         print("Training episode: {}".format(i+1))
