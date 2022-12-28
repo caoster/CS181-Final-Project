@@ -1,12 +1,11 @@
-from copy import deepcopy
 from agent import Agent
 from utils import Piece, Player, Counter
 import random
 from data import EvaluationMatrix
 
 
-class QLearningAgent(Agent,EvaluationMatrix):
-    def __init__(self, direction: Player,alpha=0.2, gamma=0.8, epsilon=0, q_value=None):
+class QLearningAgent(Agent, EvaluationMatrix):
+    def __init__(self, direction: Player, alpha=0.2, gamma=0.8, epsilon=0, q_value=None):
         """
         alpha    - learning rate
         gamma    - discount factor
@@ -19,9 +18,9 @@ class QLearningAgent(Agent,EvaluationMatrix):
         self.discount = float(gamma)
         self.q_value = q_value
         self.last_state = None
-        self.last_action=None
+        self.last_action = None
         self.playerSide = direction
-        self.myreward=0
+        self.myreward = 0
 
     def getState(self):
         return tuple(tuple(x) for x in self.game.getGameState().getBoard())
@@ -43,21 +42,20 @@ class QLearningAgent(Agent,EvaluationMatrix):
         index = random.choice(max_index)
         return self.game.getLegalActionsBySide(self.direction)[index]
 
-
     def update(self, current_action):
         # get the old estimate
         old_estimate = self.getQValue(self.last_state, self.last_action)
         # compute max Q
-        state=tuple(tuple(x) for x in self.game.getGameState().getBoard())
+        state = tuple(tuple(x) for x in self.game.getGameState().getBoard())
         # best_action=self.computeActionFromQValues(self.game)
-        best_action=self.computeActionFromQValues(state)
+        best_action = self.computeActionFromQValues(state)
         # max_q = self.getQValue(self.game, best_action)
         max_q = self.getQValue(state, best_action)
-        opponentReward=self.getReward(self.game.getGameState(),current_action,Player.reverse(self.playerSide))
-        reward=self.myreward-opponentReward
+        opponentReward = self.getReward(self.game.getGameState(), current_action, Player.reverse(self.playerSide))
+        reward = self.myreward - opponentReward
         sample = reward + self.discount * max_q
         # update the q_value
-        laststate=tuple(tuple(x) for x in self.last_state.getBoard())
+        laststate = tuple(tuple(x) for x in self.last_state.getBoard())
         self.q_value[(laststate, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * sample
 
     def getReward(self, state, action: tuple[tuple[int, int], tuple[int, int]], direction) -> float:
@@ -66,13 +64,13 @@ class QLearningAgent(Agent,EvaluationMatrix):
             Else 0
         """
         score = 0
-        nextstate=state.getNextState(action)
+        nextstate = state.getNextState(action)
         nextstate.swapDirection()
         winner = nextstate.getWinner()
         if winner == direction:
             score = 100000
         elif winner == Player.reverse(direction):
-            score =  -100000
+            score = -100000
         else:
             myPiece = state.getSide(direction)
             for piece in myPiece:
@@ -93,16 +91,15 @@ class QLearningAgent(Agent,EvaluationMatrix):
             elif eatenPieceType == Piece.BChariot or eatenPieceType == Piece.RChariot:
                 score += 9
         return score
-        
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         # get action
-        state=tuple(tuple(x) for x in self.game.getGameState().getBoard())
+        state = tuple(tuple(x) for x in self.game.getGameState().getBoard())
         # action = self.computeActionFromQValues(self.game.getGameState())
         action = self.computeActionFromQValues(state)
         # save action and state
-        self.last_action=action
-        self.last_state=self.game.getGameState()
+        self.last_action = action
+        self.last_state = self.game.getGameState()
         # get reward
-        self.myreward = self.getReward(self.last_state,self.last_action,self.playerSide)
+        self.myreward = self.getReward(self.last_state, self.last_action, self.playerSide)
         return action

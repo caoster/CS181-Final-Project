@@ -13,7 +13,7 @@ class Agent(ABC):
     def setGameModel(self, game: GameModel):
         self.game = game
 
-    def update(self, action=None):
+    def update(self, action):
         pass
 
     # When this function is being called, you should return a step in format of:
