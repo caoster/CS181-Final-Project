@@ -1178,6 +1178,7 @@ FodyWeavers.xsd
 *.sln.iml
 .clang-format
 
+.vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
