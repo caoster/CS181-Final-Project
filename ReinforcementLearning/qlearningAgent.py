@@ -44,19 +44,19 @@ class QLearningAgent(Agent, EvaluationMatrix):
 
     def update(self, current_action):
         # get the old estimate
-        old_estimate = self.getQValue(self.last_state, self.last_action)
+        lastboard = tuple(tuple(x) for x in self.last_state.getBoard())
+        old_estimate = self.getQValue(lastboard, self.last_action)
         # compute max Q
-        state = tuple(tuple(x) for x in self.game.getGameState().getBoard())
+        board = tuple(tuple(x) for x in self.game.getGameState().getBoard())
         # best_action=self.computeActionFromQValues(self.game)
-        best_action = self.computeActionFromQValues(state)
+        best_action = self.computeActionFromQValues(board)
         # max_q = self.getQValue(self.game, best_action)
-        max_q = self.getQValue(state, best_action)
+        max_q = self.getQValue(board, best_action)
         opponentReward = self.getReward(self.game.getGameState(), current_action, Player.reverse(self.playerSide))
         reward = self.myreward - opponentReward
         sample = reward + self.discount * max_q
         # update the q_value
-        laststate = tuple(tuple(x) for x in self.last_state.getBoard())
-        self.q_value[(laststate, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * sample
+        self.q_value[(lastboard, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * sample
 
     def getReward(self, state, action: tuple[tuple[int, int], tuple[int, int]], direction) -> float:
         """
@@ -107,8 +107,8 @@ class QLearningAgent(Agent, EvaluationMatrix):
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         # get action
-        state = tuple(tuple(x) for x in self.game.getGameState().getBoard())
-        action = self.getAction(state)
+        board = tuple(tuple(x) for x in self.game.getGameState().getBoard())
+        action = self.getAction(board)
         # save action and state
         self.last_action = action
         self.last_state = self.game.getGameState()
@@ -118,6 +118,6 @@ class QLearningAgent(Agent, EvaluationMatrix):
         nextstate.swapDirection()
         winner = nextstate.getWinner()
         if winner == self.playerSide:
-            old_estimate=self.q_value[(state, self.last_action)]
-            self.q_value[(state, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * self.myreward
+            old_estimate=self.q_value[(board, self.last_action)]
+            self.q_value[(board, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * self.myreward
         return action
