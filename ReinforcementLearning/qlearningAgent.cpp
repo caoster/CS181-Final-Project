@@ -1,4 +1,5 @@
 #include "qlearningAgent.h"
+#include <algorithm>
 
 Action QlearningAgent::step()
 {
@@ -14,7 +15,7 @@ Action QlearningAgent::step()
     {
         // hash for q_value
         float old_estimate = q_value[(board, last_action)];
-        q_value[(board, last_action)] = (1 - myalpha) * old_estimate + myalpha * myreward
+        q_value[(board, last_action)] = (1 - myalpha) * old_estimate + myalpha * myreward;
     }
     return action;
 }
@@ -26,34 +27,53 @@ Counter QlearningAgent::getQValueBoard()
 
 void QlearningAgent::update(Action action)
 {
-    float old_estimate = getQValue(last_state, self.last_action)
-    # compute max Q
-    state = tuple(tuple(x) for x in self.game.getGameState().getBoard())
-    # best_action=self.computeActionFromQValues(self.game)
-    best_action = self.computeActionFromQValues(state)
-    # max_q = self.getQValue(self.game, best_action)
-    max_q = self.getQValue(state, best_action)
-    opponentReward = self.getReward(self.game.getGameState(), current_action, Player.reverse(self.playerSide))
-    reward = self.myreward - opponentReward
-    sample = reward + self.discount * max_q
-    # update the q_value
-    laststate = tuple(tuple(x) for x in self.last_state.getBoard())
-    self.q_value[(laststate, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * sample
-
+    std::vector<std::vector<Piece>> lastboard=last_state.board;
+    float old_estimate = getQValue(lastboard, last_action);
+    std::vector<std::vector<Piece>> board = game->getGameState().board;
+    Action best_action = computeActionFromQValues(board);
+    float max_q = getQValue(board, best_action);
+    Player opponent=direction.reverse();
+    float opponentReward = getReward(game->getGameState(), action, opponent);
+    float reward = myreward - opponentReward;
+    float sample = reward + mydiscount * max_q;
+    // hash for q_value
+    q_value[(lastboard, last_action)] = (1 - myalpha) * old_estimate + myalpha * sample;
 }
 
-float QlearningAgent::getQValue(current_board, Action action)
+float QlearningAgent::getQValue(std::vector<std::vector<Piece>> current_board, Action action)
 {
+    return q_value[(current_board, action)];
 }
-Action QlearningAgent::computeActionFromQValues(current_board)
+
+Action QlearningAgent::computeActionFromQValues(std::vector<std::vector<Piece>> current_board)
 {
+    std::vector<float> q_list;
+    auto all_actions=game->getGameState().getLegalActionsBySide(direction);
+    for (auto &action : all_actions){
+        float qvalue=getQValue(current_board, action);
+        q_list.push_back(qvalue);
+    }
+    float max_q = *max_element(q_list.begin(), q_list.end());
+    // to be finished
+    // max_index = []
+    // for i in range(len(q_list)):
+    //     if q_list[i] == max_q:
+    //         max_index.append(i)
+    // index = random.choice(max_index)
+    // return self.game.getLegalActionsBySide(self.direction)[index]
 }
+
 float QlearningAgent::getReward(GameState state, Action action, Player player)
 {
+
 }
+
 bool QlearningAgent::flipcoin()
 {
+
 }
+
 Action QlearningAgent::getAction(std::vector<std::vector<Piece>> board)
 {
+
 }
