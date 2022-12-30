@@ -37,7 +37,7 @@ def initAgent(side: Player, choice: str, relate_view: GameView, q_value=None) ->
     elif choice == "ExampleAgent":
         agent = ExampleAgent(side)
     elif choice == "QlearningAgent":
-        agent = QLearningAgent(direction=side,q_value=q_value)
+        agent = QLearningAgent(direction=side, q_value=q_value)
     elif choice == "MinimaxAgent":
         agent = MinimaxAgent(side)
     elif choice == "MCTSAgent":
@@ -48,33 +48,36 @@ def initAgent(side: Player, choice: str, relate_view: GameView, q_value=None) ->
 
 
 def remap_keys(q_value: Counter):
-    return_list=[]
-    for k,v in q_value.items():
-        new_k=[]
+    return_list = []
+    for k, v in q_value.items():
+        new_k = []
         for i in range(9):
             new_k.append([])
             for j in range(10):
-                new_k[i].append(json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False, default=str))
-        return_list.append({'key':(new_k,k[1]),'value':v})
+                #         k[0][i][j]=json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False, default=str)
+                new_k[i].append(json.dumps(obj=k[0][i][j].__dict__, ensure_ascii=False, default=str))
+        # k[0]=json.dumps(obj=k[0].__dict__,ensure_ascii=False)
+        return_list.append({'key': (new_k, k[1]), 'value': v})
 
     return return_list
+
 
 if __name__ == "__main__":
     config = readConfig()
     print(config)
-    q_value=Counter()  
-    
+    q_value = Counter()
+
     for i in range(10000):
         # view = NoGraphic()
         view = GameView(2)
-        red_agent = initAgent(Player.Red, config.Red, view,q_value)
+        red_agent = initAgent(Player.Red, config.Red, view, q_value)
         black_agent = initAgent(Player.Black, config.Black, view)
         model = GameModel(view, red_agent, black_agent, config.time)
         model.startApp()
-        q_value=red_agent.getQValueBoard()
-        js=json.dumps(remap_keys(q_value))
+        q_value = red_agent.getQValueBoard()
+        js = json.dumps(remap_keys(q_value))
         file = open('checkpoints.txt', 'w')
-        file.write("Training episode: {}\n".format(i+1))
-        file.write(js)  
-        print("Training episode: {}".format(i+1))
+        file.write("Training episode: {}\n".format(i + 1))
+        file.write(js)
+        print("Training episode: {}".format(i + 1))
         file.close()

@@ -8,7 +8,7 @@ from Adversarial.MinimaxAgent import MinimaxAgent
 from agent import Agent
 from gameModel import GameModel
 from gameView import GameView, NoGraphic
-from utils import Player,Counter,Piece
+from utils import Player, Counter, Piece
 from MCTS.MCTSAgent import MCTSAgent
 from ReinforcementLearning.qlearningAgent import QLearningAgent
 import json
@@ -43,52 +43,52 @@ def initAgent(side: Player, choice: str, relate_view: GameView, q_value=None) ->
     elif choice == "MCTSAgent":
         agent = MCTSAgent(side)
     elif choice == "QlearningAgent":
-        file = open('checkpoints.txt', 'r') 
+        file = open('checkpoints.txt', 'r')
         next(file)
         js = file.read()
-        list = json.loads(js) 
-        q_value=Counter()
+        list = json.loads(js)
+        q_value = Counter()
         for dict in list:
-            board=dict['key'][0]  
-            action=dict['key'][1]
+            board = dict['key'][0]
+            action = dict['key'][1]
             for i in range(9):
                 for j in range(10):
-                    board[i][j]=json.loads(board[i][j])
-                    if board[i][j]['_name_']=='NoneType':
-                        board[i][j]=Piece.NoneType
-                    elif board[i][j]['_name_']=='BGeneral':
-                        board[i][j]=Piece.BGeneral
-                    elif board[i][j]['_name_']=='BAdvisor':
-                        board[i][j]=Piece.BAdvisor
-                    elif board[i][j]['_name_']=='BElephant':
-                        board[i][j]=Piece.BElephant
-                    elif board[i][j]['_name_']=='BHorse':
-                        board[i][j]=Piece.BHorse
-                    elif board[i][j]['_name_']=='BChariot':
-                        board[i][j]=Piece.BChariot
-                    elif board[i][j]['_name_']=='BCannon':
-                        board[i][j]=Piece.BCannon
-                    elif board[i][j]['_name_']=='BSoldier':
-                        board[i][j]=Piece.BSoldier
-                    elif board[i][j]['_name_']=='RGeneral':
-                        board[i][j]=Piece.RGeneral
-                    elif board[i][j]['_name_']=='RAdvisor':
-                        board[i][j]=Piece.RAdvisor
-                    elif board[i][j]['_name_']=='RElephant':
-                        board[i][j]=Piece.RElephant
-                    elif board[i][j]['_name_']=='RHorse':
-                        board[i][j]=Piece.RHorse
-                    elif board[i][j]['_name_']=='RChariot':
-                        board[i][j]=Piece.RChariot
-                    elif board[i][j]['_name_']=='RCannon':
-                        board[i][j]=Piece.RCannon
-                    elif board[i][j]['_name_']=='RSoldier':
-                        board[i][j]=Piece.RSoldier
-            value=dict['value']
-            board=tuple(tuple(x) for x in board)
-            action=tuple(tuple(x) for x in action)
-            q_value[(board, action)]=value
-        agent = QLearningAgent(direction=side,q_value=q_value)
+                    board[i][j] = json.loads(board[i][j])
+                    if board[i][j]['_name_'] == 'NoneType':
+                        board[i][j] = Piece.NoneType
+                    elif board[i][j]['_name_'] == 'BGeneral':
+                        board[i][j] = Piece.BGeneral
+                    elif board[i][j]['_name_'] == 'BAdvisor':
+                        board[i][j] = Piece.BAdvisor
+                    elif board[i][j]['_name_'] == 'BElephant':
+                        board[i][j] = Piece.BElephant
+                    elif board[i][j]['_name_'] == 'BHorse':
+                        board[i][j] = Piece.BHorse
+                    elif board[i][j]['_name_'] == 'BChariot':
+                        board[i][j] = Piece.BChariot
+                    elif board[i][j]['_name_'] == 'BCannon':
+                        board[i][j] = Piece.BCannon
+                    elif board[i][j]['_name_'] == 'BSoldier':
+                        board[i][j] = Piece.BSoldier
+                    elif board[i][j]['_name_'] == 'RGeneral':
+                        board[i][j] = Piece.RGeneral
+                    elif board[i][j]['_name_'] == 'RAdvisor':
+                        board[i][j] = Piece.RAdvisor
+                    elif board[i][j]['_name_'] == 'RElephant':
+                        board[i][j] = Piece.RElephant
+                    elif board[i][j]['_name_'] == 'RHorse':
+                        board[i][j] = Piece.RHorse
+                    elif board[i][j]['_name_'] == 'RChariot':
+                        board[i][j] = Piece.RChariot
+                    elif board[i][j]['_name_'] == 'RCannon':
+                        board[i][j] = Piece.RCannon
+                    elif board[i][j]['_name_'] == 'RSoldier':
+                        board[i][j] = Piece.RSoldier
+            value = dict['value']
+            board = tuple(tuple(x) for x in board)
+            action = tuple(tuple(x) for x in action)
+            q_value[(board, action)] = value
+        agent = QLearningAgent(direction=side, q_value=q_value)
     else:
         assert False, "No such agent!"
     return agent
