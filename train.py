@@ -54,9 +54,7 @@ def remap_keys(q_value: Counter):
         for i in range(9):
             new_k.append([])
             for j in range(10):
-        #         k[0][i][j]=json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False, default=str)
                 new_k[i].append(json.dumps(obj=k[0][i][j].__dict__,ensure_ascii=False, default=str))
-        # k[0]=json.dumps(obj=k[0].__dict__,ensure_ascii=False)
         return_list.append({'key':(new_k,k[1]),'value':v})
 
     return return_list
