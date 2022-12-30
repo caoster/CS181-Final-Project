@@ -6,7 +6,7 @@ from data import EvaluationMatrix
 
 
 class QLearningAgent(Agent,EvaluationMatrix):
-    def __init__(self, direction: Player,alpha=0.2, gamma=0.8, epsilon=0, q_value=None):
+    def __init__(self, direction: Player,alpha=0.5, gamma=0.8, epsilon=0, q_value=None):
         """
         alpha    - learning rate
         gamma    - discount factor
@@ -93,16 +93,35 @@ class QLearningAgent(Agent,EvaluationMatrix):
             elif eatenPieceType == Piece.BChariot or eatenPieceType == Piece.RChariot:
                 score += 9
         return score
+
+    # def flipCoin(self,p):
+    #     r = random.random()
+    #     return r < p
+
+    # def getAction(self,state):
+    #     legalActions = self.getLegalActions(state)
+    #     action = None
+    #     if self.flipCoin(self.epsilon):
+    #         action = random.choice(legalActions)
+    #     else: 
+    #         action=self.computeActionFromQValues(state)
+    #     return action
         
 
     def step(self) -> tuple[tuple[int, int], tuple[int, int]]:
         # get action
         state=tuple(tuple(x) for x in self.game.getGameState().getBoard())
-        # action = self.computeActionFromQValues(self.game.getGameState())
         action = self.computeActionFromQValues(state)
+        # action = self.getAction(state)
         # save action and state
         self.last_action=action
         self.last_state=self.game.getGameState()
         # get reward
         self.myreward = self.getReward(self.last_state,self.last_action,self.playerSide)
+        nextstate=self.last_state.getNextState(self.last_action)
+        nextstate.swapDirection()
+        winner = nextstate.getWinner()
+        if winner == self.playerSide:
+            old_estimate=self.q_value[(state, self.last_action)]
+            self.q_value[(state, self.last_action)] = (1 - self.alpha) * old_estimate + self.alpha * self.myreward
         return action
