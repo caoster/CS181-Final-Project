@@ -53,36 +53,35 @@ def initAgent(side: Player, choice: str, relate_view: GameView, q_value=None) ->
             action = dict['key'][1]
             for i in range(9):
                 for j in range(10):
-                    board[i][j] = json.loads(board[i][j])
-                    if board[i][j]['_name_'] == 'NoneType':
+                    if board[i][j] == 0:
                         board[i][j] = Piece.NoneType
-                    elif board[i][j]['_name_'] == 'BGeneral':
+                    elif board[i][j] == 1:
                         board[i][j] = Piece.BGeneral
-                    elif board[i][j]['_name_'] == 'BAdvisor':
+                    elif board[i][j] == 2:
                         board[i][j] = Piece.BAdvisor
-                    elif board[i][j]['_name_'] == 'BElephant':
+                    elif board[i][j] == 3:
                         board[i][j] = Piece.BElephant
-                    elif board[i][j]['_name_'] == 'BHorse':
+                    elif board[i][j] == 4:
                         board[i][j] = Piece.BHorse
-                    elif board[i][j]['_name_'] == 'BChariot':
+                    elif board[i][j] == 5:
                         board[i][j] = Piece.BChariot
-                    elif board[i][j]['_name_'] == 'BCannon':
+                    elif board[i][j] == 6:
                         board[i][j] = Piece.BCannon
-                    elif board[i][j]['_name_'] == 'BSoldier':
+                    elif board[i][j] == 7:
                         board[i][j] = Piece.BSoldier
-                    elif board[i][j]['_name_'] == 'RGeneral':
+                    elif board[i][j] == 8:
                         board[i][j] = Piece.RGeneral
-                    elif board[i][j]['_name_'] == 'RAdvisor':
+                    elif board[i][j] == 9:
                         board[i][j] = Piece.RAdvisor
-                    elif board[i][j]['_name_'] == 'RElephant':
+                    elif board[i][j] == 10:
                         board[i][j] = Piece.RElephant
-                    elif board[i][j]['_name_'] == 'RHorse':
+                    elif board[i][j] == 11:
                         board[i][j] = Piece.RHorse
-                    elif board[i][j]['_name_'] == 'RChariot':
+                    elif board[i][j] == 12:
                         board[i][j] = Piece.RChariot
-                    elif board[i][j]['_name_'] == 'RCannon':
+                    elif board[i][j] == 13:
                         board[i][j] = Piece.RCannon
-                    elif board[i][j]['_name_'] == 'RSoldier':
+                    elif board[i][j] == 14:
                         board[i][j] = Piece.RSoldier
             value = dict['value']
             board = tuple(tuple(x) for x in board)
