@@ -9,13 +9,15 @@
 #include "../include/data.h"
 #include "../include/include.h"
 #include "../include/utils.h"
-#include <random>
 #include <cstdio>
+#include <random>
 
-class MCTSNode{
+class MCTSNode
+{
 public:
-    explicit MCTSNode(GameState other_state): state(other_state){}
-    void setParent(MCTSNode* parent);
+    MCTSNode() = default;
+    void setState(GameState other_state);
+    void setParent(MCTSNode *parent);
     void setVisitTime(int visit_time);
     void setQualityValue(float quality_value);
     bool isAllExpanded();
@@ -23,16 +25,19 @@ public:
     void init_quality_value();
     Action randomChooseNextAction();
     MCTSNode expand();
+    MCTSNode randomExpand();
+    float calUCB(float c, MCTSNode child);
+    std::pair<Action, MCTSNode> bestChild(bool is_exploration);
     float quality_value = 0.0f;
+
 private:
     int visit_time = 0;
     size_t num_all_valid_action = 0;
-    MCTSNode* parent = nullptr;
+    MCTSNode *parent = nullptr;
     GameState state;
     std::vector<Action> all_valid_action;
-
-    std::map<GameState, std::pair<MCTSNode*, Action>> children;
-    // how to implement children? qaq
+    // changes in children construction
+    std::map<Action, MCTSNode> children;
 };
 
-#endif // CHINESE_CHESS_MCTSAGENT_H
+#endif// CHINESE_CHESS_MCTSAGENT_H

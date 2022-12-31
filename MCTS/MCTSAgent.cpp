@@ -9,19 +9,24 @@ bool MCTSNode::isAllExpanded()
     return all_valid_action.empty();
 }
 
-void MCTSNode::setParent(MCTSNode *parent)
+void MCTSNode::setState(GameState other_state)
 {
-    this->parent = parent;
+    this->state = other_state;
 }
 
-void MCTSNode::setVisitTime(int visit_time)
+void MCTSNode::setParent(MCTSNode *other_parent)
 {
-    this->visit_time = visit_time;
+    this->parent = other_parent;
 }
 
-void MCTSNode::setQualityValue(float quality_value)
+void MCTSNode::setVisitTime(int other_visit_time)
 {
-    this->quality_value = quality_value;
+    this->visit_time = other_visit_time;
+}
+
+void MCTSNode::setQualityValue(float other_quality_value)
+{
+    this->quality_value = other_quality_value;
 }
 
 void MCTSNode::find_all_valid_action()
@@ -36,7 +41,7 @@ void MCTSNode::find_all_valid_action()
         my_general = Piece::BGeneral;
         other_general = Piece::RGeneral;
     }
-    std::vector<Position> my_piece_pos = this->state.findPiece(my_general);
+    auto my_piece_pos = this->state.findPiece(my_general);
     if (my_piece_pos.empty())
     {
         this->all_valid_action.clear();
@@ -64,7 +69,7 @@ void MCTSNode::find_all_valid_action()
     {
         auto new_state = this->state.getNextState(action);
         auto new_threats = new_state.getThreatBySide(this->state.myself);
-        Position my_new_piece_pos = my_piece_pos[0];
+        auto my_new_piece_pos = my_piece_pos[0];
         if (action.first == my_piece_pos[0])
         {
             my_new_piece_pos = action.second;
@@ -85,7 +90,7 @@ void MCTSNode::find_all_valid_action()
         {
             auto new_state = this->state.getNextState(action);
             auto new_threats = new_state.getThreatBySide(this->state.myself);
-            Position my_new_piece_pos = my_piece_pos[0];
+            auto my_new_piece_pos = my_piece_pos[0];
             if (action.first == my_piece_pos[0])
             {
                 my_new_piece_pos = action.second;
@@ -103,7 +108,6 @@ void MCTSNode::find_all_valid_action()
     }
 
     // whether consider horse, cannon, chariot?
-
 }
 
 void MCTSNode::init_quality_value()
@@ -114,42 +118,86 @@ void MCTSNode::init_quality_value()
 
 Action MCTSNode::randomChooseNextAction()
 {
-    if(this->all_valid_action.empty()){
+    if (this->all_valid_action.empty())
+    {
         printf("all actions are expanded.");
         exit(-1);
     }
-    else{
+    else
+    {
         std::random_device rd;
         std::mt19937 g(rd());
         std::shuffle(this->all_valid_action.begin(), this->all_valid_action.end(), g);
-        Action action = this->all_valid_action[this->all_valid_action.size() - 1];
+        auto action = this->all_valid_action[this->all_valid_action.size() - 1];
         this->all_valid_action.pop_back();
-        GameState next_state = this->state.getNextState(action);
         return action;
     }
 }
 
 MCTSNode MCTSNode::expand()
 {
-    Action action = this->randomChooseNextAction();
-    GameState next_state = this->state.getNextState(action);
-    MCTSNode next_node(next_state);
+    auto action = this->randomChooseNextAction();
+    auto next_state = this->state.getNextState(action);
+    MCTSNode next_node;
+    next_node.setState(next_state);
     next_node.find_all_valid_action();
+    next_node.init_quality_value();
+    next_node.parent = this;
+    this->children[action] = next_node;
+    return next_node;
     // Not Finished.
 
     // TODO: Hi
     // Python: if a in dict:
     // C++:
-    if (auto it = children.find(GameState()); it != children.end()) {
-        auto gameState = it->first;
-        auto a_huge_pair = it->second;
-    }
+    // if (auto it = children.find(GameState()); it != children.end())
+    // {
+    //     auto gameState = it->first;
+    //     auto a_huge_pair = it->second;
+    // }
     // Python: a = dict[g]
     // C++
-    auto g = GameState();
-    auto a = children[g];
+    // auto g = GameState();
+    // auto a = children[g];
     // Python: dict[g] = a;
     // C++
-    children[g] = a;
+    // children[g] = a;
+}
 
+MCTSNode MCTSNode::randomExpand()
+{
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(this->all_valid_action.begin(), this->all_valid_action.end(), g);
+    auto action = this->all_valid_action.at(0);
+    auto next_state = this->state.getNextState(action);
+    if (auto it = this->children.find(action); it != this->children.end())
+    {
+        auto next_node = this->children[action];
+        return next_node;
+    }
+    else
+    {
+        MCTSNode next_node;
+        next_node.setState(next_state);
+        next_node.find_all_valid_action();
+        next_node.init_quality_value();
+        next_node.parent = this;
+        this->children[action] = next_node;
+        return next_node;
+    }
+}
+
+float MCTSNode::calUCB(float c, MCTSNode child)
+{
+
+}
+
+std::pair<Action, MCTSNode> MCTSNode::bestChild(bool is_exploration)
+{
+    float c = 0.0f;
+    if (is_exploration)
+    {
+        c = 1 / sqrt(2.0);
+    }
 }
