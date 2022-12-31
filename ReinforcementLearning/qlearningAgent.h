@@ -6,13 +6,34 @@
 #include "../include/include.h"
 #include "../include/utils.h"
 #include <cstdio>
+#include <utility>
 
-class QlearningAgent : public Agent, public EvaluationMatrix
-{
+using Key = std::pair<Board, Action>;
+
+class Counter {
+public: // functions
+    float operator[](const Key &idx) {
+        if (auto it = dict.find(idx); it != dict.end()) { return it->second; }
+        return 0.0f;
+    }
+
+    void set(const Key &idx, float value) {
+        dict[idx] = value;
+    }
+
+public: // variables
+    std::map<Key, float> dict;
+};
+
+
+class QlearningAgent : public Agent, public EvaluationMatrix {
 public:
-    QlearningAgent(Player player, float alpha, float gamma, float epsilon, Counter qvalue) : Agent(player), EvaluationMatrix(), myalpha(alpha), mygamma(gamma), myepsilon(epsilon), q_value(qvalue){}
+    QlearningAgent(Player player, float alpha, float gamma, float epsilon, Counter qvalue) : Agent(player), EvaluationMatrix(), myepsilon(epsilon), myalpha(alpha), mygamma(gamma), q_value(std::move(qvalue)) {}
+
     Action step() override;
+
     Counter getQValueBoard();
+
     void update(Action action);
 
 private:
@@ -24,11 +45,16 @@ private:
     GameState last_state;
     Action last_action;
     float myreward;
-    float getQValue(std::vector<std::vector<Piece>> current_board, Action action);
-    Action computeActionFromQValues(std::vector<std::vector<Piece>> current_board);
+
+    float getQValue(const Board& current_board, Action action);
+
+    Action computeActionFromQValues(Board current_board);
+
     float getReward(GameState state, Action action, Player player);
+
     bool flipcoin();
-    Action getAction(std::vector<std::vector<Piece>> board);
+
+    Action getAction(Board board);
 };
 
 #endif

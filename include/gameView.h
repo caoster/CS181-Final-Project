@@ -23,7 +23,7 @@ public:
 
     void setModel(GameModel *gameModel) { model = gameModel; }
 
-    void draw(std::vector<std::vector<Piece>> grid);
+    void draw(Board grid);
 
     ~GameView() override = default;
 private:

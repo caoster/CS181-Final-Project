@@ -48,7 +48,7 @@ macro(setup name)
             ${INCLUDE_FILE}
             ${RANDOM}
             ${MINIMAX}
-#            ${RL}
+            ${RL}
             )
 endmacro(setup)
 

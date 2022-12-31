@@ -6,12 +6,14 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
+#include "include.h"
 
 #define NOT_REACHED assert(false && "This statement should not be reached!");
 
 using Position = std::pair<size_t, size_t>;
 using Action = std::pair<Position, Position>;
 using ScoreMatrix = std::vector<std::vector<int>>;
+using Board = std::vector<std::vector<Piece>>;
 
 template<>
 struct std::hash<Position> {
@@ -109,11 +111,13 @@ public:
 
     Piece() = delete;
 
-    constexpr Piece(Value piece) : _value(piece) {} // Let clang-tidy shut up, I need non-explicit here.
+    Piece(Value piece) : _value(piece) {} // Let clang-tidy shut up, I need non-explicit here.
 
-    constexpr bool operator==(Piece that) const { return _value == that._value; }
+    bool operator<(const Piece &rhs) const { return _value < rhs._value; }
 
-    constexpr bool operator!=(Piece that) const { return _value != that._value; }
+    bool operator==(const Piece &that) const { return _value == that._value; }
+
+    bool operator!=(const Piece &that) const { return _value != that._value; }
 
     Value value() { return _value; }
 
@@ -188,21 +192,5 @@ struct std::hash<Piece> {
         return (std::hash<int>()(k._value));
     }
 };
-
-// TODO: implement dict with unordered map
-// key = tuple[gameState, tuple[(int, int), (int, int)]]
-// _value = float
-//class Counter(dict):
-//
-//    def __getitem__(self, idx):
-//        self.setdefault(idx, 0)
-//        return dict.__getitem__(self, idx)
-//
-//    def copy(self):
-//        """
-//        Returns a copy of the counter
-//        """
-//        return Counter(dict.copy(self))
-//
 
 #endif //UTILS_H

@@ -18,6 +18,16 @@ public: // functions
         board = gameState.board;
     }
 
+    GameState(const GameState &gameState) {
+        myself = gameState.myself;
+        board = gameState.board;
+    }
+
+    GameState &operator=(const GameState &gameState) {
+        myself = gameState.myself;
+        board = gameState.board;
+    }
+
     [[nodiscard]] Player opponent() const { return myself.reverse(); }
 
     void swapDirection() { myself = myself.reverse(); }
@@ -47,20 +57,20 @@ public: // functions
 
     void init_with_start_game();
 
-	Piece operator[](Position position) const { return board[position.first][position.second]; }
+    Piece operator[](Position position) const { return board[position.first][position.second]; }
+
+    bool operator<(const GameState &rhs) const {
+        return board < rhs.board;
+    }
+
+    bool operator==(const GameState &rhs) const {
+        return board == rhs.board;
+    }
 
 public: // variables
-    std::vector<std::vector<Piece>> board;
+    Board board;
     Player myself{Player::Red};
 };
-
-//    def __eq__(self, other):
-//        # Allows two states to be compared.
-//        return hasattr(other, 'board') and self.board == other.board
-//
-//    def __hash__(self):
-//        # Allows gameModel to be keys of dictionaries.
-//        return hash(tuple(tuple(x) for x in self.board))
 
 
 class GameModel : public juce::Thread {
