@@ -4,7 +4,7 @@ from typing import Optional
 
 from ExampleAgent import ExampleAgent
 from HumanPlayer.mouseAgent import MouseAgent
-from Adversarial.MinimaxAgent import MinimaxAgent
+from MinimaxAgent.MinimaxAgent import MinimaxAgent
 from agent import Agent
 from gameModel import GameModel
 from gameView import GameView, NoGraphic

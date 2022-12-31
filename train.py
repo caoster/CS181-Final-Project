@@ -7,7 +7,7 @@ from gameModel import GameModel
 from gameView import GameView, NoGraphic
 from utils import Player, Counter, Piece
 from ReinforcementLearning.qlearningAgent import QLearningAgent
-from Adversarial.MinimaxAgent import MinimaxAgent
+from MinimaxAgent.MinimaxAgent import MinimaxAgent
 from MCTS.MCTSAgent import MCTSAgent
 import json
 
