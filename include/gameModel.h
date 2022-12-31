@@ -23,10 +23,7 @@ public: // functions
         board = gameState.board;
     }
 
-    GameState &operator=(const GameState &gameState) {
-        myself = gameState.myself;
-        board = gameState.board;
-    }
+    GameState &operator=(const GameState &gameState) = default;
 
     [[nodiscard]] Player opponent() const { return myself.reverse(); }
 

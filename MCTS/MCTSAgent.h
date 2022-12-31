@@ -14,7 +14,7 @@
 
 class MCTSNode{
 public:
-    explicit MCTSNode(GameState other_state): state(other_state){};
+    explicit MCTSNode(GameState other_state): state(other_state){}
     void setParent(MCTSNode* parent);
     void setVisitTime(int visit_time);
     void setQualityValue(float quality_value);

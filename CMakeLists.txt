@@ -8,6 +8,7 @@ file(GLOB INCLUDE_FILE include/*.h src/*.cpp main.cpp)
 file(GLOB RANDOM RandomAgent/*.h RandomAgent/*.cpp)
 file(GLOB MINIMAX MinimaxAgent/*.h MinimaxAgent/*.cpp)
 file(GLOB RL ReinforcementLearning/*.h ReinforcementLearning/*.cpp)
+file(GLOB MCTS MCTS/*.h MCTS/*.cpp)
 
 macro(setup name)
     juce_add_gui_app(${name} PRODUCT_NAME ${name})
@@ -49,6 +50,7 @@ macro(setup name)
             ${RANDOM}
             ${MINIMAX}
             ${RL}
+            ${MCTS}
             )
 endmacro(setup)
 

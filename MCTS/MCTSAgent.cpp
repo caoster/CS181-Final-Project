@@ -136,4 +136,20 @@ MCTSNode MCTSNode::expand()
     MCTSNode next_node(next_state);
     next_node.find_all_valid_action();
     // Not Finished.
+
+    // TODO: Hi
+    // Python: if a in dict:
+    // C++:
+    if (auto it = children.find(GameState()); it != children.end()) {
+        auto gameState = it->first;
+        auto a_huge_pair = it->second;
+    }
+    // Python: a = dict[g]
+    // C++
+    auto g = GameState();
+    auto a = children[g];
+    // Python: dict[g] = a;
+    // C++
+    children[g] = a;
+
 }
