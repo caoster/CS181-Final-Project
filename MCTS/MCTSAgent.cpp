@@ -145,9 +145,7 @@ MCTSNode MCTSNode::expand()
     next_node.parent = this;
     this->children[action] = next_node;
     return next_node;
-    // Not Finished.
 
-    // TODO: Hi
     // Python: if a in dict:
     // C++:
     // if (auto it = children.find(GameState()); it != children.end())
