@@ -19,8 +19,8 @@ public:
 
 private:
 	int max_depth;
-	double maxValue(GameState state, int depth, Player player, double &alpha, double &beta);
-	double minValue(GameState state, int depth, Player player, double &alpha, double &beta);
+	double maxValue(GameState state, int depth, Player player, double alpha, double beta);
+	double minValue(GameState state, int depth, Player player, double alpha, double beta);
 	double evaluationFunction(GameState state);
 };
 

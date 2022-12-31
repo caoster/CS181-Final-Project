@@ -15,15 +15,13 @@ Action MinimaxAgent::step() {
 	Action bestAction;
 	double bestValue = -1e9;
 	double alpha = -1e9;
-    double beta = 1e9;
+#pragma omp parallel for default(none) firstprivate(legalMoves, gameState) shared(bestAction, bestValue, alpha)
 	for (const auto &action: legalMoves) {
-		double value = minValue(gameState.getNextState(action), 1, direction.reverse(), alpha, beta);
+		double value = minValue(gameState.getNextState(action), 1, direction.reverse(), alpha, 1e9);
 		if (value > bestValue) {
 			bestValue = value;
 			bestAction = action;
 		}
-		if (value > beta)
-			break;
 		alpha = std::max(alpha, value);
 	}
 	printf("Minimax finished thinking...\n");
@@ -47,8 +45,7 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 	for (auto piece: myPiece) {
 		auto [x, y] = piece;
 		Piece myPieceType = state[piece];
-		myScore += pieceValue[myPieceType.value()] * pieceScore[myPieceType.value()][x][y];
-		myScore *= 0.1;
+		myScore += (pieceValue[myPieceType.value()] * pieceScore[myPieceType.value()][x][y]) * 0.1;
 
 		std::vector<Position> attackPosition = state.getRange(piece);
 		int flexibility = 0;
@@ -65,8 +62,7 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 	for (auto piece: enemyPiece) {
 		Piece enemyPieceType = state[piece];
 		auto [x, y] = piece;
-		enemyScore += pieceValue[enemyPieceType.value()] * pieceScore[enemyPieceType.value()][x][y];
-		enemyScore *= 0.1;
+		enemyScore += (pieceValue[enemyPieceType.value()] * pieceScore[enemyPieceType.value()][x][y]) * 0.1;
 
 		std::vector<Position> attackPosition = state.getRange(piece);
 		int flexibility = 0;
@@ -83,7 +79,7 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 	return myScore - enemyScore;
 }
 
-double MinimaxAgent::maxValue(GameState state, int depth, Player player, double &alpha, double &beta) {
+double MinimaxAgent::maxValue(GameState state, int depth, Player player, double alpha, double beta) {
 	if (depth == max_depth * 2 || state.isMatchOver())
 		return evaluationFunction(state);
 	double value = -1e9;
@@ -97,7 +93,7 @@ double MinimaxAgent::maxValue(GameState state, int depth, Player player, double 
 	return value;
 }
 
-double MinimaxAgent::minValue(GameState state, int depth, Player player, double &alpha, double &beta) {
+double MinimaxAgent::minValue(GameState state, int depth, Player player, double alpha, double beta) {
 	if (depth == max_depth * 2 || state.isMatchOver())
 		return evaluationFunction(state);
 	double value = 1e9;
