@@ -48,11 +48,13 @@ macro(setup name)
             ${INCLUDE_FILE}
             ${RANDOM}
             ${MINIMAX}
-            ${RL}
+#            ${RL}
             )
 endmacro(setup)
 
 setup(${CHESS})
 #target_include_directories(${CHESS} PRIVATE Node1)
+find_package(OpenMP)
+target_link_libraries(${CHESS} PUBLIC OpenMP::OpenMP_CXX)
 
 include_directories(${Boost_INCLUDE_DIR})

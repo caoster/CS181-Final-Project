@@ -9,6 +9,8 @@ class Agent {
 public:
     explicit Agent(Player player) : direction(player) {}
 
+    virtual ~Agent() = default;
+
     void setGameModel(GameModel *gameModel) {
         game = gameModel;
     }

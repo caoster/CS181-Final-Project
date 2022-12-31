@@ -86,7 +86,7 @@ private:
 
 
 class Piece {
-// Black/Red
+// black/red
 // General, Advisor, Elephant, Horse, Chariot, Cannon, Soldier
 public:
     enum Value {

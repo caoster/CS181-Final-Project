@@ -595,7 +595,7 @@ void GameState::init_with_start_game() {
     };
 }
 
-GameModel::GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent) {
+GameModel::GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent) : juce::Thread("GameModel") {
     _board.init_with_start_game();
     _interval = config.interval;
     _canvas = canvas;
@@ -672,8 +672,7 @@ Player GameModel::startGame() {
 }
 
 Player GameModel::startApp() {
-    // TODO: here
-    return Player::NoneType;
+    return startGame();
 }
 //    def startApp(self) -> Optional[Player]:
 //        if type(self._canvas) == NoGraphic:
@@ -684,5 +683,10 @@ Player GameModel::startApp() {
 //            self._canvas.startApp()
 
 void GameModel::_draw() {
+    juce::MessageManagerLock lock;
     _canvas->draw(_board.board);
+}
+
+void GameModel::run() {
+    std::cout << startApp() << std::endl;
 }

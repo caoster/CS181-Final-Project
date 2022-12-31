@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <JuceHeader.h>
 #include "include.h"
 #include "utils.h"
 #include "agent.h"
@@ -62,7 +63,7 @@ public: // variables
 //        return hash(tuple(tuple(x) for x in self.board))
 
 
-class GameModel {
+class GameModel : public juce::Thread {
 public: // functions
     GameModel() = delete;
 
@@ -88,6 +89,8 @@ public: // functions
     Player startGame();
 
     Player startApp();
+
+    void run() override;
 
 private: // functions
     void _draw();

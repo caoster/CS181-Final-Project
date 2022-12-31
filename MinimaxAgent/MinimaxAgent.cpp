@@ -10,20 +10,24 @@ Action MinimaxAgent::step() {
 	GameState gameState = game->getGameState();
 	size_t totalPieces = gameState.getSide(direction).size() + gameState.getSide(direction.reverse()).size();
 	float fraction = 1 - ((float) totalPieces / 32.f);
-	max_depth = 3 + (int) (fraction * 4);
+	max_depth = 2 + (int) (fraction * 3);
 	std::vector<Action> legalMoves = gameState.getLegalActionsBySide(direction);
 	Action bestAction;
 	double bestValue = -1e9;
 	double alpha = -1e9;
-	double beta = 1e9;
+    bool abort = false;
+#pragma omp parallel for default(none) firstprivate(legalMoves, gameState) shared(bestAction, bestValue, alpha, abort)
 	for (const auto &action: legalMoves) {
-		double value = minValue(gameState.getNextState(action), 1, direction.reverse(), alpha, beta);
+        if (abort) continue;
+		double value = minValue(gameState.getNextState(action), 1, direction.reverse(), alpha, 1e9);
 		if (value > bestValue) {
 			bestValue = value;
 			bestAction = action;
 		}
-		if (value > beta)
-			break;
+		if (value > 1e9) {
+            abort = true;
+            continue;
+        }
 		alpha = std::max(alpha, value);
 	}
 	printf("Minimax finished thinking...\n");

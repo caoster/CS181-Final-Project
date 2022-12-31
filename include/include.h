@@ -1,9 +1,13 @@
 #ifndef INCLUDE_H
 #define INCLUDE_H
 
+#include <string>
+
 struct {
     int resolution = 2; // Must be 1/2/4
-    float interval = 1.0f;
+    float interval = 0.0f;
+    std::string red = "MinimaxAgent";
+    std::string black = "RandomAgent";
 } config;
 
 class Player;

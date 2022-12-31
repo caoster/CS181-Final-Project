@@ -3,11 +3,14 @@
 
 #include "../include/include.h"
 #include "../include/agent.h"
+#include <random>
 
 
 class RandomAgent : public Agent {
 public:
     explicit RandomAgent(Player player) : Agent(player) {}
+
+    ~RandomAgent() override = default;
 
     Action step() override;
 

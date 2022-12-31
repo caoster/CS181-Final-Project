@@ -25,10 +25,7 @@ public:
 
     void draw(std::vector<std::vector<Piece>> grid);
 
-    ~GameView() override {
-        fprintf(stdout, "ByeBye!\n");
-    }
-
+    ~GameView() override = default;
 private:
     // GUI related
     juce::ImageButton pieces[9][10];
