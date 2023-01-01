@@ -58,7 +58,7 @@ private:
 
 class MCTSAgent : public Agent {
 public:
-    explicit MCTSAgent(Player player, int budget = 4000);
+    explicit MCTSAgent(Player player, int budget = 2000);
 
     ~MCTSAgent() override = default;
 

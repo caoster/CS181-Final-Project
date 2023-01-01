@@ -5,9 +5,9 @@
 
 struct {
     int resolution = 2; // Must be 1/2/4
-    float interval = 0.0f;
-    std::string red = "MinimaxAgent";
-    std::string black = "HumanAgent";
+    float interval = 1.0f;
+    std::string red = "HumanAgent";
+    std::string black = "MCTSAgent";
 } config;
 
 class Player;

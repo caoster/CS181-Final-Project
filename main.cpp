@@ -19,24 +19,24 @@ public:
         view = new GameView();
         mainWindow = new MainWindow(getApplicationName(), view, *this);
         if (config.red == "RandomAgent") {
-            red = new RandomAgent({Player::Red});
+            red = new RandomAgent(Player(Player::Red));
         } else if (config.red == "MinimaxAgent") {
-            red = new MinimaxAgent({Player::Red}, 2);
+            red = new MinimaxAgent(Player(Player::Red), 2);
         } else if (config.red == "HumanAgent") {
-            red = new HumanAgent({Player::Red});
+            red = new HumanAgent(Player(Player::Red));
         } else if (config.red == "MCTSAgent") {
-            red = new MCTSAgent({Player::Red});
+            red = new MCTSAgent(Player(Player::Red));
         } else {
             exit(123);
         }
         if (config.black == "RandomAgent") {
-            black = new RandomAgent({Player::Black});
+            black = new RandomAgent(Player(Player::Black));
         } else if (config.black == "MinimaxAgent") {
-            black = new MinimaxAgent({Player::Black}, 2);
+            black = new MinimaxAgent(Player(Player::Black), 2);
         } else if (config.black == "HumanAgent") {
-            black = new HumanAgent({Player::Black});
+            black = new HumanAgent(Player(Player::Black));
         } else if (config.black == "MCTSAgent") {
-            black = new MCTSAgent({Player::Black});
+            black = new MCTSAgent(Player(Player::Black));
         } else {
             exit(123);
         }
