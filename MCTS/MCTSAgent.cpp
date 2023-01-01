@@ -9,7 +9,7 @@ bool MCTSNode::isAllExpanded()
     return all_valid_action.empty();
 }
 
-void MCTSNode::setState(GameState other_state)
+void MCTSNode::setState(const GameState& other_state)
 {
     this->state = other_state;
 }
@@ -186,16 +186,53 @@ MCTSNode MCTSNode::randomExpand()
     }
 }
 
-float MCTSNode::calUCB(float c, MCTSNode child)
+float MCTSNode::calUCB(float c, const MCTSNode& child) const
 {
-
+    float UCB = 0.0f;
+    if (child.visit_time != 0)
+    {
+        UCB = child.quality_value / (float)child.visit_time + c * sqrtf(2 * logf((float) this->visit_time) / (float) child.visit_time);
+    }
+    return UCB;
 }
 
 std::pair<Action, MCTSNode> MCTSNode::bestChild(bool is_exploration)
 {
     float c = 0.0f;
+    float best_score = -1e9;
+    Action best_action;
+    MCTSNode best_child;
     if (is_exploration)
     {
-        c = 1 / sqrt(2.0);
+        c = 1 / sqrtf(2.0f);
     }
+    for (const auto &i: this->children)
+    {
+        float tmp = this->calUCB(c, i.second);
+        if (tmp > best_score)
+        {
+            best_score = tmp;
+            best_action = i.first;
+        }
+    }
+    best_child = this->children[best_action];
+    if (!is_exploration)
+    {
+        printf("choose child node with visit time %d", best_child.visit_time);
+    }
+    return {best_action, best_child};
+}
+
+float MCTSNode::calRewardFromState(Player direction)
+{
+    auto winner = this->state.getWinner();
+    if (winner == direction)
+    {
+        return 1.0f;
+    }
+    else
+    {
+        return 0.0f;
+    }
+    //    return 0;
 }

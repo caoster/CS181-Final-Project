@@ -16,7 +16,7 @@ class MCTSNode
 {
 public:
     MCTSNode() = default;
-    void setState(GameState other_state);
+    void setState(const GameState& other_state);
     void setParent(MCTSNode *parent);
     void setVisitTime(int visit_time);
     void setQualityValue(float quality_value);
@@ -26,8 +26,9 @@ public:
     Action randomChooseNextAction();
     MCTSNode expand();
     MCTSNode randomExpand();
-    float calUCB(float c, MCTSNode child);
+    float calUCB(float c, const MCTSNode& child) const;
     std::pair<Action, MCTSNode> bestChild(bool is_exploration);
+    float calRewardFromState(Player direction);
     float quality_value = 0.0f;
 
 private:
