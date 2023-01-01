@@ -145,21 +145,6 @@ MCTSNode MCTSNode::expand()
     next_node.parent = this;
     this->children[action] = next_node;
     return next_node;
-
-    // Python: if a in dict:
-    // C++:
-    // if (auto it = children.find(GameState()); it != children.end())
-    // {
-    //     auto gameState = it->first;
-    //     auto a_huge_pair = it->second;
-    // }
-    // Python: a = dict[g]
-    // C++
-    // auto g = GameState();
-    // auto a = children[g];
-    // Python: dict[g] = a;
-    // C++
-    // children[g] = a;
 }
 
 MCTSNode MCTSNode::randomExpand()
@@ -299,11 +284,17 @@ Action MCTSAgent::step()
 {
     printf("MCTS starts thinking.\n");
     auto new_game_state = this->game->getGameState();
-    for (auto & iter : this->root.children)
+    for (auto &iter: this->root.children)
     {
         if (iter.second.state == new_game_state)
         {
             this->root = iter.second;
+            for (auto &i: this->root.children)
+            {
+                printf("erase action.\n");
+                auto tmp = std::remove(this->root.all_valid_action.begin(), this->root.all_valid_action.end(), i.first);
+                this->root.all_valid_action.erase(tmp, this->root.all_valid_action.end());
+            }
             break;
         }
     }
@@ -312,20 +303,21 @@ Action MCTSAgent::step()
         this->root = MCTSNode();
         this->root.setState(new_game_state);
         this->root.init_quality_value();
+        this->root.find_all_valid_action();
         this->root.state.myself = this->direction;
     }
     this->root.parent = nullptr;
-    // TODO: whether the info in previous this.root is used
-    this->root.find_all_valid_action();
     this->tie = 0;
-    for (int i = 0; i < this->computation_budget; ++i){
+    for (int i = 0; i < this->computation_budget; ++i)
+    {
         auto expand_node = this->treePolicy(this->root);
         auto tmp = this->defaultPolicy(expand_node);
         this->backup(tmp.first, tmp.second);
     }
     printf("%d\n", this->tie);
-    for (const auto& i: this->root.children){
-        printf("%d: %f\n", i.second.visit_time, i.second.quality_value / (float)i.second.visit_time);
+    for (const auto &i: this->root.children)
+    {
+        printf("%d: %f\n", i.second.visit_time, i.second.quality_value / (float) i.second.visit_time);
     }
     auto result = this->root.bestChild(false);
     this->root = result.second;
