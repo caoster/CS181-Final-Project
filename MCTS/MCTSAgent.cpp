@@ -12,9 +12,9 @@ void MCTSNode::setState(const GameState &other_state) {
     this->state = other_state;
 }
 
-void MCTSNode::setParent(MCTSNode *other_parent) {
-    this->parent = other_parent;
-}
+//void MCTSNode::setParent(std::shared_ptr<MCTSNode> other_parent) {
+//    this->parent = std::move(other_parent);
+//}
 
 void MCTSNode::setVisitTime(int other_visit_time) {
     this->visit_time = other_visit_time;
@@ -111,10 +111,10 @@ Action MCTSNode::randomChooseNextAction() {
     }
 }
 
-MCTSNode *MCTSNode::expand() {
+std::shared_ptr<MCTSNode> MCTSNode::expand() {
     auto action = this->randomChooseNextAction();
     auto next_state = this->state.getNextState(action);
-    auto *next_node = new MCTSNode();
+    std::shared_ptr<MCTSNode> next_node = std::make_shared<MCTSNode>();
     next_node->setState(next_state);
     next_node->find_all_valid_action();
     next_node->init_quality_value();
@@ -123,17 +123,17 @@ MCTSNode *MCTSNode::expand() {
     return next_node;
 }
 
-MCTSNode *MCTSNode::randomExpand() {
+std::shared_ptr<MCTSNode> MCTSNode::randomExpand() {
     std::random_device rd;
     std::mt19937 g(rd());
     std::shuffle(this->all_valid_action.begin(), this->all_valid_action.end(), g);
     auto action = this->all_valid_action.at(0);
     auto next_state = this->state.getNextState(action);
     if (auto it = this->children.find(action); it != this->children.end()) {
-        auto *next_node = this->children[action];
+        auto next_node = this->children[action];
         return next_node;
     } else {
-        auto *next_node = new MCTSNode();
+        std::shared_ptr<MCTSNode> next_node = std::make_shared<MCTSNode>();
         next_node->setState(next_state);
         next_node->find_all_valid_action();
         next_node->init_quality_value();
@@ -143,7 +143,7 @@ MCTSNode *MCTSNode::randomExpand() {
     }
 }
 
-float MCTSNode::calUCB(float c, const MCTSNode *child) const {
+float MCTSNode::calUCB(float c, const std::shared_ptr<MCTSNode> &child) const {
     float UCB = 0.0f;
     if (child->visit_time != 0) {
         UCB = child->quality_value / (float) child->visit_time +
@@ -152,11 +152,11 @@ float MCTSNode::calUCB(float c, const MCTSNode *child) const {
     return UCB;
 }
 
-std::pair<Action, MCTSNode *> MCTSNode::bestChild(bool is_exploration) {
+std::pair<Action, std::shared_ptr<MCTSNode>> MCTSNode::bestChild(bool is_exploration) {
     float c = 0.0f;
     float best_score = -1e9;
     Action best_action;
-    MCTSNode *best_child;
+    std::shared_ptr<MCTSNode> best_child;
     if (is_exploration) {
         c = 1 / sqrtf(2.0f);
     }
@@ -179,16 +179,16 @@ float MCTSNode::calRewardFromState(Player direction) {
     if (winner == direction) {
         return 1.0f;
     } else {
-        return 0.0f;
+        return -1.0f;
     }
     //    return 0;
 }
 
 MCTSAgent::MCTSAgent(Player player, int budget) : Agent(player), computation_budget(budget) {
-    this->root = new MCTSNode();
+    this->root = std::make_shared<MCTSNode>();
 }
 
-MCTSNode *MCTSAgent::treePolicy(MCTSNode *node) {
+std::shared_ptr<MCTSNode> MCTSAgent::treePolicy(std::shared_ptr<MCTSNode> node) {
     if (!node->state.isMatchOver()) {
         if (node->isAllExpanded()) {
             node = node->bestChild(true).second;
@@ -199,7 +199,7 @@ MCTSNode *MCTSAgent::treePolicy(MCTSNode *node) {
     return node;
 }
 
-std::pair<MCTSNode *, float> MCTSAgent::defaultPolicy(MCTSNode *node) {
+std::pair<std::shared_ptr<MCTSNode>, float> MCTSAgent::defaultPolicy(std::shared_ptr<MCTSNode> node) {
     int r = 0;
     while (!node->state.isMatchOver()) {
         node = node->randomExpand();
@@ -215,17 +215,18 @@ std::pair<MCTSNode *, float> MCTSAgent::defaultPolicy(MCTSNode *node) {
     return {node, reward};
 }
 
-void MCTSAgent::backup(MCTSNode *node, float reward) {
-    while (node->parent != nullptr) {
-        node->visit_time++;
-        if (node->state.myself == this->direction) {
-            node->quality_value -= reward;
+void MCTSAgent::backup(const std::shared_ptr<MCTSNode> &node, float reward) {
+    MCTSNode* track = node.get();
+    while (track->parent != nullptr) {
+        track->visit_time++;
+        if (track->state.myself == this->direction) {
+            track->quality_value -= reward;
         } else {
-            node->quality_value += reward;
+            track->quality_value += reward;
         }
-        node = node->parent;
+        track = track->parent;
     }
-    node->visit_time++;
+    track->visit_time++;
 }
 
 Action MCTSAgent::step() {
@@ -244,7 +245,7 @@ Action MCTSAgent::step() {
         }
     }
     if (this->root->parent == nullptr) {
-        this->root = new MCTSNode();
+        this->root = std::make_shared<MCTSNode>();
         this->root->setState(new_game_state);
         this->root->init_quality_value();
         this->root->find_all_valid_action();
@@ -263,6 +264,7 @@ Action MCTSAgent::step() {
     }
     auto result = this->root->bestChild(false);
     this->root = result.second;
+    this->root->parent = nullptr;
     printf("MCTS stops thinking.\n");
     return result.first;
 }
