@@ -12,48 +12,67 @@
 #include <cstdio>
 #include <random>
 
-class MCTSNode
-{
+class MCTSNode : EvaluationMatrix {
 public:
     MCTSNode() = default;
-    void setState(const GameState& other_state);
+
+    void setState(const GameState &other_state);
+
     void setParent(MCTSNode *parent);
+
     void setVisitTime(int visit_time);
+
     void setQualityValue(float quality_value);
+
     bool isAllExpanded();
+
     void find_all_valid_action();
+
     void init_quality_value();
+
     Action randomChooseNextAction();
-    MCTSNode expand();
-    MCTSNode randomExpand();
-    float calUCB(float c, const MCTSNode& child) const;
-    std::pair<Action, MCTSNode> bestChild(bool is_exploration);
+
+    MCTSNode* expand();
+
+    MCTSNode* randomExpand();
+
+    float calUCB(float c, const MCTSNode *child) const;
+
+    std::pair<Action, MCTSNode*> bestChild(bool is_exploration);
+
     float calRewardFromState(Player direction);
+
 private:
     friend class MCTSAgent;
+
     int visit_time = 0;
     size_t num_all_valid_action = 0;
     MCTSNode *parent = nullptr;
     GameState state;
     std::vector<Action> all_valid_action;
     // changes in children construction
-    std::map<Action, MCTSNode> children;
+    std::map<Action, MCTSNode *> children;
     float quality_value = 0.0f;
 };
 
-class MCTSAgent: Agent
-{
+class MCTSAgent : public Agent {
 public:
-    explicit MCTSAgent(Player player, int budget = 200);
+    explicit MCTSAgent(Player player, int budget = 1000);
+
+    ~MCTSAgent() override = default;
+
     Action step() override;
 
 private:
     int computation_budget;
     int tie = 0;
-    MCTSNode root;
-    static MCTSNode treePolicy(MCTSNode node);
-    std::pair<MCTSNode, float> defaultPolicy(MCTSNode node);
-    void backup(MCTSNode node, float reward);
+    MCTSNode* root;
+
+    static MCTSNode* treePolicy(MCTSNode* node);
+
+    std::pair<MCTSNode*, float> defaultPolicy(MCTSNode* node);
+
+    void backup(MCTSNode* node, float reward);
 };
 
 #endif// CHINESE_CHESS_MCTSAGENT_H
