@@ -9,7 +9,7 @@ bool MCTSNode::isAllExpanded()
     return all_valid_action.empty();
 }
 
-void MCTSNode::setState(const GameState& other_state)
+void MCTSNode::setState(const GameState &other_state)
 {
     this->state = other_state;
 }
@@ -120,7 +120,7 @@ Action MCTSNode::randomChooseNextAction()
 {
     if (this->all_valid_action.empty())
     {
-        printf("all actions are expanded.");
+        printf("all actions are expanded.\n");
         exit(-1);
     }
     else
@@ -186,12 +186,12 @@ MCTSNode MCTSNode::randomExpand()
     }
 }
 
-float MCTSNode::calUCB(float c, const MCTSNode& child) const
+float MCTSNode::calUCB(float c, const MCTSNode &child) const
 {
     float UCB = 0.0f;
     if (child.visit_time != 0)
     {
-        UCB = child.quality_value / (float)child.visit_time + c * sqrtf(2 * logf((float) this->visit_time) / (float) child.visit_time);
+        UCB = child.quality_value / (float) child.visit_time + c * sqrtf(2 * logf((float) this->visit_time) / (float) child.visit_time);
     }
     return UCB;
 }
@@ -218,7 +218,7 @@ std::pair<Action, MCTSNode> MCTSNode::bestChild(bool is_exploration)
     best_child = this->children[best_action];
     if (!is_exploration)
     {
-        printf("choose child node with visit time %d", best_child.visit_time);
+        printf("choose child node with visit time %d\n", best_child.visit_time);
     }
     return {best_action, best_child};
 }
@@ -235,4 +235,100 @@ float MCTSNode::calRewardFromState(Player direction)
         return 0.0f;
     }
     //    return 0;
+}
+
+MCTSAgent::MCTSAgent(Player player, int budget) : Agent(player), computation_budget(budget)
+{
+    this->root = MCTSNode();
+}
+
+MCTSNode MCTSAgent::treePolicy(MCTSNode node)
+{
+    if (!node.state.isMatchOver())
+    {
+        if (node.isAllExpanded())
+        {
+            node = node.bestChild(true).second;
+        }
+        else
+        {
+            node = node.expand();
+        }
+    }
+    return node;
+}
+
+std::pair<MCTSNode, float> MCTSAgent::defaultPolicy(MCTSNode node)
+{
+    int r = 0;
+    while (!node.state.isMatchOver())
+    {
+        node = node.randomExpand();
+        r++;
+        if (r > 200)
+        {
+            this->tie++;
+            return {node, 0};
+        }
+    }
+    node.state.swapDirection();
+    float reward = node.calRewardFromState(this->direction);
+    node.state.swapDirection();
+    return {node, reward};
+}
+
+void MCTSAgent::backup(MCTSNode node, float reward)
+{
+    while (node.parent != nullptr)
+    {
+        node.visit_time++;
+        if (node.state.myself == this->direction)
+        {
+            node.quality_value -= reward;
+        }
+        else
+        {
+            node.quality_value += reward;
+        }
+        node = *(node.parent);
+    }
+    node.visit_time++;
+}
+
+Action MCTSAgent::step()
+{
+    printf("MCTS starts thinking.\n");
+    auto new_game_state = this->game->getGameState();
+    for (auto & iter : this->root.children)
+    {
+        if (iter.second.state == new_game_state)
+        {
+            this->root = iter.second;
+            break;
+        }
+    }
+    if (this->root.parent == nullptr)
+    {
+        this->root = MCTSNode();
+        this->root.setState(new_game_state);
+        this->root.init_quality_value();
+        this->root.state.myself = this->direction;
+    }
+    this->root.parent = nullptr;
+    // TODO: whether the info in previous this.root is used
+    this->root.find_all_valid_action();
+    this->tie = 0;
+    for (int i = 0; i < this->computation_budget; ++i){
+        auto expand_node = this->treePolicy(this->root);
+        auto tmp = this->defaultPolicy(expand_node);
+        this->backup(tmp.first, tmp.second);
+    }
+    printf("%d\n", this->tie);
+    for (const auto& i: this->root.children){
+        printf("%d: %f\n", i.second.visit_time, i.second.quality_value / (float)i.second.visit_time);
+    }
+    auto result = this->root.bestChild(false);
+    this->root = result.second;
+    printf("MCTS stops thinking.\n");
+    return result.first;
 }

@@ -29,9 +29,8 @@ public:
     float calUCB(float c, const MCTSNode& child) const;
     std::pair<Action, MCTSNode> bestChild(bool is_exploration);
     float calRewardFromState(Player direction);
-    float quality_value = 0.0f;
-
 private:
+    friend class MCTSAgent;
     int visit_time = 0;
     size_t num_all_valid_action = 0;
     MCTSNode *parent = nullptr;
@@ -39,6 +38,22 @@ private:
     std::vector<Action> all_valid_action;
     // changes in children construction
     std::map<Action, MCTSNode> children;
+    float quality_value = 0.0f;
+};
+
+class MCTSAgent: Agent
+{
+public:
+    explicit MCTSAgent(Player player, int budget = 200);
+    Action step() override;
+
+private:
+    int computation_budget;
+    int tie = 0;
+    MCTSNode root;
+    static MCTSNode treePolicy(MCTSNode node);
+    std::pair<MCTSNode, float> defaultPolicy(MCTSNode node);
+    void backup(MCTSNode node, float reward);
 };
 
 #endif// CHINESE_CHESS_MCTSAGENT_H
