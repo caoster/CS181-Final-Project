@@ -58,7 +58,7 @@ private:
 
 class MCTSAgent : public Agent {
 public:
-    explicit MCTSAgent(Player player, int budget = 2000);
+    explicit MCTSAgent(Player player, int budget = 4000);
 
     ~MCTSAgent() override = default;
 
@@ -73,7 +73,7 @@ private:
 
     std::pair<std::shared_ptr<MCTSNode>, float> defaultPolicy(std::shared_ptr<MCTSNode> node);
 
-    void backup(const std::shared_ptr<MCTSNode> &node, float reward);
+    void backup(const std::shared_ptr<MCTSNode>& node, float reward);
 };
 
 #endif// CHINESE_CHESS_MCTSAGENT_H

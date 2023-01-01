@@ -6,7 +6,7 @@
 
 
 Action MinimaxAgent::step() {
-	printf("Minimax starts thinking...\n");
+	fprintf(stdout, "Minimax starts thinking...\n");
 	GameState gameState = game->getGameState();
 	size_t totalPieces = gameState.getSide(direction).size() + gameState.getSide(direction.reverse()).size();
 	float fraction = 1 - ((float) totalPieces / 32.f);
@@ -24,7 +24,7 @@ Action MinimaxAgent::step() {
 		}
 		alpha = std::max(alpha, value);
 	}
-	printf("Minimax finished thinking...\n");
+	fprintf(stdout, "Minimax finished thinking...\n");
 	return bestAction;
 }
 

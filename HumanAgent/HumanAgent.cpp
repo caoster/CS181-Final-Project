@@ -5,7 +5,7 @@
 #include "HumanAgent.h"
 
 Action HumanAgent::step() {
-	printf("Waiting for %s move...\n", direction == Player::Red ? "Red" : "Black");
+	fprintf(stdout, "Waiting for %s move...\n", direction == Player::Red ? "Red" : "Black");
 	while (true) {
 		int x1, y1, x2, y2;
 		std::cin >> x1 >> y1 >> x2 >> y2;

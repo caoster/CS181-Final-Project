@@ -99,7 +99,7 @@ void MCTSNode::init_quality_value() {
 
 Action MCTSNode::randomChooseNextAction() {
     if (this->all_valid_action.empty()) {
-        printf("all actions are expanded.\n");
+        fprintf(stdout, "all actions are expanded.\n");
         exit(-1);
     } else {
         std::random_device rd;
@@ -215,10 +215,10 @@ std::pair<std::shared_ptr<MCTSNode>, float> MCTSAgent::defaultPolicy(std::shared
     return {node, reward};
 }
 
-void MCTSAgent::backup(const std::shared_ptr<MCTSNode> &node, float reward) {
-    MCTSNode* track = node.get();
+void MCTSAgent::backup(const std::shared_ptr<MCTSNode>& node, float reward) {
+    MCTSNode *track = node.get();
     while (track->parent != nullptr) {
-        track->visit_time++;
+    track->visit_time++;
         if (track->state.myself == this->direction) {
             track->quality_value -= reward;
         } else {
@@ -230,13 +230,13 @@ void MCTSAgent::backup(const std::shared_ptr<MCTSNode> &node, float reward) {
 }
 
 Action MCTSAgent::step() {
-    printf("MCTS starts thinking.\n");
+    fprintf(stdout, "MCTS starts thinking.\n");
     auto new_game_state = this->game->getGameState();
     for (auto &iter: this->root->children) {
         if (iter.second->state == new_game_state) {
             this->root = iter.second;
             for (auto &i: this->root->children) {
-                printf("erase action.\n");
+                fprintf(stdout, "erase action.\n");
                 auto tmp = std::remove(this->root->all_valid_action.begin(), this->root->all_valid_action.end(),
                                        i.first);
                 this->root->all_valid_action.erase(tmp, this->root->all_valid_action.end());
@@ -257,14 +257,15 @@ Action MCTSAgent::step() {
         auto expand_node = this->treePolicy(this->root);
         auto tmp = this->defaultPolicy(expand_node);
         this->backup(tmp.first, tmp.second);
+//        std::cout << i << std::endl;
     }
-    printf("%d\n", this->tie);
-    for (const auto &i: this->root->children) {
-        printf("%d: %f\n", i.second->visit_time, i.second->quality_value / (float) i.second->visit_time);
-    }
+//    printf("%d\n", this->tie);
+//    for (const auto &i: this->root->children) {
+//        printf("%d: %f\n", i.second->visit_time, i.second->quality_value / (float) i.second->visit_time);
+//    }
     auto result = this->root->bestChild(false);
     this->root = result.second;
     this->root->parent = nullptr;
-    printf("MCTS stops thinking.\n");
+    fprintf(stdout, "MCTS stops thinking.\n");
     return result.first;
 }
