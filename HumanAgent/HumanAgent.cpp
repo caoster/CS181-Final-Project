@@ -6,14 +6,14 @@
 
 Action HumanAgent::step() {
 	printf("Waiting for %s move...\n", direction == Player::Red ? "Red" : "Black");
-	while (1) {
+	while (true) {
 		int x1, y1, x2, y2;
-		scanf("%d %d %d %d", &y1, &x1, &y2, &x2);
+		std::cin >> x1 >> y1 >> x2 >> y2;
 		Position from(x1, y1), to(x2, y2);
 		if (direction == game->board()[from].getSide() && game->isValidMove(from, to)) {
-			printf("Move from (%d, %d) to (%d, %d)\n", y1, x1, y2, x2);
-			return Action(from, to);
+			fprintf(stdout, "Move from (%d, %d) to (%d, %d)\n", y1, x1, y2, x2);
+			return {from, to};
 		}
-		printf("Invalid move, please try again\n");
+		fprintf(stdout, "Invalid move, please try again\n");
 	}
 }
