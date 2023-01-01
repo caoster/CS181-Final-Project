@@ -9,6 +9,7 @@ file(GLOB RANDOM RandomAgent/*.h RandomAgent/*.cpp)
 file(GLOB MINIMAX MinimaxAgent/*.h MinimaxAgent/*.cpp)
 file(GLOB RL ReinforcementLearning/*.h ReinforcementLearning/*.cpp)
 file(GLOB MCTS MCTS/*.h MCTS/*.cpp)
+file(GLOB HUMAN HumanAgent/*.h HumanAgent/*.cpp)
 
 macro(setup name)
     juce_add_gui_app(${name} PRODUCT_NAME ${name})
@@ -51,6 +52,7 @@ macro(setup name)
             ${MINIMAX}
             ${RL}
             ${MCTS}
+            ${HUMAN}
             )
 endmacro(setup)
 
