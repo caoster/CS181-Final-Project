@@ -54,19 +54,20 @@ Action QlearningAgent::computeActionFromQValues(Board current_board)
         q_list.push_back(qvalue);
     }
     float max_q = *max_element(q_list.begin(), q_list.end());
-    std::vector<int> max_index;
-    for (int i = 0; i < q_list.size(); i++)
+    std::vector<unsigned int> max_index;
+
+    for (unsigned int i = 0; i < q_list.size(); i++)
     {
         if (q_list[i] == max_q)
         {
             max_index.push_back(i);
         }
     }
-    int len = max_index.size();
+    auto len = max_index.size();
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(0, len);
-    int index = dist(rng);
+    unsigned int index = dist(rng);
     return all_actions[index];
 }
 
@@ -76,27 +77,31 @@ float QlearningAgent::getReward(GameState state, Action action, Player player)
     GameState nextstate = last_state.getNextState(last_action);
     nextstate.swapDirection();
     Player winner = nextstate.getWinner();
-    if (winner == direction)
+    if (winner == player)
     {
         score = 1000000;
     }
-    else if (winner == direction.reverse())
+    else if (winner == player.reverse())
     {
         score = -1000000;
     }
     else
     {
-        std::vector<Position> myPiece = state.getSide(direction);
+        std::vector<Position> myPiece = state.getSide(player);
         for (Position &piece : myPiece)
         {
-            int x = piece.first;
-            int y = piece.second;
+            auto x = piece.first;
+            auto y = piece.second;
             Piece pieceType = state[piece];
             score += (pieceValue[pieceType.value()] * pieceScore[pieceType.value()][x][y]);
         }
         Piece eatenPieceType = state[action.second];
         switch (eatenPieceType.value())
         {
+        case Piece::NoneType:
+        {
+            break;
+        }
         case Piece::BSoldier:
         {
             score += 1;
@@ -139,12 +144,12 @@ float QlearningAgent::getReward(GameState state, Action action, Player player)
         }
         case Piece::BCannon:
         {
-            score += 4.5;
+            score += float(4.5);
             break;
         }
         case Piece::RCannon:
         {
-            score += 4.5;
+            score += float(4.5);
             break;
         }
         case Piece::BChariot:
@@ -157,6 +162,14 @@ float QlearningAgent::getReward(GameState state, Action action, Player player)
             score += 9;
             break;
         }
+        case Piece::BGeneral:
+        {
+            break;
+        }
+        case Piece::RGeneral:
+        {
+            break;
+        }
         }
     }
     return score;
@@ -167,7 +180,7 @@ bool QlearningAgent::flipcoin()
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(0, 100);
-    float r = dist(rng) / 100.0;
+    float r = dist(rng) / float(100.0);
     return r < myepsilon;
 }
 
@@ -175,9 +188,9 @@ Action QlearningAgent::getAction(Board board)
 {
     std::vector<Action> all_actions = game->getGameState().getLegalActionsBySide(direction);
     Action action;
-    if (flipcoin)
+    if (flipcoin())
     {
-        int len = all_actions.size();
+        size_t len = all_actions.size();
         std::random_device dev;
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> dist(0, len);
