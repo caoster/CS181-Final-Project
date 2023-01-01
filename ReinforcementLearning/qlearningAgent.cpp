@@ -55,8 +55,6 @@ Action QlearningAgent::computeActionFromQValues(const Board &current_board) {
         }
     }
     auto len = max_index.size();
-    std::random_device dev;
-    std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(0, len);
     size_t index = dist(rng);
     return all_actions[index];
@@ -74,8 +72,7 @@ float QlearningAgent::getReward(GameState state, Action action, Player player) {
     } else {
         std::vector<Position> myPiece = state.getSide(player);
         for (Position &piece: myPiece) {
-            auto x = piece.first;
-            auto y = piece.second;
+            auto [x, y] = piece;
             Piece pieceType = state[piece];
             score += static_cast<float>(pieceValue[pieceType.value()] * pieceScore[pieceType.value()][x][y]);
         }
@@ -118,12 +115,9 @@ float QlearningAgent::getReward(GameState state, Action action, Player player) {
     return score;
 }
 
-bool QlearningAgent::flipcoin() const {
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0, 100);
-    float r = dist(rng) / 100.0f;
-    return r < myepsilon;
+bool QlearningAgent::flipcoin() {
+    std::uniform_real_distribution<> dist(0, 1);
+    return dist(rng) < myepsilon;
 }
 
 Action QlearningAgent::getAction(const Board& board) {
@@ -131,9 +125,7 @@ Action QlearningAgent::getAction(const Board& board) {
     Action action;
     if (flipcoin()) {
         size_t len = all_actions.size();
-        std::random_device dev;
-        std::mt19937 rng(dev());
-        std::uniform_int_distribution<std::mt19937::result_type> dist(0, len);
+        std::uniform_int_distribution<size_t> dist(0, len - 1);
         action = all_actions[dist(rng)];
     } else {
         action = computeActionFromQValues(board);

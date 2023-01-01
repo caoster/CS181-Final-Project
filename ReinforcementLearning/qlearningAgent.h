@@ -7,6 +7,7 @@
 #include "../include/utils.h"
 #include <cstdio>
 #include <utility>
+#include <random>
 
 using Key = std::pair<Board, Action>;
 
@@ -46,6 +47,7 @@ private:
     GameState last_state;
     Action last_action;
     float myreward;
+    std::default_random_engine rng{std::random_device()()};
 
     float getQValue(const Board &current_board, Action action);
 
@@ -53,7 +55,7 @@ private:
 
     float getReward(GameState state, Action action, Player player);
 
-    bool flipcoin() const;
+    bool flipcoin();
 
     Action getAction(const Board &board);
 };
