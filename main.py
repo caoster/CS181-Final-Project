@@ -4,7 +4,7 @@ from typing import Optional
 
 from ExampleAgent import ExampleAgent
 from HumanPlayer.mouseAgent import MouseAgent
-from Adversarial.MinimaxAgent import MinimaxAgent
+from MinimaxAgent.MinimaxAgent import MinimaxAgent
 from agent import Agent
 from gameModel import GameModel
 from gameView import GameView, NoGraphic
@@ -87,6 +87,7 @@ def initAgent(side: Player, choice: str, relate_view: GameView, q_value=None) ->
             board = tuple(tuple(x) for x in board)
             action = tuple(tuple(x) for x in action)
             q_value[(board, action)] = value
+        file.close()
         agent = QLearningAgent(direction=side, q_value=q_value)
     else:
         assert False, "No such agent!"
