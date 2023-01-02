@@ -54,7 +54,7 @@ void MCTSNode::find_all_valid_action() {
         return;
     }
 
-    // avoid action lead to checkmate
+    // avoid action lead to checkmate and avoid direct checkmate
     std::vector<Action> temp_new;
     for (const Action &action: this->all_valid_action) {
         auto new_state = this->state.getNextState(action);
@@ -70,27 +70,6 @@ void MCTSNode::find_all_valid_action() {
     if (!temp_new.empty()) {
         this->all_valid_action = temp_new;
         this->num_all_valid_action = this->all_valid_action.size();
-    }
-
-    // avoid direct checkmate
-    auto threats = this->state.getThreatBySide(this->state.myself);
-    if (!threats[my_piece_pos[0]].empty()) {
-        std::vector<Action> new_actions;
-        for (const Action &action: this->all_valid_action) {
-            auto new_state = this->state.getNextState(action);
-            auto new_threats = new_state.getThreatBySide(this->state.myself);
-            auto my_new_piece_pos = my_piece_pos[0];
-            if (action.first == my_piece_pos[0]) {
-                my_new_piece_pos = action.second;
-            }
-            if (new_threats[my_new_piece_pos].empty()) {
-                new_actions.push_back(action);
-            }
-        }
-        if (!new_actions.empty()) {
-            this->all_valid_action = new_actions;
-            this->num_all_valid_action = new_actions.size();
-        }
     }
 
     // whether consider horse, cannon, chariot?
@@ -185,7 +164,6 @@ float MCTSNode::calRewardFromState(Player direction) {
     } else {
         return -1.0f;
     }
-    //    return 0;
 }
 
 MCTSAgent::MCTSAgent(Player player, int budget) : Agent(player), computation_budget(budget) {
@@ -263,12 +241,12 @@ Action MCTSAgent::step() {
         this->backup(tmp.first, tmp.second);
 //        std::cout << i << std::endl;
     }
-    std::cout << this->tie << std::endl;
-    for (const auto &i: this->root->children) {
-        std::cout << i.first.first.first << " " << i.first.first.second << " " << i.first.second.first << " "
-                  << i.first.second.second << ": " << i.second->quality_value / (float) i.second->visit_time
-                  << std::endl;
-    }
+//    std::cout << this->tie << std::endl;
+//    for (const auto &i: this->root->children) {
+//        std::cout << i.first.first.first << " " << i.first.first.second << " " << i.first.second.first << " "
+//                  << i.first.second.second << ": " << i.second->quality_value / (float) i.second->visit_time
+//                  << std::endl;
+//    }
     auto result = this->root->bestChild(false);
     this->root = result.second;
     this->root->parent = nullptr;
