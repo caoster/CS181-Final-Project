@@ -160,9 +160,9 @@ std::pair<Action, std::shared_ptr<MCTSNode>> MCTSNode::bestChild(bool is_explora
 float MCTSNode::calRewardFromState(Player direction) {
     auto winner = this->state.getWinner();
     if (winner == direction) {
-        return 1.0f;
+        return 5.0f;
     } else {
-        return -1.0f;
+        return -5.0f;
     }
 }
 
