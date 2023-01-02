@@ -26,7 +26,6 @@ void MCTSNode::setQualityValue(float other_quality_value) {
 
 void MCTSNode::find_all_valid_action() {
     this->all_valid_action = this->state.getLegalActionsBySide(this->state.myself);
-    std::vector<Action> new_actions;
     Piece my_general = Piece::RGeneral;
     Piece other_general = Piece::BGeneral;
     Player other = this->state.myself.reverse();
@@ -46,6 +45,7 @@ void MCTSNode::find_all_valid_action() {
 
     // checkmate opponent
     if (!other_piece_pos.empty() && !attack[other_piece_pos[0]].empty()) {
+        std::vector<Action> new_actions;
         for (const Position &pos: attack[other_piece_pos[0]]) {
             new_actions.emplace_back(pos, other_piece_pos[0]);
         }
@@ -55,6 +55,7 @@ void MCTSNode::find_all_valid_action() {
     }
 
     // avoid action lead to checkmate
+    std::vector<Action> temp_new;
     for (const Action &action: this->all_valid_action) {
         auto new_state = this->state.getNextState(action);
         auto new_threats = new_state.getThreatBySide(this->state.myself);
@@ -62,16 +63,19 @@ void MCTSNode::find_all_valid_action() {
         if (action.first == my_piece_pos[0]) {
             my_new_piece_pos = action.second;
         }
-        if (!new_threats[my_new_piece_pos].empty()) {
-            auto tmp = std::remove(this->all_valid_action.begin(), this->all_valid_action.end(), action);
-            this->all_valid_action.erase(tmp, this->all_valid_action.end());
+        if (new_threats[my_new_piece_pos].empty()) {
+            temp_new.push_back(action);
         }
     }
-    this->num_all_valid_action = this->all_valid_action.size();
+    if (!temp_new.empty()) {
+        this->all_valid_action = temp_new;
+        this->num_all_valid_action = this->all_valid_action.size();
+    }
 
     // avoid direct checkmate
     auto threats = this->state.getThreatBySide(this->state.myself);
     if (!threats[my_piece_pos[0]].empty()) {
+        std::vector<Action> new_actions;
         for (const Action &action: this->all_valid_action) {
             auto new_state = this->state.getNextState(action);
             auto new_threats = new_state.getThreatBySide(this->state.myself);
@@ -215,10 +219,10 @@ std::pair<std::shared_ptr<MCTSNode>, float> MCTSAgent::defaultPolicy(std::shared
     return {node, reward};
 }
 
-void MCTSAgent::backup(const std::shared_ptr<MCTSNode>& node, float reward) {
+void MCTSAgent::backup(const std::shared_ptr<MCTSNode> &node, float reward) {
     MCTSNode *track = node.get();
     while (track->parent != nullptr) {
-    track->visit_time++;
+        track->visit_time++;
         if (track->state.myself == this->direction) {
             track->quality_value -= reward;
         } else {
@@ -259,10 +263,12 @@ Action MCTSAgent::step() {
         this->backup(tmp.first, tmp.second);
 //        std::cout << i << std::endl;
     }
-//    printf("%d\n", this->tie);
-//    for (const auto &i: this->root->children) {
-//        printf("%d: %f\n", i.second->visit_time, i.second->quality_value / (float) i.second->visit_time);
-//    }
+    std::cout << this->tie << std::endl;
+    for (const auto &i: this->root->children) {
+        std::cout << i.first.first.first << " " << i.first.first.second << " " << i.first.second.first << " "
+                  << i.first.second.second << ": " << i.second->quality_value / (float) i.second->visit_time
+                  << std::endl;
+    }
     auto result = this->root->bestChild(false);
     this->root = result.second;
     this->root->parent = nullptr;
