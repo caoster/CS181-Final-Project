@@ -244,7 +244,8 @@ Action MCTSAgent::step() {
 //    std::cout << this->tie << std::endl;
 //    for (const auto &i: this->root->children) {
 //        std::cout << i.first.first.first << " " << i.first.first.second << " " << i.first.second.first << " "
-//                  << i.first.second.second << ": " << i.second->quality_value / (float) i.second->visit_time
+//                  << i.first.second.second << "|" << i.second->visit_time << " : "
+//                  << i.second->quality_value / (float) i.second->visit_time
 //                  << std::endl;
 //    }
     auto result = this->root->bestChild(false);
