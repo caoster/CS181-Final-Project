@@ -26,7 +26,6 @@ void MCTSNode::setQualityValue(float other_quality_value) {
 
 void MCTSNode::find_all_valid_action() {
     this->all_valid_action = this->state.getLegalActionsBySide(this->state.myself);
-    std::vector<Action> new_actions;
     Piece my_general = Piece::RGeneral;
     Piece other_general = Piece::BGeneral;
     Player other = this->state.myself.reverse();
@@ -46,6 +45,7 @@ void MCTSNode::find_all_valid_action() {
 
     // checkmate opponent
     if (!other_piece_pos.empty() && !attack[other_piece_pos[0]].empty()) {
+        std::vector<Action> new_actions;
         for (const Position &pos: attack[other_piece_pos[0]]) {
             new_actions.emplace_back(pos, other_piece_pos[0]);
         }
@@ -54,7 +54,8 @@ void MCTSNode::find_all_valid_action() {
         return;
     }
 
-    // avoid action lead to checkmate
+    // avoid action lead to checkmate and avoid direct checkmate
+    std::vector<Action> temp_new;
     for (const Action &action: this->all_valid_action) {
         auto new_state = this->state.getNextState(action);
         auto new_threats = new_state.getThreatBySide(this->state.myself);
@@ -62,31 +63,13 @@ void MCTSNode::find_all_valid_action() {
         if (action.first == my_piece_pos[0]) {
             my_new_piece_pos = action.second;
         }
-        if (!new_threats[my_new_piece_pos].empty()) {
-            auto tmp = std::remove(this->all_valid_action.begin(), this->all_valid_action.end(), action);
-            this->all_valid_action.erase(tmp, this->all_valid_action.end());
+        if (new_threats[my_new_piece_pos].empty()) {
+            temp_new.push_back(action);
         }
     }
-    this->num_all_valid_action = this->all_valid_action.size();
-
-    // avoid direct checkmate
-    auto threats = this->state.getThreatBySide(this->state.myself);
-    if (!threats[my_piece_pos[0]].empty()) {
-        for (const Action &action: this->all_valid_action) {
-            auto new_state = this->state.getNextState(action);
-            auto new_threats = new_state.getThreatBySide(this->state.myself);
-            auto my_new_piece_pos = my_piece_pos[0];
-            if (action.first == my_piece_pos[0]) {
-                my_new_piece_pos = action.second;
-            }
-            if (new_threats[my_new_piece_pos].empty()) {
-                new_actions.push_back(action);
-            }
-        }
-        if (!new_actions.empty()) {
-            this->all_valid_action = new_actions;
-            this->num_all_valid_action = new_actions.size();
-        }
+    if (!temp_new.empty()) {
+        this->all_valid_action = temp_new;
+        this->num_all_valid_action = this->all_valid_action.size();
     }
 
     // whether consider horse, cannon, chariot?
@@ -177,11 +160,10 @@ std::pair<Action, std::shared_ptr<MCTSNode>> MCTSNode::bestChild(bool is_explora
 float MCTSNode::calRewardFromState(Player direction) {
     auto winner = this->state.getWinner();
     if (winner == direction) {
-        return 1.0f;
+        return 5.0f;
     } else {
-        return -1.0f;
+        return -5.0f;
     }
-    //    return 0;
 }
 
 MCTSAgent::MCTSAgent(Player player, int budget) : Agent(player), computation_budget(budget) {
@@ -215,10 +197,10 @@ std::pair<std::shared_ptr<MCTSNode>, float> MCTSAgent::defaultPolicy(std::shared
     return {node, reward};
 }
 
-void MCTSAgent::backup(const std::shared_ptr<MCTSNode>& node, float reward) {
+void MCTSAgent::backup(const std::shared_ptr<MCTSNode> &node, float reward) {
     MCTSNode *track = node.get();
     while (track->parent != nullptr) {
-    track->visit_time++;
+        track->visit_time++;
         if (track->state.myself == this->direction) {
             track->quality_value -= reward;
         } else {
@@ -259,9 +241,12 @@ Action MCTSAgent::step() {
         this->backup(tmp.first, tmp.second);
 //        std::cout << i << std::endl;
     }
-//    printf("%d\n", this->tie);
+//    std::cout << this->tie << std::endl;
 //    for (const auto &i: this->root->children) {
-//        printf("%d: %f\n", i.second->visit_time, i.second->quality_value / (float) i.second->visit_time);
+//        std::cout << i.first.first.first << " " << i.first.first.second << " " << i.first.second.first << " "
+//                  << i.first.second.second << "|" << i.second->visit_time << " : "
+//                  << i.second->quality_value / (float) i.second->visit_time
+//                  << std::endl;
 //    }
     auto result = this->root->bestChild(false);
     this->root = result.second;
