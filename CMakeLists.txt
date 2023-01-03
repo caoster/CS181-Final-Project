@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CHESS "Chinese_Chess")
+SET(CMAKE_BUILD_TYPE "Release")
 project(${CHESS} VERSION 0.0.1)
 add_subdirectory(JUCE)
 file(GLOB INCLUDE_FILE include/*.h src/*.cpp main.cpp)

@@ -18,8 +18,8 @@ public: // variables
             {Piece::RHorse,    270},
             {Piece::BChariot,  600},
             {Piece::RChariot,  600},
-            {Piece::BCannon,   300},
-            {Piece::RCannon,   300},
+            {Piece::BCannon,   450},
+            {Piece::RCannon,   450},
             {Piece::BSoldier,  30},
             {Piece::RSoldier,  30},
             {Piece::NoneType,  0}
@@ -174,10 +174,10 @@ public: // variables
             {6,  10, 8,  14, 14, 14, 8,  10, 6},
             {4,  8,  6,  14, 12, 14, 6,  8,  4},
             {8,  4,  8,  16, 8,  16, 8,  4,  8},
-            {-2, 10, 6,  14, 12, 14, 6,  10, -2}
+            {0, 10, 6,  14, 12, 14, 6,  10, 0}
     };
     ScoreMatrix BChariotScore{
-            {-2, 10, 6,  14, 12, 14, 6,  10, -2},
+            {0, 10, 6,  14, 12, 14, 6,  10, 0},
             {8,  4,  8,  16, 8,  16, 8,  4,  8},
             {4,  8,  6,  14, 12, 14, 6,  8,  4},
             {6,  10, 8,  14, 14, 14, 8,  10, 6},

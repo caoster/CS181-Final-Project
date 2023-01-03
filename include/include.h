@@ -5,7 +5,7 @@
 
 struct {
     int resolution = 2; // Must be 1/2/4
-    float interval = 1.0f;
+    float interval = 0;
     std::string red = "MinimaxAgent";
     std::string black = "MCTSAgent";
     bool no_graphics = false;
