@@ -597,7 +597,7 @@ void GameState::init_with_start_game() {
 
 GameModel::GameModel(GameView *canvas, Agent *RedAgent, Agent *BlackAgent) : juce::Thread("GameModel") {
     _board.init_with_start_game();
-    _interval = config.interval;
+    _interval = m_config.interval;
     _canvas = canvas;
     _canvas->setModel(this);
     _red_agent = RedAgent;

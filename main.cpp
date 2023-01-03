@@ -17,25 +17,26 @@ public:
 
     void initialise(const juce::String &) override {
         view = new GameView();
-        mainWindow = new MainWindow(getApplicationName(), view, *this);
-        if (config.red == "RandomAgent") {
+        if (!m_config.no_graphics)
+            mainWindow = new MainWindow(getApplicationName(), view, *this);
+        if (m_config.red == "RandomAgent") {
             red = new RandomAgent(Player(Player::Red));
-        } else if (config.red == "MinimaxAgent") {
+        } else if (m_config.red == "MinimaxAgent") {
             red = new MinimaxAgent(Player(Player::Red), 2);
-        } else if (config.red == "HumanAgent") {
+        } else if (m_config.red == "HumanAgent") {
             red = new HumanAgent(Player(Player::Red));
-        } else if (config.red == "MCTSAgent") {
+        } else if (m_config.red == "MCTSAgent") {
             red = new MCTSAgent(Player(Player::Red));
         } else {
             exit(123);
         }
-        if (config.black == "RandomAgent") {
+        if (m_config.black == "RandomAgent") {
             black = new RandomAgent(Player(Player::Black));
-        } else if (config.black == "MinimaxAgent") {
+        } else if (m_config.black == "MinimaxAgent") {
             black = new MinimaxAgent(Player(Player::Black), 2);
-        } else if (config.black == "HumanAgent") {
+        } else if (m_config.black == "HumanAgent") {
             black = new HumanAgent(Player(Player::Black));
-        } else if (config.black == "MCTSAgent") {
+        } else if (m_config.black == "MCTSAgent") {
             black = new MCTSAgent(Player(Player::Black));
         } else {
             exit(123);
@@ -47,7 +48,8 @@ public:
     }
 
     void shutdown() override {
-        delete mainWindow;
+        if (!m_config.no_graphics)
+            delete mainWindow;
         delete view;
         delete model;
         delete red;

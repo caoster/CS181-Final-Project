@@ -8,7 +8,8 @@ struct {
     float interval = 1.0f;
     std::string red = "MinimaxAgent";
     std::string black = "MCTSAgent";
-} config;
+    bool no_graphics = false;
+} m_config;
 
 class Player;
 class Piece;
