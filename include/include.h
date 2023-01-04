@@ -9,7 +9,7 @@ struct {
     std::string red = "MinimaxAgent";
     std::string black = "RandomAgent";
     bool no_graphics = false;
-    size_t num_of_matches = 35;
+    size_t num_of_matches = 50;
 } m_config;
 
 class Player;
