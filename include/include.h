@@ -7,7 +7,7 @@ struct {
     int resolution = 2; // Must be 1/2/4
     float interval = 0;
     std::string red = "MinimaxAgent";
-    std::string black = "MCTSAgent";
+    std::string black = "RandomAgent";
     bool no_graphics = false;
 } m_config;
 

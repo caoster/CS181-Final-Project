@@ -10,12 +10,12 @@ Action MinimaxAgent::step() {
 	GameState gameState = game->getGameState();
 	size_t totalPieces = gameState.getSide(direction).size() + gameState.getSide(direction.reverse()).size();
 	float fraction = 1 - ((float) totalPieces / 32.f);
-	max_depth = 2 + (int) (fraction * 5);
+	max_depth = 2 + (int) (fraction * 4);
 	std::vector<Action> legalMoves = gameState.getLegalActionsBySide(direction);
 	Action bestAction;
 	double bestValue = -1e9;
 	double alpha = -1e9;
-#pragma omp parallel for default(none) firstprivate(legalMoves, gameState) shared(bestAction, bestValue, alpha)
+//#pragma omp parallel for default(none) schedule(dynamic) firstprivate(legalMoves, gameState) shared(bestAction, bestValue, alpha)
 	for (const auto &action: legalMoves) {
 		double value = minValue(gameState.getNextState(action), 1, direction.reverse(), alpha, 1e9);
 		if (value > bestValue) {
@@ -33,9 +33,9 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 	Player winner = state.getWinner();
 	state.swapDirection();
 	if (winner == direction)
-		return 1e9;
+		return 1e8;
 	else if (winner == direction.reverse())
-		return -1e9;
+		return -1e8;
 	std::vector<Position> myPiece = state.getSide(direction);
 	std::vector<Position> enemyPiece = state.getSide(direction.reverse());
 	double myScore = 0;
