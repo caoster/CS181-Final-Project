@@ -634,6 +634,7 @@ std::vector<Action> GameModel::getLegalActionBySide(Player direction) {
 }
 
 Player GameModel::startGame() {
+	int cnt = 0;
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	while (true) {
 		Position src, dst;
@@ -650,6 +651,7 @@ Player GameModel::startGame() {
 		}
 		_board.board[dst.first][dst.second] = _board.board[src.first][src.second];
 		_board.board[src.first][src.second] = Piece::NoneType;
+		cnt++;
 		_draw();
 		std::this_thread::sleep_for(std::chrono::nanoseconds((long) (_interval * 1e9)));
 
@@ -659,19 +661,19 @@ Player GameModel::startGame() {
 		else if (result == Player::Red) {
 			std::ofstream fout("result.txt", std::ios::app);
 			//fprintf(stdout, "Red win!\n");
-			fout << "Red" << std::endl;
+			fout << "Red " << cnt << std::endl;
 			fout.close();
 			return Player::Red;
 		} else if (result == Player::Black) {
 			std::ofstream fout("result.txt", std::ios::app);
 			//fprintf(stdout, "Black win!\n");
-			fout << "Black" << std::endl;
+			fout << "Black " << cnt << std::endl;
 			fout.close();
 			return Player::Black;
 		} else if (result == Player::Draw) {
 			std::ofstream fout("result.txt", std::ios::app);
 			//fprintf(stdout, "Draw!\n");
-			fout << "Draw" << std::endl;
+			fout << "Draw " << cnt << std::endl;
 			fout.close();
 			return Player::Draw;
 		} else {
