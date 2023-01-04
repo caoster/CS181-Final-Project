@@ -1180,6 +1180,7 @@ FodyWeavers.xsd
 Chinese_Chess
 *.sh
 result.txt
+record.md
 
 .vscode
 .vscode/*
