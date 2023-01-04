@@ -4,6 +4,17 @@
 
 #include "MinimaxAgent.h"
 
+bool MinimaxAgent::canKillGeneral(GameState state, Action action, Player player) {
+	auto [x, y] = action;
+	Piece target = state[y];
+	if (target == Piece::RGeneral && player == Player::Black) {
+		return true;
+	}
+	else if (target == Piece::BGeneral && player == Player::Red) {
+		return true;
+	}
+	return false;
+}
 
 Action MinimaxAgent::step() {
 	fprintf(stdout, "Minimax starts thinking...\n");
@@ -16,8 +27,11 @@ Action MinimaxAgent::step() {
 	double bestValue = -1e9;
 	double alpha = -1e9;
 //#pragma omp parallel for default(none) schedule(dynamic) firstprivate(legalMoves, gameState) shared(bestAction, bestValue, alpha)
-	for (const auto &action: legalMoves) {
+	for (auto &action: legalMoves) {
 		double value = minValue(gameState.getNextState(action), 1, direction.reverse(), alpha, 1e9);
+		if (canKillGeneral(gameState, action, direction)) {
+			return action;
+		}
 		if (value > bestValue) {
 			bestValue = value;
 			bestAction = action;
@@ -45,7 +59,7 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 	for (auto piece: myPiece) {
 		auto [x, y] = piece;
 		Piece myPieceType = state[piece];
-		myScore += (pieceValue[myPieceType.value()] * pieceScore[myPieceType.value()][x][y]) * 0.1;
+		myScore += (pieceValue[myPieceType.value()] * pieceScore[myPieceType.value()][x][y]);
 
 		std::vector<Position> attackPosition = state.getRange(piece);
 		int flexibility = 0;
@@ -62,7 +76,7 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 	for (auto piece: enemyPiece) {
 		Piece enemyPieceType = state[piece];
 		auto [x, y] = piece;
-		enemyScore += (pieceValue[enemyPieceType.value()] * pieceScore[enemyPieceType.value()][x][y]) * 0.1;
+		enemyScore += (pieceValue[enemyPieceType.value()] * pieceScore[enemyPieceType.value()][x][y]);
 
 		std::vector<Position> attackPosition = state.getRange(piece);
 		int flexibility = 0;

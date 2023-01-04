@@ -22,6 +22,7 @@ private:
 	double maxValue(GameState state, int depth, Player player, double alpha, double beta);
 	double minValue(GameState state, int depth, Player player, double alpha, double beta);
 	double evaluationFunction(GameState state);
+	bool canKillGeneral(GameState state, Action action, Player player);
 };
 
 #endif// MINIMAXAGENT_H
