@@ -4,5 +4,21 @@ Although Chinese Chess does not have the search space as big as the Go game, whe
 So we think that it may be feasible to use the MCTS search algorithm in the Chinese Chess. 
 As MCTS was not fully introduced in the lectures, here the basic idea of MCTS will be introduced and our implementation of MCTS will also be talked about. 
 \subsubsection{Basic Idea}
+MCTS search algorithm build the search tree node by node according to the outcome of the simulation results. 
+To be more specific, the search tree is built during the iteration of four steps, Selection, Expansion, Simulation and Backpropagation. 
 
+In the Selection step, starting from the root node, the optimal leaf node will be choosed recursively until a leaf node $L$ is reached. 
+In the Expansion step, if the leaf node $L$ that we reached is not the terminal node, we can have several child nodes of the leaf node. 
+One of the child nodes of the leaf node $L$ will be expanded and added to the search tree. 
+Then in the Simulation step, we will start a simulated game from the child node $C$ that we just expanded and get a final result. 
+Finally in the Backpropagation step, we will back propagate the result from the child node to the root node of the search tree in order to update the movements or the choices sequence with the simulation result. 
+
+If only the estimated values of the simulation result of the nodes are utilized, chances are that the node choice of the Selection step will concentrate within a few nodes. 
+Other nodes or the movements may be less explored. 
+In order to avoid the concentration, both the estimated value and the visit time of the node is used to find the optimal leaf node. 
+%%%%%%%
+%https://www.cs.swarthmore.edu/~mitchell/classes/cs63/f20/reading/mcts.html
+%https://zhuanlan.zhihu.com/p/26335999
+%https://zhuanlan.zhihu.com/p/30458774
+%%%%%%%
 \subsubsection{Implementation}
