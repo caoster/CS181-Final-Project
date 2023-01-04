@@ -33,9 +33,9 @@ double MinimaxAgent::evaluationFunction(GameState state) {
 	Player winner = state.getWinner();
 	state.swapDirection();
 	if (winner == direction)
-		return 1e6;
+		return 1e9;
 	else if (winner == direction.reverse())
-		return -1e6;
+		return -1e9;
 	std::vector<Position> myPiece = state.getSide(direction);
 	std::vector<Position> enemyPiece = state.getSide(direction.reverse());
 	double myScore = 0;

@@ -1179,6 +1179,7 @@ FodyWeavers.xsd
 .clang-format
 Chinese_Chess
 *.sh
+result.txt
 
 .vscode
 .vscode/*

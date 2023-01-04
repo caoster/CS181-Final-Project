@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <thread>
 #include <cassert>
+#include <fstream>
 
 
 GameState GameState::getNextState(Action action) {
@@ -656,13 +657,19 @@ Player GameModel::startGame() {
         _board.swapDirection();
         if (result == Player::NoneType) continue;
         else if (result == Player::Red) {
+			std::ofstream fout("../result.txt", std::ios::app);
             fprintf(stdout, "Red win!\n");
+			fout.close();
             return Player::Red;
         } else if (result == Player::Black) {
+			std::ofstream fout("../result.txt", std::ios::app);
             fprintf(stdout, "Black win!\n");
+			fout.close();
             return Player::Black;
         } else if (result == Player::Draw) {
+			std::ofstream fout("../result.txt", std::ios::app);
             fprintf(stdout, "Draw!\n");
+			fout.close();
             return Player::Draw;
         } else {
             // Just in case
