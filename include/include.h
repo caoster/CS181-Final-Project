@@ -4,11 +4,12 @@
 #include <string>
 
 struct {
-    int resolution = 2; // Must be 1/2/4
+    int resolution = 1; // Must be 1/2/4
     float interval = 0;
     std::string red = "MinimaxAgent";
     std::string black = "RandomAgent";
     bool no_graphics = false;
+    size_t num_of_matches = 5;
 } m_config;
 
 class Player;

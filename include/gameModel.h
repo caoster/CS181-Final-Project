@@ -93,9 +93,7 @@ public: // functions
 
     std::vector<Action> getLegalActionBySide(Player direction);
 
-    Player startGame();
-
-    Player startApp();
+    std::pair<Player, size_t> startGame();
 
     void run() override;
 
