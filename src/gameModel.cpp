@@ -694,7 +694,11 @@ void GameModel::run() {
     std::ofstream fout("result.txt", std::ios::app);
     for (size_t i = 0; i < m_config.num_of_matches; ++i) {
         auto [winner, cnt] = startGame();
-        fout << winner << " wins in " << cnt << " steps." << std::endl;
+		if (winner == Player::Draw) {
+			fout << "Draw" << std::endl;
+		}
+		else
+            fout << winner << " wins in " << cnt << " steps." << std::endl;
     }
     exit(0);
 }

@@ -26,12 +26,14 @@ Action MinimaxAgent::step() {
 	Action bestAction;
 	double bestValue = -1e9;
 	double alpha = -1e9;
-//#pragma omp parallel for default(none) schedule(dynamic) firstprivate(legalMoves, gameState) shared(bestAction, bestValue, alpha)
 	for (auto &action: legalMoves) {
-		double value = minValue(gameState.getNextState(action), 1, direction.reverse(), alpha, 1e9);
 		if (canKillGeneral(gameState, action, direction)) {
 			return action;
 		}
+	}
+//#pragma omp parallel for default(none) schedule(dynamic) firstprivate(legalMoves, gameState) shared(bestAction, bestValue, alpha)
+	for (auto &action: legalMoves) {
+		double value = minValue(gameState.getNextState(action), 1, direction.reverse(), alpha, 1e9);
 		if (value > bestValue) {
 			bestValue = value;
 			bestAction = action;
