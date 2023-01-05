@@ -93,7 +93,7 @@ Since a strategic agent is much better than a randomized algorithm, we show the 
 \begin{table}[htbp]
     \centering
     \caption{Win rate and average number of moves needed to kill the opponent}
-    \label{tab1}
+    \label{tab:tab1}
     \begin{tabular}{|c|c|c|c|}
         \hline
         Red & Black & Winning Rate & Steps  \\ \hline
@@ -106,7 +106,37 @@ Since a strategic agent is much better than a randomized algorithm, we show the 
     \end{tabular}
 \end{table}
 
-\section{Conclusion}\label{sec:conclusion}
+\subsection{Minimax v.s. MCTS}
+\label{subsec:minimax-v.s.-mcts}
+We also conduct 50 games between Minimax agent and MCTS agent to compare their superiority.
+\begin{table}[htbp]
+    \centering
+    \caption{Experiment results between Minimax and MCTS}
+    \label{tab:tab2}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        Red & Black & Red Winning Rate & Draw Rate & Steps  \\ \hline
+        Minimax & MCTS & 78\% & 6\% & 36.94 \\ \hline
+        MCTS & Minimax & 42\% & 4\% & 39.57 \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Minimax v.s. Real AI}
+\label{subsec:minimax-v.s.-real-ai}
+We also select the best agent to compete with the existing AI on the Internet.
+Since the existing AI is developed by a team of people for a longer time, and its strategy is much more high-level than ours, it is much more powerful than our agent.
+We only let our agent play red, and the existing AI play black. We conduct 20 games for them, and we play a role as an assistant to help moving the pieces.
+Hence we implemented a keyboard controller to enable mutually moving the pieces.
+\begin{table}[htbp]
+    \centering
+    \caption{Experiment results between Minimax and real AI}
+    \label{tab:tab3}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Red & Black & Red Winning Rate  \\ \hline
+        Minimax & Real AI & 15\% \\ \hline
+    \end{tabular}
+\end{table}
 
 
 \section{External Libraries}\label{sec:acknowledgements}
