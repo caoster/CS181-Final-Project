@@ -60,3 +60,24 @@ So the result of last simulation game may change the choice of best child node o
 After a certain amount of simulation game is played, the exploration of the search tree will stop and the final action will be chosen based on the best child algorithm. 
 Here it is the exploitation of the search tree, so only the quality value and the visit time of the child node will considered. 
 The control parameter will set as 0. 
+
+\subsubsection{Action Limitation}
+Because during the simulation games, all the actions are made randomly by the two players. 
+Chances are that one of the player may not choose the action that will directly lead to the winning of the game and lose the chance of winning the game immediately. 
+Or one of the player may not choose the action that will avoid threats to its general and lead to the lose of the game after opponent's action. 
+These actions will not happen when the two players of the game is rational enough, so actions are limited in order to avoid these situations from happening. 
+Action is also closely related to node, the number of action of the root node is the same as the number of the child node of the root node. 
+
+The first situation is the player may not choose the action that will directly lead to the winning of the game. 
+Every time we search for the action that the player can made, we will first check whether the opponent's general is threatened. 
+If it is threatened, it means that some actions can directly lead to the winning of the game. 
+And all the actions that the player can made will change into the actions can directly lead to the winning of the game. 
+
+The second situation is the player do not avoid threats to its general. 
+This situation not only includes that the player's general is threatened before the action is made, but also includes that the player's general is not threatened before the action is made and the player's general is threatened after the action. 
+The latter one also means that the player helps the opponent to win the games. 
+Every time we have checked threats to opponent's general, we will find all the actions that the player can made. 
+Then we will check whether the player's general is threatened. 
+If it is threatened, we will iterate all the actions to find the actions that can eliminate all the threats to the player's general. 
+If we can find such actions, all the actions that the player can made will change into these actions. 
+If not, it means that all the action will lead to the lose of the game, and all the actions that the player can made will not be changed. 
