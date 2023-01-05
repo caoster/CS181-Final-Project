@@ -83,7 +83,28 @@ For each leaf node state, we respectively calculate the weighted sum of the abov
 
 
 \section{Results}\label{sec:results}
+In this section, we will demonstrate the results of three agents.
+We will first conduct multiple games between the three agents and the random agent, and then show the results of three agents playing against each other.
+Finally, we will select relatively the best agent to compete with the existing AI on the Internet to evaluate its effectiveness.
 
+\subsection{Our Agents v.s. Random Agent}
+\label{subsec:our-agents-vs-random-agent}
+Since a strategic agent is much better than a randomized algorithm, we show the superiority of the algorithm by making each agent play red and black, and then counting the win rate of our agent and the average number of moves needed to kill the opponent after 50 games.
+\begin{table}[htbp]
+    \centering
+    \caption{Win rate and average number of moves needed to kill the opponent}
+    \label{tab1}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        Red & Black & Winning Rate & Steps  \\ \hline
+        Minimax & Random & 100\% & 17.52 \\ \hline
+        Random & Minimax & 100\% & 12.84 \\ \hline
+        RL & Random &  &  \\ \hline
+        Random & RL &  & \\ \hline
+        MCTS & Random & 100\% & \\ \hline
+        Random & MCTS & 100\% & \\ \hline
+    \end{tabular}
+\end{table}
 
 \section{Conclusion}\label{sec:conclusion}
 
