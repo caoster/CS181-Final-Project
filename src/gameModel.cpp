@@ -577,9 +577,7 @@ Player GameState::getWinner() {
         }
     }
     if (blackLose) return Player::Red;
-    // TODO: if draw, return Player.Draw
-    // No pieces captured in 60 steps
-    // Three identical moves
+
     return Player::NoneType;
 }
 
@@ -636,6 +634,7 @@ std::vector<Action> GameModel::getLegalActionBySide(Player direction) {
 
 std::pair<Player, size_t> GameModel::startGame() {
     size_t cnt = 0;
+	size_t notEatPiece = 0;
     this->_board.init_with_start_game();
     std::this_thread::sleep_for(std::chrono::seconds(1));
     while (true) {
@@ -651,6 +650,12 @@ std::pair<Player, size_t> GameModel::startGame() {
         if (_board.board[src.first][src.second].getSide() != _board.myself) {
             assert(false && "You should only move your own piece!");
         }
+		if (_board.board[dst.first][dst.second] != Piece::NoneType) {
+			notEatPiece = 0;
+		}
+		else {
+			notEatPiece++;
+		}
         _board.board[dst.first][dst.second] = _board.board[src.first][src.second];
         _board.board[src.first][src.second] = Piece::NoneType;
         cnt++;
@@ -659,6 +664,9 @@ std::pair<Player, size_t> GameModel::startGame() {
 
         auto result = _board.getWinner();
         _board.swapDirection();
+		if (notEatPiece > 40) {
+			result = Player::Draw;
+		}
         if (result == Player::NoneType) continue;
         else if (result == Player::Red) {
             fprintf(stdout, "Red win!\n");
