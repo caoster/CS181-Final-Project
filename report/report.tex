@@ -39,41 +39,7 @@ They are Minimax Search, Reinforcement Learning, and Monte-Carlo Tree Search, re
 We will briefly introduce their basic ideas and then explain how we implement them in our project.
 
 \subsection{Minimax Search}\label{subsec:minimax-search}
-The most straightforward method for the adversarial search based game is minimax search algorithm.
-As taught in the class, the minimax search algorithm is a recursive algorithm that is used to find the optimal move for a player, assuming that the opponent also plays optimally.
-\subsubsection*{Basic Idea}
-The search tree is constructed based on the states and actions.
-Each state is a tree node, while each action $a$ transit state $s$ to $s'$ is a tree edge.
-The root of the tree is a max layer, and for the following layers, the nodes are alternately min and max layers.
-The value of a node is the value of the state it represents.
-
-However, it is impossible to build a full search tree for the chess board, because the complexity grows exponentially as we search deeper.
-Therefore, we utilize depth-limited search strategy, which means the searching process terminates when the depth of the tree reaches a certain value, for example, 3.
-Actually, as the game plays, there will be fewer pieces on the board and hence smaller branching factor, so we utilize iterative deepening based on the number of the pieces on the board.
-As the pieces become less, we search deeper.
-
-\subsubsection*{Evaluation Function} When searching process terminates, we have to evaluate the score of the state of the so-called leaf node.
-Based on~\cite{yen2004computer}, we have considered the following factors when designing the evaluation function:
-\begin{itemize}
-    \item The power of each piece.
-    We assign different values to different types of pieces, and the more powerful the piece is, the higher the value is.
-    For example, we assign 600000 to General, 600 to Chariot, 450 to Cannon, 270 to Horse, etc.
-    \item The position of each piece.
-    We assign different values to different positions of the pieces, and the more advantageous the position is, the higher the value is.
-    More specifically, we design a $10\times 9$ matrix (which is the size of the board) for each piece, with each value
-    representing the advantage of the position.
-    \item The flexibility of each piece.
-    Based on the moving range, different types of pieces have different flexibilities.
-    We first assign different fixed values to each type, and calculate how many positions can each piece reach.
-    We multiply the fixed value to the calculated value, and the result is the flexibility of the piece.
-    \item The value of being threatened.
-    We have to calculate how many piece can threaten the current piece.
-    After the number is calculated, we can multiply it by the power of the piece.
-    \item The value of being protected.
-    It is also important to consider how many pieces can protect the current position, that is, if the current piece is killed by the enemy, how many allies can revenge for it.
-    After the number is calculated, we can multiply it by the power of the piece.
-\end{itemize}
-For each leaf node state, we respectively calculate the weighted sum of the above factors of the player and the opponent, and the difference is the evaluation value of the state.
+\input{minimax}
 
 \subsection{Reinforcement Learning}\label{subsec:reinforcement-learning}
 \input{Qlearning}
