@@ -32,12 +32,12 @@ public: // variables
             {Piece::RAdvisor,  1},
             {Piece::BElephant, 1},
             {Piece::RElephant, 1},
-            {Piece::BHorse,    7},
-            {Piece::RHorse,    7},
-            {Piece::BChariot,  13},
-            {Piece::RChariot,  13},
-            {Piece::BCannon,   15},
-            {Piece::RCannon,   15},
+            {Piece::BHorse,    5},
+            {Piece::RHorse,    5},
+            {Piece::BChariot,  9},
+            {Piece::RChariot,  9},
+            {Piece::BCannon,   10},
+            {Piece::RCannon,   10},
             {Piece::BSoldier,  1.5},
             {Piece::RSoldier,  1.5}
     };
