@@ -7,7 +7,7 @@ As MCTS was not fully introduced in the lectures, here the basic idea of MCTS wi
 MCTS search algorithm build the search tree node by node according to the outcome of the simulation results. 
 To be more specific, the search tree is built during the iteration of four steps, Selection, Expansion, Simulation and Backpropagation. 
 
-In the Selection step, starting from the root node, the optimal leaf node will be choosed recursively until a leaf node $L$ is reached. 
+In the Selection step, starting from the root node, the optimal leaf node will be chosen recursively until a leaf node $L$ is reached. 
 In the Expansion step, if the leaf node $L$ that we reached is not the terminal node, we can have several child nodes of the leaf node. 
 One of the child nodes of the leaf node $L$ will be expanded and added to the search tree. 
 Then in the Simulation step, we will start a simulated game from the child node $C$ that we just expanded and get a final result. 
@@ -16,9 +16,47 @@ Finally in the Backpropagation step, we will back propagate the result from the 
 If only the estimated values of the simulation result of the nodes are utilized, chances are that the node choice of the Selection step will concentrate within a few nodes. 
 Other nodes or the movements may be less explored. 
 In order to avoid the concentration, both the estimated value and the visit time of the node is used to find the optimal leaf node. 
+There are several algorithms that can be used to calculate the best child of a node, such as the Upper Confidence Bound(UCB) algorithm. 
+
 %%%%%%%
 %https://www.cs.swarthmore.edu/~mitchell/classes/cs63/f20/reading/mcts.html
 %https://zhuanlan.zhihu.com/p/26335999
 %https://zhuanlan.zhihu.com/p/30458774
 %%%%%%%
 \subsubsection{Implementation}
+In our implementation, the algorithm that is used to get the best child of a node is the Upper Confidence Bound for Tree(UCT) which is an application of UCB algorithm. 
+The algorithm is given as follows. 
+\begin{equation*}
+    \mathop{\arg\max}_{v' \in\textrm{ children of }v} \frac{Q(v')}{N(v')} + c\sqrt{\frac{2\ln N(v)}{N(v')}}
+\end{equation*}
+where $v$ represents for the parent node, $v'$ represents for the child node of the parent node. 
+$N(\cdot)$ represents for the visit time of the node and $Q(\cdot)$ represents for the quality value or the estimated value of the node. 
+There is also a parameter $c$, which controls the weights between the exploration and the exploitation. 
+Exploration indicates that we will explore the child node that is less visited to see whether it is a choice. 
+And exploitation indicates that we will fully utilize the information we have to choose the best child node. 
+Base on~\cite{kocsis2006bandit}, during exploration, the parameter $c$ is $\frac{1}{\sqrt{2}}$. 
+The parameter $c$ will be set as 0 during the exploitation. 
+
+We have \verb|MCTSNode| to store the node information, including estimated value, visit time and the child nodes. 
+And the \verb|MCTSAgent| is used to keep the root node of the search tree. 
+Every time the Agent is needed to make a decision or make an action, the root node of the tree will be newly created to store the current game information. 
+Then the search tree will be built with the iteration of the four steps, which are previously introduced. 
+However, there is something different during the Selection step and the Expansion step of the search algorithm. 
+In the original search algorithm, a leaf node of the tree will be selected and a child node of the leaf node will be expanded during the Selection step and the Expansion step. 
+But in our real implementation, only the first generation of the root node will be expanded. 
+When there is still child nodes of the root node that is not expanded, the unexpanded child nodes will be first expanded and a simulation game will start from that node. 
+When all the child node of the root node are expanded, we will choose the best child node of the root node base on the best child algorithm. 
+A simulation game will start from the child node that is chosen by the best child algorithm. 
+Because the Agent is still during the exploration, the control parameter $c$ will be set as $\frac{1}{\sqrt{2}}$ in the best child algorithm. 
+
+During the simulation game, both the agent and the opponent will randomly choose their actions. 
+There are two ways to end a simulation game, the first one is that one of the players wins the game. 
+If the winner of the game is the Agent, the reward of this simulation game is positive and if the winner of the game is the opponent , the reward of this simulation game is negative. 
+The second way is that the total number of actions that the two players has made exceeds a certain value. 
+Under this circumstances, the simulation game will be seen as a draw, where the reward that the agent gets from the simulation game is 0. 
+The rewards from the simulation game will directly added to the estimated value of the child node of the root node immediately. 
+So the result of last simulation game may change the choice of best child node of the root node and change the start of the simulation game. 
+
+After a certain amount of simulation game is played, the exploration of the search tree will stop and the final action will be chosen based on the best child algorithm. 
+Here it is the exploitation of the search tree, so only the quality value and the visit time of the child node will considered. 
+The control parameter will set as 0. 
