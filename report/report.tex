@@ -91,16 +91,16 @@ Since a strategic agent is much better than a randomized algorithm, we show the 
 Since the RL agent is trained as the red side, we perform a separate 100 test games on the red side for RL agent.
 \begin{table}[htbp]
     \centering
-    \caption{Win rate and average number of moves needed to kill the opponent}
+    \caption{The winning rate of our agents and average number of moves needed to kill the random agent}
     \label{tab:tab1}
     \begin{tabular}{|c|c|c|c|}
         \hline
         Red & Black & Winning Rate & Steps  \\ \hline
-        Minimax & Random & 100\% & 20.52 \\ \hline
-        Random & Minimax & 100\% & 16.84 \\ \hline
-        RL & Random & 72\% & 79.47 \\ \hline
-        MCTS & Random & 100\% & 32.64\\ \hline
-        Random & MCTS & 98\% & 35.43\\ \hline
+        Minimax & Random & 100\% (Red) & 20.52 \\ \hline
+        Random & Minimax & 100\% (Black) & 16.84 \\ \hline
+        RL & Random & 72\% (Red) & 79.47 \\ \hline
+        MCTS & Random & 100\% (Red) & 32.64\\ \hline
+        Random & MCTS & 98\% (Black) & 35.43\\ \hline
     \end{tabular}
 \end{table}
 
@@ -141,9 +141,8 @@ Hence, we implemented a keyboard controller to enable manually moving the pieces
 \section{External Libraries}\label{sec:acknowledgements}
 
 \begin{itemize}
-    \item \texttt{JUCE}, which is a cross-platform C++ framework for audio applications.
-    It helps us to build the GUI of our project.
-    \item \texttt{tkinter}, which is a Python library for GUI\@.
+    \item \texttt{JUCE}, which is a cross-platform C++ library, helping us to build the C++ project GUI\@.
+    \item \texttt{tkinter}, which is a Python library, also helping us to generate the Python project GUI\@.
 \end{itemize}
 
 \bibliography{ref}
