@@ -86,7 +86,8 @@ If not, it means that all the action will lead to the lose of the game, and all 
 Normally, the estimated value of the node should be initialized as 0 and all the estimated values should be from the results of simulation games. 
 However, this requires thousands or even more simulation games to be played until the agent can figure out reliable estimated values and make a rational decision. 
 
-We found that the implementation in Python needs about ten seconds for one simulation game. 
-So only about hundreds of simulation game can be made for the agent. 
+We found that for the implementation in Python only about one hundred simulation games can be made in one minute. 
+So only about hundreds of simulation game can be made every time the agent needs to make an actions. 
 In order to get a more reliable estimated values with less simulation game made, the estimated values in the implement in Python was initialized with the score of the piece and the position of the piece as what has been done in Minimax Agent. 
-The estimated values in the implement in C++ is still 0 and thousands of simulation game are made to figure out one action. 
+The estimated values in the implement in C++ is still 0 and thousands of simulations game are made to figure out one action. 
+And for the implementation in C++, about forty seconds are needed for the thousands of simulation games. 
