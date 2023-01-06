@@ -98,7 +98,7 @@ Since the RL agent is trained as the red side, we perform a separate 100 test ga
         Red & Black & Winning Rate & Steps  \\ \hline
         Minimax & Random & 100\% & 20.52 \\ \hline
         Random & Minimax & 100\% & 16.84 \\ \hline
-        RL & Random & 72\% & 149.47 \\ \hline
+        RL & Random & 72\% & 79.47 \\ \hline
         MCTS & Random & 100\% & 32.64\\ \hline
         Random & MCTS & 98\% & 35.43\\ \hline
     \end{tabular}
@@ -125,7 +125,7 @@ We also select the best agent to compete with the existing AI on the Internet.
 Since the existing AI is developed by a team of people for a longer time, and its strategy is much more high-level than ours, it is much more powerful than our agent.
 We only let our agent play red, and the existing AI play black.
 We conduct 20 games for them, and we play a role as an assistant to help moving the pieces.
-Hence, we implemented a keyboard controller to enable mutually moving the pieces.
+Hence, we implemented a keyboard controller to enable manually moving the pieces.
 \begin{table}[htbp]
     \centering
     \caption{Experiment results between Minimax and real AI}
