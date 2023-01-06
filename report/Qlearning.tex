@@ -1,3 +1,4 @@
+We use reinforcement learning approach in the hope that our chess agent will get the best strategies by way of learning. 
 Since we need to know how to take each step, i.e., get the action, we use the Q-learning method.
 \subsubsection{Q value}
 The Q value is $Q_{k}(s,a)$
@@ -6,11 +7,13 @@ We use the board to represent the current state of the game. Considering that th
 starting point and the landing point of this action will be different, we define the 
 action as a tuple, which records which piece is picked and where this piece lands.
 \subsubsection{Reward function}
+As with Minimax, we also consider the power and the position of each piece. Besides, we take the eaten piece type into account.
+For example, the score is added 1 if our agent eats soldier, 4 if house, 9 if chariot, etc.
 
 \subsubsection{Training design}
 Considering the training time, we train our Qlearning agent as a red side with Random agent on the black side. 
 After Qlearning agent makes a move, we record the current state of the board and its 
-actions, and from these two we calculate the reward that the Qlearning agent gets in this move 
+action, and from these two we calculate the reward that the Qlearning agent gets in this move 
 as $r_1$. Next, after the random agent makes its next move, we get the reward
 that the Random agent gets in this move as $r_2$. Then, at the end of this round, the actual
 reward that Red gets is $(r_1-r_2)$. So the sample estimate is
@@ -29,5 +32,5 @@ picking the optimal policy based on $\arg\max_{a}Q(s,a)$ and a 50 percent chance
 Due to memory limitations, the training limit is 4000 epochs. The gamma is set to 0.8 and the 
 learning rate is set to 0.8 for the first 1000 epochs, 0.5 for 1000 to 2000 epochs, 0.2 for 2000 
 to 3000 epochs, and 0.1 for 3000 to 4000 epochs.
-We write the explored qvalue to a .txt file in the form of .json. All values of the current $Q(s,a)$ are
+We write the explored Q-value to a .txt file in the form of .json. All values of the current $Q(s,a)$ are
 recorded once every 100 epochs.

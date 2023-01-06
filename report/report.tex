@@ -62,6 +62,7 @@ Finally, we will select relatively the best agent to compete with the existing A
 \subsection{Our Agents v.s. Random Agent}
 \label{subsec:our-agents-vs-random-agent}
 Since a strategic agent is much better than a randomized algorithm, we show the superiority of the algorithm by making each agent play red and black, and then counting the win rate of our agent and the average number of moves needed to kill the opponent after 50 games.
+Since the RL agent is trained as the red side, we perform a separate 100 test games on the red side for RL agent.
 \begin{table}[htbp]
     \centering
     \caption{Win rate and average number of moves needed to kill the opponent}
@@ -71,8 +72,7 @@ Since a strategic agent is much better than a randomized algorithm, we show the 
         Red & Black & Winning Rate & Steps  \\ \hline
         Minimax & Random & 100\% & 17.52 \\ \hline
         Random & Minimax & 100\% & 12.84 \\ \hline
-        RL & Random &  &  \\ \hline
-        Random & RL &  & \\ \hline
+        RL & Random & 72\% & 149.47 \\ \hline
         MCTS & Random & 100\% & \\ \hline
         Random & MCTS & 100\% & \\ \hline
     \end{tabular}
