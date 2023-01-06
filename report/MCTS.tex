@@ -81,3 +81,12 @@ Then we will check whether the player's general is threatened.
 If it is threatened, we will iterate all the actions to find the actions that can eliminate all the threats to the player's general. 
 If we can find such actions, all the actions that the player can made will change into these actions. 
 If not, it means that all the action will lead to the lose of the game, and all the actions that the player can made will not be changed. 
+
+\subsubsection{Estimated Value Initialization}
+Normally, the estimated value of the node should be initialized as 0 and all the estimated values should be from the results of simulation games. 
+However, this requires thousands or even more simulation games to be played until the agent can figure out reliable estimated values and make a rational decision. 
+
+We found that the implementation in Python needs about ten seconds for one simulation game. 
+So only about hundreds of simulation game can be made for the agent. 
+In order to get a more reliable estimated values with less simulation game made, the estimated values in the implement in Python was initialized with the score of the piece and the position of the piece as what has been done in Minimax Agent. 
+The estimated values in the implement in C++ is still 0 and thousands of simulation game are made to figure out one action. 
