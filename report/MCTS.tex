@@ -34,7 +34,7 @@ $N(\cdot)$ represents for the visit time of the node and $Q(\cdot)$ represents f
 There is also a parameter $c$, which controls the weights between the exploration and the exploitation. 
 Exploration indicates that we will explore the child node that is less visited to see whether it is a choice. 
 And exploitation indicates that we will fully utilize the information we have to choose the best child node. 
-Base on~\cite{kocsis2006bandit}, during exploration, the parameter $c$ is $\frac{1}{\sqrt{2}}$. 
+Base on previous works on MCTS search algorithm, during exploration, the parameter $c$ is $\frac{1}{\sqrt{2}}$.
 The parameter $c$ will be set as 0 during the exploitation. 
 
 We have \verb|MCTSNode| to store the node information, including estimated value, visit time and the child nodes. 
