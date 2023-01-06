@@ -1,7 +1,7 @@
 from queue import Queue
 
 from ExampleAgent import ExampleAgent
-from HumanPlayer.mouseAgent import MouseAgent
+from HumanAgent.mouseAgent import MouseAgent
 from agent import Agent
 from gameModel import GameModel
 from gameView import GameView, NoGraphic

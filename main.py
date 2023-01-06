@@ -3,7 +3,7 @@ from queue import Queue
 from typing import Optional
 
 from ExampleAgent import ExampleAgent
-from HumanPlayer.mouseAgent import MouseAgent
+from HumanAgent.mouseAgent import MouseAgent
 from MinimaxAgent.MinimaxAgent import MinimaxAgent
 from agent import Agent
 from gameModel import GameModel
