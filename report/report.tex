@@ -37,16 +37,27 @@ Our code is available at \url{https://github.com/caoster/CS181-Final-Project}.
 
     \section{Introduction}\label{sec:introduction}
 
-    \subsection{Motivation}\label{subsec:motivation}
+    \subsection{State space}\label{subsec:state-space}
     Chinese chess is a typical Combinatorial Game, which possesses properties of zero-sum, perfect information, deterministic, discrete and sequential.
     The property of perfect information means all possible moves are known to both players.
     Compared with other traditional Chinese games like Mahjong and Pai gow, this property significantly reduces the state space.
     Besides, given that Chinese chess has a series of rules and constrains, the number of possible moves is limited, which further reduces the state space.
     Take GO as a counterexample, for each step, the number of possible moves is 361, the size of state space is about $3^{361}\approx 10^{172}$ while it is about $10^{40}$ in Chinese chess.
 
+    \subsection{Motivation}\label{subsec:motivation}
+    As mentioned in Abstract, we employed three different AI agents to play Chinese chess.
+    All of those three algorithms are widely used in the field of Artificial Intelligence.
+    Minimax Search is a classical algorithm for solving zero-sum games.
+    Reinforcement Learning is a machine learning technique that learns from experience.
+    Monte-Carlo Tree Search is a heuristic search algorithm that combines Monte-Carlo simulation and tree search.
+    Also the success of Alpha GO shows the potential of Monte-Carlo Tree Search with appropriate evaluation network.
+    We hope to compare the performance of these three algorithms in Chinese chess and try to explore a explicit and efficient way of evaluating states.
+
+
     \subsection{Basic Framework}\label{subsec:framework}
     In this project, we utilized \emph{tkinter} and \emph{JUCE} to implement python and C++ version of Chinese Chess application(shown in Figure~\ref{fig:figure}).
     Given the complex rules of draw determination, we simplified the rule and set draw if none of the two players eats any piece in 40 steps.
+    However, we reserved the case of \emph{flying general} which is the case that two generals directly face each other.
     \begin{figure}
         \centering
         \includegraphics[width=0.4\textwidth]{img/overview}
