@@ -93,53 +93,53 @@ if __name__ == "__main__":
     config = readConfig()
     print(config)
     q_value = Counter()
-    # file = open('checkpoint.txt', 'r')
-    # next(file)
-    # js = file.read()
-    # list = json.loads(js)
-    # q_value = Counter()
-    # for dict in list:
-    #     board = dict['key'][0]
-    #     action = dict['key'][1]
-    #     for i in range(9):
-    #         for j in range(10):
-    #             board[i][j] = json.loads(board[i][j])
-    #             if board[i][j]['_name_'] == 'NoneType':
-    #                 board[i][j] = Piece.NoneType
-    #             elif board[i][j]['_name_'] == 'BGeneral':
-    #                 board[i][j] = Piece.BGeneral
-    #             elif board[i][j]['_name_'] == 'BAdvisor':
-    #                 board[i][j] = Piece.BAdvisor
-    #             elif board[i][j]['_name_'] == 'BElephant':
-    #                 board[i][j] = Piece.BElephant
-    #             elif board[i][j]['_name_'] == 'BHorse':
-    #                 board[i][j] = Piece.BHorse
-    #             elif board[i][j]['_name_'] == 'BChariot':
-    #                 board[i][j] = Piece.BChariot
-    #             elif board[i][j]['_name_'] == 'BCannon':
-    #                 board[i][j] = Piece.BCannon
-    #             elif board[i][j]['_name_'] == 'BSoldier':
-    #                 board[i][j] = Piece.BSoldier
-    #             elif board[i][j]['_name_'] == 'RGeneral':
-    #                 board[i][j] = Piece.RGeneral
-    #             elif board[i][j]['_name_'] == 'RAdvisor':
-    #                 board[i][j] = Piece.RAdvisor
-    #             elif board[i][j]['_name_'] == 'RElephant':
-    #                 board[i][j] = Piece.RElephant
-    #             elif board[i][j]['_name_'] == 'RHorse':
-    #                 board[i][j] = Piece.RHorse
-    #             elif board[i][j]['_name_'] == 'RChariot':
-    #                 board[i][j] = Piece.RChariot
-    #             elif board[i][j]['_name_'] == 'RCannon':
-    #                 board[i][j] = Piece.RCannon
-    #             elif board[i][j]['_name_'] == 'RSoldier':
-    #                 board[i][j] = Piece.RSoldier
-    #     value = dict['value']
-    #     board = tuple(tuple(x) for x in board)
-    #     action = tuple(tuple(x) for x in action)
-    #     q_value[(board, action)] = value
-
-    for i in range(10000000):
+    file = open('checkpoints.txt', 'r')
+    next(file)
+    js = file.read()
+    list = json.loads(js)
+    q_value = Counter()
+    for dict in list:
+        board = dict['key'][0]
+        action = dict['key'][1]
+        for i in range(9):
+                for j in range(10):
+                    if board[i][j] == 0:
+                        board[i][j] = Piece.NoneType
+                    elif board[i][j] == 1:
+                        board[i][j] = Piece.BGeneral
+                    elif board[i][j] == 2:
+                        board[i][j] = Piece.BAdvisor
+                    elif board[i][j] == 3:
+                        board[i][j] = Piece.BElephant
+                    elif board[i][j] == 4:
+                        board[i][j] = Piece.BHorse
+                    elif board[i][j] == 5:
+                        board[i][j] = Piece.BChariot
+                    elif board[i][j] == 6:
+                        board[i][j] = Piece.BCannon
+                    elif board[i][j] == 7:
+                        board[i][j] = Piece.BSoldier
+                    elif board[i][j] == 8:
+                        board[i][j] = Piece.RGeneral
+                    elif board[i][j] == 9:
+                        board[i][j] = Piece.RAdvisor
+                    elif board[i][j] == 10:
+                        board[i][j] = Piece.RElephant
+                    elif board[i][j] == 11:
+                        board[i][j] = Piece.RHorse
+                    elif board[i][j] == 12:
+                        board[i][j] = Piece.RChariot
+                    elif board[i][j] == 13:
+                        board[i][j] = Piece.RCannon
+                    elif board[i][j] == 14:
+                        board[i][j] = Piece.RSoldier
+        value = dict['value']
+        board = tuple(tuple(x) for x in board)
+        action = tuple(tuple(x) for x in action)
+        q_value[(board, action)] = value
+    print("Start training")
+    for i in range(1201,10000000):
+        print("Training episode {} starts...".format(i + 1))
         view = NoGraphic()
         # view = GameView(2)
         red_agent = initAgent(Player.Red, config.Red, view, q_value)
@@ -147,9 +147,12 @@ if __name__ == "__main__":
         model = GameModel(view, red_agent, black_agent, config.time)
         model.startApp()
         q_value = red_agent.getQValueBoard()
-        js = json.dumps(remap_keys(q_value))
-        file = open('checkpoints.txt', 'w')
-        file.write("Training episode: {}\n".format(i + 1))
-        file.write(js)
-        print("Training episode: {}".format(i + 1))
-        file.close()
+        print("Training episode {} finishes!".format(i + 1))
+        if i%50==0:
+            js = json.dumps(remap_keys(q_value))
+            print("Start writing...")
+            file = open('checkpoints.txt', 'w')
+            file.write("Training episode: {}\n".format(i + 1))
+            file.write(js)
+            file.close()
+            print("Writing finishes")

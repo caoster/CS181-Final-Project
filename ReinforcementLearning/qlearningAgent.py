@@ -5,7 +5,7 @@ from data import EvaluationMatrix
 
 
 class QLearningAgent(Agent, EvaluationMatrix):
-    def __init__(self, direction: Player, alpha=0.5, gamma=0.8, epsilon=0.5, q_value=None):
+    def __init__(self, direction: Player, alpha=0, gamma=0.8, epsilon=0, q_value=None):
         """
         alpha    - learning rate
         gamma    - discount factor
