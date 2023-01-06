@@ -1,4 +1,5 @@
 \documentclass[letterpaper]{article}
+\usepackage[colorlinks]{hyperref}
 \usepackage{aaai}
 \usepackage{times}
 \usepackage{helvet}
@@ -11,7 +12,7 @@
 \setcounter{secnumdepth}{0}
 
 \title{Chinese Chess AI Agent}
-\author{Suting Chen, Zeen Chi\footnote[2]{*}, Bingnan Li\footnote[2]{*}, Zhongxiao Cong\footnote[2]{*}, Yifan Qin\footnote[2]{*}\\
+\author{Suting Chen, Zeen Chi, Bingnan Li, Zhongxiao Cong, Yifan Qin\\
 School of Information Science and Technology\\
 ShanghaiTech University\\
 No.393 Middle Huaxia Road\\
@@ -25,7 +26,11 @@ Shanghai, China 201210\\
 
 \begin{abstract}
 \begin{quote}
-
+Chinese Chess is one of the most classical problems for Artificial Intelligence.
+In this project, we implement several AI agents to play Chinese Chess, utilizing Minimax Search, Reinforcement Learning, and Monte-Carlo Tree Search.
+Based on the Chinese Chess application fully developed by our team, together with a random agent and a mouse/keyboard agent, we compare the performance of these three AI agents, including their superiority over the random one and their relative performance.
+We also try to conduct competitions between the best AI agent with the real Chinese Chess AI on the Internet.
+Our code is available at \url{https://github.com/caoster/CS181-Final-Project}.
 \end{quote}
 \end{abstract}
 
@@ -82,9 +87,9 @@ We also conduct 50 games between Minimax agent and MCTS agent to compare their s
     \label{tab:tab2}
     \begin{tabular}{|c|c|c|c|c|}
         \hline
-        Red & Black & Red Winning Rate & Draw Rate & Steps  \\ \hline
-        Minimax & MCTS & 78\% & 6\% & 36.94 \\ \hline
-        MCTS & Minimax & 42\% & 4\% & 39.57 \\ \hline
+        Red & Black & Red Winning Rate & Steps  \\ \hline
+        Minimax & MCTS & 78\% & 36.94 \\ \hline
+        MCTS & Minimax & 42\% & 39.57 \\ \hline
     \end{tabular}
 \end{table}
 
@@ -92,8 +97,9 @@ We also conduct 50 games between Minimax agent and MCTS agent to compare their s
 \label{subsec:minimax-v.s.-real-ai}
 We also select the best agent to compete with the existing AI on the Internet.
 Since the existing AI is developed by a team of people for a longer time, and its strategy is much more high-level than ours, it is much more powerful than our agent.
-We only let our agent play red, and the existing AI play black. We conduct 20 games for them, and we play a role as an assistant to help moving the pieces.
-Hence we implemented a keyboard controller to enable mutually moving the pieces.
+We only let our agent play red, and the existing AI play black.
+We conduct 20 games for them, and we play a role as an assistant to help moving the pieces.
+Hence, we implemented a keyboard controller to enable mutually moving the pieces.
 \begin{table}[htbp]
     \centering
     \caption{Experiment results between Minimax and real AI}
