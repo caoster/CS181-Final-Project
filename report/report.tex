@@ -34,10 +34,25 @@ Our code is available at \url{https://github.com/caoster/CS181-Final-Project}.
 \end{quote}
 \end{abstract}
 
-\section{Introduction}\label{sec:introduction}
 
+    \section{Introduction}\label{sec:introduction}
 
-\section{Methods}\label{sec:methods}
+    \subsection{Motivation}\label{subsec:motivation}
+    Chinese chess is a typical Combinatorial Game, which possesses properties of zero-sum, perfect information, deterministic, discrete and sequential.
+    The property of perfect information means all possible moves are known to both players.
+    Compared with other traditional Chinese games like Mahjong and Pai gow, this property significantly reduces the state space.
+    Besides, given that Chinese chess has a series of rules and constrains, the number of possible moves is limited, which further reduces the state space.
+    Take GO as a counterexample, for each step, the number of possible moves is 361, the size of state space is about $3^{361}\approx 10^{172}$ while it is about $10^{40}$ in Chinese chess.
+
+    \subsection{Basic Framework}\label{subsec:framework}
+    In this project, we utilized \emph{tkinter} and \emph{JUCE} to implement python and C++ version of Chinese Chess application(shown in Figure~\ref{fig:figure}).
+    Given the complex rules of draw determination, we simplified the rule and set draw if none of the two players eats any piece in 40 steps.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.4\textwidth]{img/overview}
+        \caption{Overview of the Chinese Chess framework}\label{fig:figure}
+    \end{figure}
+    \section{Methods}\label{sec:methods}
 
 In this section, we will introduce three methods we used in this project.
 They are Minimax Search, Reinforcement Learning, and Monte-Carlo Tree Search, respectively.
@@ -73,7 +88,7 @@ Since the RL agent is trained as the red side, we perform a separate 100 test ga
         Minimax & Random & 100\% & 17.52 \\ \hline
         Random & Minimax & 100\% & 12.84 \\ \hline
         RL & Random & 72\% & 149.47 \\ \hline
-        MCTS & Random & 100\% & \\ \hline
+        MCTS & Random & 100\% & 38.78\\ \hline
         Random & MCTS & 100\% & \\ \hline
     \end{tabular}
 \end{table}
