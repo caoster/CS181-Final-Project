@@ -25,6 +25,9 @@ Based on~\cite{yen2004computer}, we have considered the following factors when d
     Based on the moving range, different types of pieces have different flexibilities.
     We first assign different fixed values to each type, and calculate how many positions can each piece reach.
     We multiply the fixed value to the calculated value, and the result is the flexibility of the piece.
+    \item The value of threatening others.
+    How many enemy pieces can be threatened by the current piece and the value of the threatened pieces really matter.
+    We calculate the number of threatened pieces and the value of the threatened pieces, and the result is element-wise multiplication of the two values.
     \item The value of being threatened.
     We have to calculate how many piece can threaten the current piece.
     After the number is calculated, we can multiply it by the power of the piece.
