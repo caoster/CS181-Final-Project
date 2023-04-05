@@ -1,8 +1,11 @@
 \documentclass[letterpaper]{article}
+\usepackage[colorlinks]{hyperref}
 \usepackage{aaai}
 \usepackage{times}
 \usepackage{helvet}
 \usepackage{courier}
+\usepackage{amsmath}
+\usepackage{graphicx}
 \frenchspacing
 \setlength{\pdfpagewidth}{8.5in}
 \setlength{\pdfpageheight}{11in}
@@ -11,20 +14,137 @@
 \title{Chinese Chess}
 \author{Suting Chen, Zeen Chi, Bingnan Li, Zhongxiao Cong, Yifan Qin\\
 School of Information Science and Technology\\
+ShanghaiTech University\\
 No.393 Middle Huaxia Road\\
 Shanghai, China 201210\\
+\texttt{\{chenst,chize,libn,congzhx,qinyf1\}@shanghaitech.edu.cn}
 }
 
 \begin{document}
 
 \maketitle
+
 \begin{abstract}
 \begin{quote}
-
+Chinese Chess is one of the most classical problems for Artificial Intelligence.
+In this project, we implement several AI agents to play Chinese Chess, utilizing Minimax Search, Reinforcement Learning, and Monte-Carlo Tree Search.
+Based on the Chinese Chess application fully developed by our team, together with a random agent and a mouse/keyboard agent, we compare the performance of these three AI agents, including their superiority over the random one and their relative performance.
+We also try to conduct competitions between the best AI agent with the real Chinese Chess AI on the Internet.
+Our code is available at \url{https://github.com/caoster/CS181-Final-Project}.
 \end{quote}
 \end{abstract}
 
 
+    \section{Introduction}\label{sec:introduction}
+
+    \subsection{State space}\label{subsec:state-space}
+    Chinese chess is a typical Combinatorial Game, which possesses properties of zero-sum, perfect information, deterministic, discrete and sequential.
+    The property of perfect information means all possible moves are known to both players.
+    Compared with other traditional Chinese games like Mahjong and Pai gow, this property significantly reduces the state space.
+    Besides, given that Chinese chess has a series of rules and constrains, the number of possible moves is limited, which further reduces the state space.
+    Take GO as a counterexample, for each step, the number of possible moves is 361, the size of state space is about $3^{361}\approx 10^{172}$ while it is about $10^{40}$ in Chinese chess.
+
+    \subsection{Motivation}\label{subsec:motivation}
+    As mentioned in Abstract, we employed three different AI agents to play Chinese chess.
+    All of those three algorithms are widely used in the field of Artificial Intelligence.
+    Minimax Search is a classical algorithm for solving zero-sum games.
+    Reinforcement Learning is a machine learning technique that learns from experience.
+    Monte-Carlo Tree Search is a heuristic search algorithm that combines Monte-Carlo simulation and tree search.
+    Also, the success of Alpha GO shows the potential of Monte-Carlo Tree Search with appropriate evaluation network.
+    We hope to compare the performance of these three algorithms in Chinese chess and try to explore an explicit and efficient way of evaluating states.
 
 
+    \subsection{Basic Framework}\label{subsec:framework}
+    In this project, we utilized \emph{tkinter} and \emph{JUCE} to implement python and C++ version of Chinese Chess application(shown in Figure~\ref{fig:figure}).
+    Given the complex rules of draw determination, we simplified the rule and set draw if none of the two players eats any piece in 40 steps.
+    However, we reserved the case of \emph{flying general} which is the case that two generals directly face each other.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.4\textwidth]{img/overview}
+        \caption{Overview of the Chinese Chess framework}\label{fig:figure}
+    \end{figure}
+    \section{Methods}\label{sec:methods}
+
+In this section, we will introduce three methods we used in this project.
+They are Minimax Search, Reinforcement Learning, and Monte-Carlo Tree Search, respectively.
+We will briefly introduce their basic ideas and then explain how we implement them in our project.
+
+\subsection{Minimax Search}\label{subsec:minimax-search}
+\input{minimax}
+
+\subsection{Reinforcement Learning}\label{subsec:reinforcement-learning}
+\input{Qlearning}
+
+\subsection{Monte-Carlo Tree Search}
+\label{subsec:monte-carlo-tree-search}
+\input{MCTS}
+
+
+\section{Results}\label{sec:results}
+In this section, we will demonstrate the results of three agents.
+We will first conduct multiple games between the three agents and the random agent, and then show the results of three agents playing against each other.
+Finally, we will select relatively the best agent to compete with the existing AI on the Internet to evaluate its effectiveness.
+
+\subsection{Our Agents v.s. Random Agent}
+\label{subsec:our-agents-vs-random-agent}
+Since a strategic agent is much better than a randomized algorithm, we show the superiority of the algorithm by making each agent play red and black, and then counting the win rate of our agent and the average number of moves needed to kill the opponent after 50 games.
+Since the RL agent is trained as the red side, we perform a separate 100 test games on the red side for RL agent.
+\begin{table}[htbp]
+    \centering
+    \caption{The winning rate of our agents and average number of moves needed to kill the random agent}
+    \label{tab:tab1}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        Red & Black & Winning Rate & Steps  \\ \hline
+        Minimax & Random & 100\% (Red) & 20.52 \\ \hline
+        Random & Minimax & 100\% (Black) & 16.84 \\ \hline
+        RL & Random & 72\% (Red) & 79.47 \\ \hline
+        MCTS & Random & 100\% (Red) & 32.64\\ \hline
+        Random & MCTS & 98\% (Black) & 35.43\\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Minimax v.s. MCTS}
+\label{subsec:minimax-v.s.-mcts}
+We also conduct 50 games between Minimax agent and MCTS agent to compare their superiority.
+\begin{table}[htbp]
+    \centering
+    \caption{Experiment results between Minimax and MCTS}
+    \label{tab:tab2}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        Red & Black & Red Winning Rate & Steps  \\ \hline
+        Minimax & MCTS & 78\% & 41.94 \\ \hline
+        MCTS & Minimax & 42\% & 44.57 \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Minimax v.s. Real AI}
+\label{subsec:minimax-v.s.-real-ai}
+We also select the best agent to compete with the existing AI on the Internet.
+Since the existing AI is developed by a team of people for a longer time, and its strategy is much more high-level than ours, it is much more powerful than our agent.
+We only let our agent play red, and the existing AI play black.
+We conduct 20 games for them, and we play a role as an assistant to help moving the pieces.
+Hence, we implemented a keyboard controller to enable manually moving the pieces.
+\begin{table}[htbp]
+    \centering
+    \caption{Experiment results between Minimax and real AI}
+    \label{tab:tab3}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Red & Black & Red Winning Rate  \\ \hline
+        Minimax & Real AI & 15\% \\ \hline
+    \end{tabular}
+\end{table}
+
+
+\section{External Libraries}\label{sec:acknowledgements}
+
+\begin{itemize}
+    \item \texttt{JUCE}, which is a cross-platform C++ library, helping us to build the C++ project GUI\@.
+    \item \texttt{tkinter}, which is a Python library, also helping us to generate the Python project GUI\@.
+\end{itemize}
+
+\bibliography{ref}
+\bibliographystyle{aaai}
 \end{document}
